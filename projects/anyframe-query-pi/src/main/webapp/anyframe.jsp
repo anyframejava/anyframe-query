@@ -30,7 +30,7 @@
 		<tr class="board">
 				<td class="underline">
 					<!--query-menu-START-->
-					<a href="${ctx}/queryMovieFinder.do?method=list"><font size="2">- Query 1.1.0</font></a><br/>
+					<a href="${ctx}/queryMovieFinder.do?method=list"><font size="2">- Query 1.1.1</font></a><br/>
 					<!--query-menu-END-->
 					<!--Add new menu here-->
 				</td>

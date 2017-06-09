@@ -69,7 +69,7 @@ public abstract class NamedParameterUtil {
 		ParsedSql parsedSql = new ParsedSql(sql);
 
 		char[] statement = sql.toCharArray();
-		StringBuffer newSql = new StringBuffer();
+		StringBuilder newSql = new StringBuilder();
 		boolean withinQuotes = false;
 		char currentQuote = '-';
 		int namedParameterCount = 0;
@@ -212,7 +212,7 @@ public abstract class NamedParameterUtil {
 		Assert.notNull(sql, "SQL must not be null");
 
 		char[] statement = sql.toCharArray();
-		StringBuffer newSql = new StringBuffer();
+		StringBuilder newSql = new StringBuilder();
 		boolean withinQuotes = false;
 		char currentQuote = '-';
 

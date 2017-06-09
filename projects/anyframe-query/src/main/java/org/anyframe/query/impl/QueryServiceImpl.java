@@ -16,6 +16,7 @@
 package org.anyframe.query.impl;
 
 import java.io.StringWriter;
+import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -33,12 +34,14 @@ import org.anyframe.query.QueryService;
 import org.anyframe.query.QueryServiceException;
 import org.anyframe.query.ResultSetMapper;
 import org.anyframe.query.RowMetadataCallbackHandler;
+import org.anyframe.query.impl.jdbc.OraclePagingJdbcTemplate;
 import org.anyframe.query.impl.jdbc.PagingJdbcTemplate;
 import org.anyframe.query.impl.jdbc.PagingNamedParamJdbcTemplate;
 import org.anyframe.query.impl.jdbc.generator.PagingSQLGenerator;
 import org.anyframe.query.impl.jdbc.mapper.CallbackResultSetMapper;
 import org.anyframe.query.impl.jdbc.mapper.DefaultCallbackResultSetMapper;
 import org.anyframe.query.impl.jdbc.mapper.ReflectionResultSetMapper;
+import org.anyframe.query.impl.jdbc.setter.BatchCallableStatementSetter;
 import org.anyframe.query.impl.jdbc.setter.DefaultDynamicSqlParameterSource;
 import org.anyframe.query.impl.jdbc.setter.DefaultDynamicSqlParameterSourceContext;
 import org.anyframe.query.impl.jdbc.setter.PreparedStatementArgTypeSetter;
@@ -141,7 +144,7 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	/** ************* SERVICE METHODS ************** */
 
 	/**
-	 * Issue multiple update statements (INSERT) using JDBC 2.0 batch updates
+	 * Issue update statement (INSERT) using JDBC 2.0 batch updates
 	 * and PreparedStatementSetters to set values on a PreparedStatement created
 	 * by this method.
 	 * 
@@ -168,7 +171,7 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	}
 
 	/**
-	 * Issue multiple update statements (DELETE) using JDBC 2.0 batch updates
+	 * Issue update statement (DELETE) using JDBC 2.0 batch updates
 	 * and PreparedStatementSetters to set values on a PreparedStatement created
 	 * by this method.
 	 * 
@@ -195,7 +198,7 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	}
 
 	/**
-	 * Issue multiple update statements (UPDATE) using JDBC 2.0 batch updates
+	 * Issue update statement (UPDATE) using JDBC 2.0 batch updates
 	 * and PreparedStatementSetters to set values on a PreparedStatement created
 	 * by this method.
 	 * 
@@ -222,7 +225,7 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	}
 
 	/**
-	 * Issue multiple update statements (INSERT, UPDATE, DELETE) using JDBC 2.0
+	 * Issue update statement (INSERT, UPDATE, DELETE) using JDBC 2.0
 	 * batch updates and PreparedStatementSetters to set values on a
 	 * PreparedStatement created by this method.
 	 * 
@@ -255,7 +258,57 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	}
 
 	/**
-	 * Issue multiple update statements (INSERT, UPDATE, DELETE) using JDBC 2.0
+	 * Issue procedure includes INSERT, UPDATE, DELETE using JDBC 2.0 batch
+	 * updates and CallableStatementSetters to set values on a CallableStatement
+	 * created by this method.
+	 * 
+	 * @param queryId
+	 *            identifier of query statement to execute
+	 * @param targets
+	 *            a set of variable for executing query (is the List of
+	 *            Object[])
+	 * @return an array of the number of rows affected by each statement
+	 * @throws QueryServiceException
+	 *             if there is any problem issuing the update
+	 */
+	public int[] batchExecute(String queryId, final List targets)
+			throws QueryServiceException {
+		String sql = "";
+		try {
+			containesQueryId(queryId);
+			QueryInfo queryInfo = (QueryInfo) getSqlRepository()
+					.getQueryInfos().get(queryId);
+
+			sql = queryInfo.getQueryString();
+
+			if (this.jdbcTemplate instanceof OraclePagingJdbcTemplate) {
+				return ((OraclePagingJdbcTemplate) jdbcTemplate).batchUpdate(
+						sql, new BatchCallableStatementSetter() {
+
+							public int getBatchSize() {
+								return targets.size();
+							}
+
+							public void setValues(CallableStatement cs,
+									int index) throws SQLException {
+								Object[] args = (Object[]) targets.get(index);
+								for (int i = 0; i < args.length; i++) {
+									StatementCreatorUtils.setParameterValue(cs,
+											i + 1, SqlTypeValue.TYPE_UNKNOWN,
+											null, args[i]);
+								}
+							}
+						});
+			}
+			return batchStaticExecutor(sql, targets);
+		} catch (Exception e) {
+			throw processException("batch-execute [query id = '" + queryId
+					+ "']", sql, e);
+		}
+	}
+
+	/**
+	 * Issue update statement (INSERT, UPDATE, DELETE) using JDBC 2.0
 	 * batch updates and PreparedStatementSetters to set values on a
 	 * PreparedStatement created by this method Execute update statments, Using
 	 * update statement directly without being defined in mapping xml files.
@@ -272,12 +325,76 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	 * @throws QueryServiceException
 	 *             if there is any problem issuing the update
 	 */
-	public int[] batchUpdateBySQL(String sql, String[] types,
-			List targets) throws QueryServiceException {
+	public int[] batchUpdateBySQL(String sql, String[] types, List targets)
+			throws QueryServiceException {
 		try {
 			return batchExecutor(sql, convertTypes(types), targets);
 		} catch (Exception e) {
 			throw processException("batch update by SQL", sql, e);
+		}
+	}
+
+	/**
+	 * Issue procedure includes INSERT, UPDATE, DELETE using JDBC 2.0 batch
+	 * updates and CallableStatementSetters to set values on a CallableStatement
+	 * created by this method Execute update statments, Using update statement
+	 * directly without being defined in mapping xml files.
+	 * 
+	 * @param sql
+	 *            query statement.
+	 * @param types
+	 *            is matched with input parameters. A type must belong to fields
+	 *            defined java.sql.Types package
+	 * @param targets
+	 *            a set of variable for executing query (is the List of
+	 *            Object[])
+	 * @return an array of the number of rows affected by each statement
+	 * @throws QueryServiceException
+	 *             if there is any problem issuing the update
+	 */
+	public int[] batchExecuteBySQL(String sql, final String[] types,
+			final List targets) throws QueryServiceException {
+		try {
+			if (this.jdbcTemplate instanceof OraclePagingJdbcTemplate) {
+				return ((OraclePagingJdbcTemplate) jdbcTemplate).batchUpdate(
+						sql, new BatchCallableStatementSetter() {
+							public int getBatchSize() {
+								return targets.size();
+							}
+
+							public void setValues(CallableStatement cs,
+									int index) throws SQLException {
+								Object[] args = (Object[]) targets.get(index);
+								for (int i = 0; i < args.length; i++) {
+									StatementCreatorUtils.setParameterValue(cs,
+											i + 1, SQLTypeTransfer
+													.getSQLType(types[i]),
+											null, args[i]);
+								}
+							}
+						});
+			} else {
+				return jdbcTemplate.batchUpdate(sql,
+						new BatchPreparedStatementSetter() {
+
+							public int getBatchSize() {
+								return targets.size();
+							}
+
+							public void setValues(PreparedStatement ps,
+									int index) throws SQLException {
+								Object[] args = (Object[]) targets.get(index);
+								for (int i = 0; i < args.length; i++) {
+									StatementCreatorUtils.setParameterValue(ps,
+											i + 1, SQLTypeTransfer
+													.getSQLType(types[i]),
+											null, args[i]);
+								}
+							}
+						});
+			}
+		} catch (Exception e) {
+			throw processException("batch execute by SQL", sql, e);
 		}
 	}
 
@@ -371,8 +488,7 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	 * @throws QueryServiceException
 	 *             if there is any problem issuing the execute
 	 */
-	public Map execute(String queryId,
-			Map values) throws QueryServiceException {
+	public Map execute(String queryId, Map values) throws QueryServiceException {
 		return execute(queryId, values, 0);
 	}
 
@@ -391,8 +507,7 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	 * @throws QueryServiceException
 	 *             if there is any problem issuing the execute
 	 */
-	public Map execute(String queryId,
-			Map values, int pageIndex)
+	public Map execute(String queryId, Map values, int pageIndex)
 			throws QueryServiceException {
 		return execute(queryId, values, pageIndex, -1);
 	}
@@ -415,8 +530,7 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	 * @throws QueryServiceException
 	 *             if there is any problem issuing the execute
 	 */
-	public Map execute(String queryId,
-			Map values, int pageIndex, int pageSize)
+	public Map execute(String queryId, Map values, int pageIndex, int pageSize)
 			throws QueryServiceException {
 		String sql = "";
 		try {
@@ -457,9 +571,8 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	 * @throws QueryServiceException
 	 *             if there is any problem issuing the execute
 	 */
-	public Map executeBySQL(String sql, String[] types,
-			String[] names, String[] bindings, Map values)
-			throws QueryServiceException {
+	public Map executeBySQL(String sql, String[] types, String[] names,
+			String[] bindings, Map values) throws QueryServiceException {
 		return executeBySQL(sql, types, names, bindings, values, 0, 0);
 	}
 
@@ -487,9 +600,9 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	 * @throws QueryServiceException
 	 *             if there is any problem issuing the execute
 	 */
-	public Map executeBySQL(String sql, String[] types,
-			String[] names, String[] bindings, Map values,
-			int pageIndex, int pageSize) throws QueryServiceException {
+	public Map executeBySQL(String sql, String[] types, String[] names,
+			String[] bindings, Map values, int pageIndex, int pageSize)
+			throws QueryServiceException {
 		try {
 			List paramList = SQLTypeTransfer.getSqlParameterList(types,
 					bindings, names);
@@ -536,8 +649,8 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
 	 */
-	public Collection find(String queryId, Object[] values,
-			int pageIndex) throws QueryServiceException {
+	public Collection find(String queryId, Object[] values, int pageIndex)
+			throws QueryServiceException {
 		return find(queryId, values, pageIndex, -1, true);
 	}
 
@@ -601,8 +714,8 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
 	 */
-	public Collection find(String queryId, Object[] values,
-			int pageIndex, int pageSize) throws QueryServiceException {
+	public Collection find(String queryId, Object[] values, int pageIndex,
+			int pageSize) throws QueryServiceException {
 		return find(queryId, values, pageIndex, pageSize, true);
 	}
 
@@ -623,8 +736,8 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
 	 */
-	public Collection findBySQL(String sql, String[] types,
-			Object[] values) throws QueryServiceException {
+	public Collection findBySQL(String sql, String[] types, Object[] values)
+			throws QueryServiceException {
 		try {
 			return jdbcTemplate.query(sql, values, convertTypes(types),
 					this.jdbcTemplate.getMaxFetchSize());
@@ -654,9 +767,8 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
 	 */
-	public Collection findBySQL(String sql, String[] types,
-			Object[] values, int pageIndex, int pageSize)
-			throws QueryServiceException {
+	public Collection findBySQL(String sql, String[] types, Object[] values,
+			int pageIndex, int pageSize) throws QueryServiceException {
 		try {
 			Pagination paginationVO = new Pagination(pageSize);
 			paginationVO.setPageIndex(pageIndex);
@@ -687,8 +799,8 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
 	 */
-	public Map findBySQLWithRowCount(String sql,
-			String[] types, Object[] values) throws QueryServiceException {
+	public Map findBySQLWithRowCount(String sql, String[] types, Object[] values)
+			throws QueryServiceException {
 		return findBySQLWithRowCount(sql, types, values, -1, -1, false);
 	}
 
@@ -716,8 +828,8 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
 	 */
-	public Map findBySQLWithRowCount(String sql,
-			String[] types, Object[] values, int pageIndex, int pageSize)
+	public Map findBySQLWithRowCount(String sql, String[] types,
+			Object[] values, int pageIndex, int pageSize)
 			throws QueryServiceException {
 		return findBySQLWithRowCount(sql, types, values, pageIndex, pageSize,
 				true);
@@ -764,8 +876,8 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
 	 */
-	public Map findWithColInfo(String queryId, Object[] values,
-			int pageIndex) throws QueryServiceException {
+	public Map findWithColInfo(String queryId, Object[] values, int pageIndex)
+			throws QueryServiceException {
 		return findWithColInfo(queryId, values, pageIndex, -1, true);
 	}
 
@@ -791,8 +903,8 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
 	 */
-	public Map findWithColInfo(String queryId, Object[] values,
-			int pageIndex, int pageSize) throws QueryServiceException {
+	public Map findWithColInfo(String queryId, Object[] values, int pageIndex,
+			int pageSize) throws QueryServiceException {
 		return findWithColInfo(queryId, values, pageIndex, pageSize, true);
 	}
 
@@ -834,8 +946,8 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
 	 */
-	public Map findWithRowCount(String queryId,
-			Object[] values, int pageIndex) throws QueryServiceException {
+	public Map findWithRowCount(String queryId, Object[] values, int pageIndex)
+			throws QueryServiceException {
 		return findWithRowCount(queryId, values, pageIndex, -1, true);
 	}
 
@@ -860,9 +972,8 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
 	 */
-	public Map findWithRowCount(String queryId,
-			Object[] values, int pageIndex, int pageSize)
-			throws QueryServiceException {
+	public Map findWithRowCount(String queryId, Object[] values, int pageIndex,
+			int pageSize) throws QueryServiceException {
 		return findWithRowCount(queryId, values, pageIndex, pageSize, true);
 	}
 

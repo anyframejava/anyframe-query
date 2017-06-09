@@ -87,7 +87,22 @@
 	                	WHERE CONDITION = :condition
 	                #end
 	        </statement>
-		</query>			  		  
+		</query>	
+		
+		<query id="batchInsertWithProcedure" isDynamic="false">
+            <statement><![CDATA[
+              DECLARE  
+                 col1      VARCHAR2(50):= ?;                                        
+                 col2      VARCHAR2(50):= ?;  
+                 col3      NUMBER:= ?;             
+              BEGIN
+                PROC_BATCH_TEST(col1, col2, col3 );
+              END; 
+            ]]></statement>
+            <param type="VARCHAR"/>
+            <param type="VARCHAR"/>
+            <param type="NUMERIC"/>
+         </query> 				  		  
     </queries>
     
 </queryservice>

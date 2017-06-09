@@ -8,7 +8,7 @@ import org.anyframe.query.impl.jdbc.generator.AbstractPagingSQLGenerator;
 public class MySQLPagingSQLGenerator extends AbstractPagingSQLGenerator {
 
 	public String getCountSQL(String originalSql) {
-		StringBuffer sql = new StringBuffer("SELECT count(*) FROM ( ");
+		StringBuilder sql = new StringBuilder("SELECT count(*) FROM ( ");
 		sql.append(originalSql);
 		sql.append(" ) COUNT_TABLE ");
 		return sql.toString();
@@ -16,7 +16,7 @@ public class MySQLPagingSQLGenerator extends AbstractPagingSQLGenerator {
 
 	public String getPaginationSQL(String originalSql, Object[] originalArgs,
 			int[] originalArgTypes, int pageIndex, int pageSize) {
-		String sql = new StringBuffer(originalSql.length() + 20).append(
+		String sql = new StringBuilder(originalSql.length() + 20).append(
 				originalSql).append(" limit ?, ?").toString();
 
 		return sql.toString();

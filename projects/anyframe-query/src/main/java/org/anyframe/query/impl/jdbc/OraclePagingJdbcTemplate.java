@@ -15,15 +15,18 @@
  */
 package org.anyframe.query.impl.jdbc;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.anyframe.query.QueryService;
+import org.anyframe.query.impl.jdbc.setter.BatchCallableStatementSetter;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.CallableStatementCallback;
 import org.springframework.jdbc.core.InterruptibleBatchPreparedStatementSetter;
 import org.springframework.jdbc.core.ParameterDisposer;
 import org.springframework.jdbc.core.PreparedStatementCallback;
@@ -39,17 +42,106 @@ import org.springframework.jdbc.support.nativejdbc.NativeJdbcExtractor;
 public class OraclePagingJdbcTemplate extends PagingJdbcTemplate {
 
 	private NativeJdbcExtractor nativeJdbcExtractor;
+	private boolean log4jdbc = true;
 
 	public void setNativeJdbcExtractor(NativeJdbcExtractor nativeJdbcExtractor) {
-		super.setNativeJdbcExtractor(nativeJdbcExtractor);
 		this.nativeJdbcExtractor = nativeJdbcExtractor;
+
+		try {
+			this.getClass().getClassLoader().loadClass(
+					"net.sf.log4jdbc.PreparedStatementSpy");
+			this.getClass().getClassLoader().loadClass(
+					"net.sf.log4jdbc.CallableStatementSpy");
+		} catch (ClassNotFoundException e) {
+			log4jdbc = false;
+		}
 	}
 
+	private PreparedStatement getPreparedStatement(PreparedStatement ps) {
+		if (ps instanceof net.sf.log4jdbc.PreparedStatementSpy) {
+			return (PreparedStatement) ((net.sf.log4jdbc.PreparedStatementSpy) ps)
+					.getRealPreparedStatement();
+		}
+
+		return ps;
+	}
+
+	private CallableStatement getCallableStatement(CallableStatement cs) {
+		if (cs instanceof net.sf.log4jdbc.CallableStatementSpy) {
+			return (CallableStatement) ((net.sf.log4jdbc.CallableStatementSpy) cs)
+					.getRealCallableStatement();
+		}
+
+		return cs;
+	}
+
+	@SuppressWarnings("unchecked")
+	public int[] batchUpdate(String sql, final BatchCallableStatementSetter css) {
+		logger.debug("Executing SQL batch update [" + sql + "]");
+
+		return (int[]) execute(sql, new CallableStatementCallback() {
+			public Object doInCallableStatement(CallableStatement cs)
+					throws SQLException {
+				int batchSize = css.getBatchSize();
+
+				if (JdbcUtils.supportsBatchUpdates(cs.getConnection())) {
+
+					if (nativeJdbcExtractor != null) {
+						cs = nativeJdbcExtractor.getNativeCallableStatement(cs);
+					}
+					if (log4jdbc) {
+						cs = getCallableStatement(cs);
+					}
+
+					try {
+						Method setExecuteBatchMethod = cs.getClass().getMethod(
+								"setExecuteBatch", new Class[] { int.class });
+						setExecuteBatchMethod.invoke(cs,
+								new Object[] { new Integer(batchSize) });
+					} catch (Exception e) {
+						if (e instanceof NoSuchMethodException) {
+							throw new SQLException(
+									"Query Service : Not supported a implementation of DataSource service. Fail to find a method from current callableStatement ["
+											+ cs + "]");
+						}
+						if (e instanceof InvocationTargetException) {
+							Throwable ex = (((InvocationTargetException) e)
+									.getCause());
+							throw new SQLException(ex.getMessage());
+						}
+
+						throw new SQLException(e.getMessage());
+					}
+
+					int[] updateCountArray = new int[batchSize];
+					for (int i = 0; i < batchSize; i++) {
+						css.setValues(cs, i);
+						int updateCount = cs.executeUpdate();
+						updateCountArray[i] = updateCount;
+					}
+					return updateCountArray;
+				} else {
+					List rowsAffected = new ArrayList();
+
+					for (int i = 0; i < batchSize; i++) {
+						css.setValues(cs, i);
+						rowsAffected.add(new Integer(cs.executeUpdate()));
+					}
+					int[] rowsAffectedArray = new int[rowsAffected.size()];
+					for (int i = 0; i < rowsAffectedArray.length; i++) {
+						rowsAffectedArray[i] = ((Integer) rowsAffected.get(i))
+								.intValue();
+					}
+					return rowsAffectedArray;
+				}
+			}
+		});
+	}
+
+	@SuppressWarnings("unchecked")
 	public int[] batchUpdate(String sql, final BatchPreparedStatementSetter pss)
 			throws DataAccessException {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Executing SQL batch update [" + sql + "]");
-		}
+		logger.debug("Executing SQL batch update [" + sql + "]");
 
 		return (int[]) execute(sql, new PreparedStatementCallback() {
 			public Object doInPreparedStatement(PreparedStatement ps)
@@ -58,17 +150,14 @@ public class OraclePagingJdbcTemplate extends PagingJdbcTemplate {
 					int batchSize = pss.getBatchSize();
 
 					if (JdbcUtils.supportsBatchUpdates(ps.getConnection())) {
-						logger.debug("Oracle JDBC driver");
 
 						// DataSource 구현체에 맞게 Native PreparedStatement 추출
 						if (nativeJdbcExtractor != null) {
 							ps = nativeJdbcExtractor
 									.getNativePreparedStatement(ps);
 						}
-						if (ps instanceof net.sf.log4jdbc.PreparedStatementSpy) {
-							ps = (PreparedStatement) ((net.sf.log4jdbc.PreparedStatementSpy) ps)
-									.getRealPreparedStatement();
-
+						if (log4jdbc) {
+							ps = getPreparedStatement(ps);
 						}
 
 						try {
@@ -78,15 +167,18 @@ public class OraclePagingJdbcTemplate extends PagingJdbcTemplate {
 							setExecuteBatchMethod.invoke(ps,
 									new Object[] { new Integer(batchSize) });
 						} catch (Exception e) {
-							if (QueryService.LOGGER.isErrorEnabled()) {
-								QueryService.LOGGER
-										.error(
-												"Query Service : Not supported a implementation of DataSource service. Fail to find a method from current preparedStatement ["
-														+ ps + "]", e);
+							if (e instanceof NoSuchMethodException) {
+								throw new SQLException(
+										"Query Service : Not supported a implementation of DataSource service. Fail to find a method from current preparedStatement ["
+												+ ps + "]");
 							}
-							throw new SQLException(
-									"Query Service : Not supported a implementation of DataSource service. Fail to find a method from current preparedStatement ["
-											+ ps + "]");
+							if (e instanceof InvocationTargetException) {
+								Throwable ex = (((InvocationTargetException) e)
+										.getCause());
+								throw new SQLException(ex.getMessage());
+							}
+
+							throw new SQLException(e.getMessage());
 						}
 
 						int[] updateCountArray = new int[batchSize];

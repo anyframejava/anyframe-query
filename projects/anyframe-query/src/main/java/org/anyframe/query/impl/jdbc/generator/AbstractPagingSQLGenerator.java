@@ -33,7 +33,7 @@ public abstract class AbstractPagingSQLGenerator implements PagingSQLGenerator {
      * @return generated SQL
      */
     public String getCountSQL(String originalSql) {
-        StringBuffer sql = new StringBuffer("SELECT count(*) FROM ( ");
+    	StringBuilder sql = new StringBuilder("SELECT count(*) FROM ( ");
         sql.append(originalSql);
         sql.append(" ) ");
         return sql.toString();

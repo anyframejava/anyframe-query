@@ -41,10 +41,10 @@ public abstract class VariableUtil {
 	 */
 	public static String getValueString(String originalString,
 			VariableSelector variableSelector) {
-		StringBuffer newWord = new StringBuffer();
+		StringBuilder newWord = new StringBuilder();
 
-		StringBuffer beforeBrace = new StringBuffer();
-		StringBuffer inBrace = new StringBuffer();
+		StringBuilder beforeBrace = new StringBuilder();
+		StringBuilder inBrace = new StringBuilder();
 
 		char[] tempChars = originalString.toCharArray();
 
@@ -61,8 +61,8 @@ public abstract class VariableUtil {
 						newWord.append(variableSelector.get(beforeBrace
 								.toString()));
 					newWord.append(inBrace);
-					beforeBrace = new StringBuffer();
-					inBrace = new StringBuffer();
+					beforeBrace = new StringBuilder();
+					inBrace = new StringBuilder();
 					withinBrace = false;
 				} else {
 					inBrace.append(c);
@@ -79,13 +79,13 @@ public abstract class VariableUtil {
 									.toString()))
 						newWord.append(variableSelector.get(beforeBrace
 								.toString()));
-					beforeBrace = new StringBuffer();
+					beforeBrace = new StringBuilder();
 				}
 			}
 			i++;
 		}
 
-		StringBuffer keyWord = new StringBuffer();
+		StringBuilder keyWord = new StringBuilder();
 
 		keyWord.append(beforeBrace);
 		if (withinBrace)

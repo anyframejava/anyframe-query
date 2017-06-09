@@ -17,7 +17,8 @@ import org.springframework.jdbc.support.lob.LobHandler;
  * Simple adapter for PreparedStatementSetter that applies given arrays of
  * arguments and JDBC argument types. We changed
  * org.springframework.jdbc.core.ArgTypePreparedStatementSetter into
- * org.anyframe.query.impl.jdbc.setter.PreparedStatementArgTypeSetter in Anyframe.
+ * org.anyframe.query.impl.jdbc.setter.PreparedStatementArgTypeSetter in
+ * Anyframe.
  * <ul>
  * <li>We changed some logic for processing LOB data.</li>
  * </ul>
@@ -43,12 +44,29 @@ public class PreparedStatementArgTypeSetter implements PreparedStatementSetter,
 	 */
 	public PreparedStatementArgTypeSetter(Object[] args, int[] argTypes,
 			LobHandler lobHandler) {
-		if ((args != null && argTypes == null)
-				|| (args == null && argTypes != null)
-				|| (args != null && args.length != argTypes.length)) {
+		if (args != null && argTypes == null) {
 			throw new InvalidDataAccessApiUsageException(
-					"Query Service : args and argTypes parameters must match");
+					"Query Service : args and argTypes parameters must match - query parameter types must not be null, "
+							+ "because query parameter values isn't null [the size of query parameter values is "
+							+ args.length + "].");
 		}
+
+		if (args == null && argTypes != null) {
+			throw new InvalidDataAccessApiUsageException(
+					"Query Service : args and argTypes parameters must match - query parameter values must not be null, "
+							+ "because query parameter types isn't null [the size of query parameter types is "
+							+ argTypes.length + "].");
+		}
+
+		if (args != null && args.length != argTypes.length) {
+			throw new InvalidDataAccessApiUsageException(
+					"Query Service : args and argTypes parameters must match - the size of query parameter values must be same as "
+							+ " that of query parameter types [the size of query parameter values is "
+							+ args.length
+							+ " and the size of query parameter types is "
+							+ argTypes.length + "].");
+		}
+
 		this.args = args;
 		this.argTypes = argTypes;
 		this.lobHandler = lobHandler;

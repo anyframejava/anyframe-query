@@ -91,11 +91,11 @@ import org.w3c.dom.Element;
 public class AutoConfigBeanDefinitionParser implements BeanDefinitionParser {
 
 	private String[] dbTypes = new String[] { "altibase", "db2", "hsqldb",
-			"mysql", "oracle" };
+			"mysql", "oracle", "default" };
 	private Class[] pagingSQLGenerators = new Class[] {
 			AltibasePagingSQLGenerator.class, DB2PagingSQLGenerator.class,
 			HSQLPagingSQLGenerator.class, MySQLPagingSQLGenerator.class,
-			OraclePagingSQLGenerator.class };
+			OraclePagingSQLGenerator.class, DefaultPagingSQLGenerator.class };
 
 	private static String QUERY_BEAN_NAME = "queryService";
 
@@ -184,6 +184,8 @@ public class AutoConfigBeanDefinitionParser implements BeanDefinitionParser {
 	private RuntimeBeanReference getJdbcTemplate(ParserContext parserContext,
 			Object source, String jdbcTemplateRefId, String dataSourceRefId) {
 		if (jdbcTemplateRefId.equals("")) {
+			String jdbcTemplateBeanName = JDBC_TEMPLATE_BEAN_NAME
+					+ generateRandomString();
 			String dataSourceBeanName = getDefaultBeanName(dataSourceRefId,
 					DATASOURCE_BEAN_NAME);
 
@@ -191,7 +193,7 @@ public class AutoConfigBeanDefinitionParser implements BeanDefinitionParser {
 					PagingJdbcTemplate.class);
 			jdbcTemplateDef.setSource(source);
 			parserContext.getRegistry().registerBeanDefinition(
-					JDBC_TEMPLATE_BEAN_NAME, jdbcTemplateDef);
+					jdbcTemplateBeanName, jdbcTemplateDef);
 
 			RootBeanDefinition exceptionTranslatorDef = new RootBeanDefinition(
 					RawSQLExceptionTranslator.class);
@@ -205,7 +207,7 @@ public class AutoConfigBeanDefinitionParser implements BeanDefinitionParser {
 			jdbcTemplateDef.getPropertyValues().add(DATASOURCE_BEAN_NAME,
 					new RuntimeBeanReference(dataSourceBeanName));
 
-			return new RuntimeBeanReference(JDBC_TEMPLATE_BEAN_NAME);
+			return new RuntimeBeanReference(jdbcTemplateBeanName);
 		}
 
 		return new RuntimeBeanReference(jdbcTemplateRefId);
@@ -229,6 +231,9 @@ public class AutoConfigBeanDefinitionParser implements BeanDefinitionParser {
 			Object source, String sqlLoaderRefId) {
 
 		if (sqlLoaderRefId.equals("")) {
+			String sqlRepositoryBeanName = SQL_REPOSITORY_BEAN_NAME
+					+ generateRandomString();
+
 			RootBeanDefinition sqlLoaderDef = new RootBeanDefinition(
 					SQLLoader.class);
 			sqlLoaderDef.setSource(source);
@@ -243,11 +248,11 @@ public class AutoConfigBeanDefinitionParser implements BeanDefinitionParser {
 			sqlLoaderDef.getPropertyValues().add("skipError", true);
 
 			parserContext.getRegistry().registerBeanDefinition(
-					SQL_REPOSITORY_BEAN_NAME, sqlLoaderDef);
+					sqlRepositoryBeanName, sqlLoaderDef);
 			parserContext.registerComponent(new BeanComponentDefinition(
-					sqlLoaderDef, SQL_REPOSITORY_BEAN_NAME));
+					sqlLoaderDef, sqlRepositoryBeanName));
 
-			return new RuntimeBeanReference(SQL_REPOSITORY_BEAN_NAME);
+			return new RuntimeBeanReference(sqlRepositoryBeanName);
 		}
 
 		return new RuntimeBeanReference(sqlLoaderRefId);
@@ -273,16 +278,35 @@ public class AutoConfigBeanDefinitionParser implements BeanDefinitionParser {
 		List<String> dbNameList = Arrays.asList(dbTypes);
 		int idx = dbNameList.indexOf(dbType);
 
-		Class pagingSQLGenerator = (idx != -1) ? pagingSQLGenerators[idx]
-				: DefaultPagingSQLGenerator.class;
+		Class pagingSQLGenerator = null;
+
+		String pagingSQLGeneratorBeanName = dbType
+				+ PAGING_SQL_GENRERATOR_BEAN_NAME.substring(0, 1).toUpperCase()
+				+ PAGING_SQL_GENRERATOR_BEAN_NAME.substring(1);
+
+		if (idx == -1) {
+			try {
+				pagingSQLGenerator = Thread.currentThread()
+						.getContextClassLoader().loadClass(
+								dbType + "PagingSQLGenerator");
+			} catch (ClassNotFoundException e) {
+				pagingSQLGenerator = DefaultPagingSQLGenerator.class;
+				pagingSQLGeneratorBeanName = "default"
+						+ PAGING_SQL_GENRERATOR_BEAN_NAME.substring(0, 1)
+								.toUpperCase()
+						+ PAGING_SQL_GENRERATOR_BEAN_NAME.substring(1);
+			}
+		} else {
+			pagingSQLGenerator = pagingSQLGenerators[idx];
+		}
 
 		RootBeanDefinition pagingSQLGeneratorDef = new RootBeanDefinition(
 				pagingSQLGenerator);
 		pagingSQLGeneratorDef.setSource(source);
 		parserContext.getRegistry().registerBeanDefinition(
-				PAGING_SQL_GENRERATOR_BEAN_NAME, pagingSQLGeneratorDef);
+				pagingSQLGeneratorBeanName, pagingSQLGeneratorDef);
 
-		return new RuntimeBeanReference(PAGING_SQL_GENRERATOR_BEAN_NAME);
+		return new RuntimeBeanReference(pagingSQLGeneratorBeanName);
 	}
 
 	/**
@@ -302,16 +326,21 @@ public class AutoConfigBeanDefinitionParser implements BeanDefinitionParser {
 	private RuntimeBeanReference getLobHandler(ParserContext parserContext,
 			Object source, String dbType) {
 
+		String lobHandlerBeanName = LOB_HANDLER_BEAN_NAME;
+
 		Class lobHandler = DefaultLobHandler.class;
 		if (dbType.equals("oracle")) {
 			lobHandler = OracleLobHandler.class;
+			lobHandlerBeanName = "oracle"
+					+ LOB_HANDLER_BEAN_NAME.substring(0, 1).toUpperCase()
+					+ LOB_HANDLER_BEAN_NAME.substring(1);
 		}
 
 		RootBeanDefinition lobHandlerDef = new RootBeanDefinition(lobHandler);
 		lobHandlerDef.setSource(source);
 		lobHandlerDef.setLazyInit(true);
-		parserContext.getRegistry().registerBeanDefinition(
-				LOB_HANDLER_BEAN_NAME, lobHandlerDef);
+		parserContext.getRegistry().registerBeanDefinition(lobHandlerBeanName,
+				lobHandlerDef);
 
 		if (dbType.equals("oracle")) {
 			RootBeanDefinition nativeJdbcExtractorDef = new RootBeanDefinition(
@@ -327,7 +356,7 @@ public class AutoConfigBeanDefinitionParser implements BeanDefinitionParser {
 			lobHandlerDef.getPropertyValues().add("wrapAsLob", true);
 		}
 
-		return new RuntimeBeanReference(LOB_HANDLER_BEAN_NAME);
+		return new RuntimeBeanReference(lobHandlerBeanName);
 	}
 
 	/**
@@ -344,5 +373,28 @@ public class AutoConfigBeanDefinitionParser implements BeanDefinitionParser {
 			return defaultValue;
 		}
 		return value;
+	}
+
+	/**
+	 * get random string for generating unique bean nameF
+	 * 
+	 * @return generated string
+	 */
+	private String generateRandomString() {
+		int maxLen = 9;
+
+		StringBuffer result = new StringBuffer();
+
+		for (int i = 0; (i < maxLen); i++) {
+			int j = 0;
+			if (i % 2 == 0) {
+				j = (int) ((Math.random() * 26) + 65);
+			} else {
+				j = (int) ((Math.random() * 26) + 97);
+			}
+			result.append(Character.toString((char) j));
+		}
+
+		return "_" + result.toString();
 	}
 }

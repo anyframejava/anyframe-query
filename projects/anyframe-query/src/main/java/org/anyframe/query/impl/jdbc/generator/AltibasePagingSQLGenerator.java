@@ -45,7 +45,7 @@ public class AltibasePagingSQLGenerator extends AbstractPagingSQLGenerator {
 					"Query Service : Can't generate paging SQL under Altibase. Because page number or page size is smaller than 1. [current page number = "
 							+ pageIndex + ", page size = " + pageSize + "]");
 		}
-		StringBuffer sql = new StringBuffer(originalSql);
+		StringBuilder sql = new StringBuilder(originalSql);
 		sql.append(" limit ?, ?");
 
 		return sql.toString();

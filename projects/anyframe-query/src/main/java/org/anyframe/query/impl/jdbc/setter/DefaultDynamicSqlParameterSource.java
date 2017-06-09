@@ -126,7 +126,7 @@ public class DefaultDynamicSqlParameterSource extends MapSqlParameterSource impl
 
 	protected static String buildPropertyMethodName(String prefix,
 			String propertyName) {
-		StringBuffer strBuffer = new StringBuffer(prefix);
+		StringBuilder strBuffer = new StringBuilder(prefix);
 		strBuffer.append(NameConverter.capitalise(propertyName));
 		return strBuffer.toString();
 	}

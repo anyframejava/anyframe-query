@@ -26,7 +26,7 @@ import java.sql.Types;
 public class OraclePagingSQLGenerator extends AbstractPagingSQLGenerator {
 	public String getPaginationSQL(String originalSql, Object[] originalArgs,
 			int[] originalArgTypes, int pageIndex, int pageSize) {
-		StringBuffer sql = new StringBuffer(
+		StringBuilder sql = new StringBuilder(
 				" SELECT * FROM ( SELECT   INNER_TABLE.* , ROWNUM AS ROW_SEQ FROM ( \n");
 		sql.append(originalSql);
 

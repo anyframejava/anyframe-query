@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>org.anyframe</groupId>
 	<artifactId>anyframe-query</artifactId>
-	<version>1.1.0</version>
+	<version>1.1.1</version>
 	<packaging>jar</packaging>
 
 	<dependencies>	   
@@ -36,7 +36,13 @@
 			<artifactId>commons-pool</artifactId>
 			<version>1.5.3</version>
 			<scope>test</scope>
-		</dependency>		 
+		</dependency>	
+		<dependency>
+			<groupId>hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>2.0.0</version>
+			<scope>test</scope>
+		</dependency>			 
 		<dependency>
 			<groupId>javax.inject</groupId>
 			<artifactId>javax.inject</artifactId>
@@ -69,7 +75,7 @@
 		<dependency>
 			<groupId>org.anyframe</groupId>
 			<artifactId>anyframe-core</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.velocity</groupId>

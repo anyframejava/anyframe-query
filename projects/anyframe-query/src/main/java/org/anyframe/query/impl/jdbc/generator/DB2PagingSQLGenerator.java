@@ -39,7 +39,7 @@ public class DB2PagingSQLGenerator extends AbstractPagingSQLGenerator {
             int[] originalArgTypes, int pageIndex, int pageSize) {
         originalSql = originalSql.trim();
 
-        StringBuffer sql = new StringBuffer("SELECT * FROM ( ");
+        StringBuilder sql = new StringBuilder("SELECT * FROM ( ");
         sql.append("SELECT rownumber() over() as ROW_SEQ, ");
 
         if (isDistinct(originalSql)) {

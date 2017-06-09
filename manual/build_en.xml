@@ -2,7 +2,7 @@
 <!--
   - 
   -->
-<project name="Anyframe_Foundation_Plugin_Docbook" default="all">
+<project name="Anyframe_Query_Plugin_Docbook" default="all">
 
 	<description>
             This Ant build.xml file is used to transform DocBook XML to various
@@ -14,8 +14,8 @@
 	<property name="dbf.home" value="/Users/aromy/Devel/anyframe-opensource/3rd-party/docbook" />
 	<property name="sample.home" value="/Users/aromy/Devel/anyframe-opensource/anyframe/trunk/sample" />
 	
-	<property name="book.name" value="foundation" />
-	<property name="version" value="4.6.1"/>
+	<property name="book.name" value="query" />
+	<property name="version" value="1.1.1"/>
 	
 	<!--
       - Configure basic properties that will be used in the file.
@@ -174,50 +174,6 @@
 		</fop>
 	</target>
 	
-	<target name="copy-sample" depends="depends" >
-		<zip destfile="${target.dir}/sample/anyframe.sample.annotation.zip" basedir="${sample.home}/anyframe.sample.annotation" 
-			update="true" excludes="target/**, **/.svn/**, **/*.jar"/>
-		<zip destfile="${target.dir}/sample/anyframe.sample.aop.zip" basedir="${sample.home}/anyframe.sample.aop" 
-			update="true" excludes="target/**, **/.svn/**, **/*.jar"/>	
-		<zip destfile="${target.dir}/sample/anyframe.sample.datasource.zip" basedir="${sample.home}/anyframe.sample.datasource" 
-			update="true" excludes="target/**, **/.svn/**, **/*.jar"/>	
-		<zip destfile="${target.dir}/sample/anyframe.sample.di.provider.zip" basedir="${sample.home}/anyframe.sample.di.provider" 
-			update="true" excludes="target/**, **/.svn/**, **/*.jar"/>
-		<zip destfile="${target.dir}/sample/anyframe.sample.di.qualifier.zip" basedir="${sample.home}/anyframe.sample.di.qualifier" 
-			update="true" excludes="target/**, **/.svn/**, **/*.jar"/>
-		<zip destfile="${target.dir}/sample/anyframe.sample.idgen.zip" basedir="${sample.home}/anyframe.sample.idgen" 
-			update="true" excludes="target/**, **/.svn/**, **/*.jar"/>	
-		<zip destfile="${target.dir}/sample/anyframe.sample.javaconfig.zip" basedir="${sample.home}/anyframe.sample.javaconfig" 
-			update="true" excludes="target/**, **/.svn/**, **/*.jar"/>
-		<zip destfile="${target.dir}/sample/anyframe.sample.logging.zip" basedir="${sample.home}/anyframe.sample.logging" 
-			update="true" excludes="target/**, **/.svn/**, **/*.jar"/>
-		<zip destfile="${target.dir}/sample/anyframe.sample.properties.zip" basedir="${sample.home}/anyframe.sample.properties" 
-			update="true" excludes="target/**, **/.svn/**, **/*.jar"/>
-		<zip destfile="${target.dir}/sample/anyframe.sample.query.zip" basedir="${sample.home}/anyframe.sample.query" 
-			update="true" excludes="target/**, **/.svn/**, **/*.jar"/>
-		<zip destfile="${target.dir}/sample/anyframe.sample.spel.zip" basedir="${sample.home}/anyframe.sample.spel" 
-			update="true" excludes="target/**, **/.svn/**, **/*.jar"/>
-		<zip destfile="${target.dir}/sample/anyframe.sample.transaction.zip" basedir="${sample.home}/anyframe.sample.transaction" 
-			update="true" excludes="target/**, **/.svn/**, **/*.jar"/>
-		<zip destfile="${target.dir}/sample/anyframe.sample.validation.custom.zip" basedir="${sample.home}/anyframe.sample.validation.custom" 
-			update="true" excludes="target/**, **/.svn/**, **/*.jar"/>	
-		<zip destfile="${target.dir}/sample/anyframe.sample.validation.groups.zip" basedir="${sample.home}/anyframe.sample.validation.groups" 
-			update="true" excludes="target/**, **/.svn/**, **/*.jar"/>	
-		<zip destfile="${target.dir}/sample/anyframe.sample.validation.payload.zip" basedir="${sample.home}/anyframe.sample.validation.payload" 
-			update="true" excludes="target/**, **/.svn/**, **/*.jar"/>
-		
-		<zip destfile="${target.dir}/sample/hsqldb.zip" basedir="${sample.home}/hsqldb" 
-			update="true" excludes="**/.svn/**"/>	
-		<zip destfile="${target.dir}/sample/hsqldb.movie.zip" basedir="${sample.home}/hsqldb.movie" 
-			update="true" excludes="**/.svn/**"/>	
-		
-		<copy todir="${target.dir}/sample">
-			<fileset dir="${sample.home}/">
-				<include name="*.jar" />
-			</fileset>
-		</copy>		
-	</target>
-	
-	<target name="all" depends="clean, copy, build-html, build-chunks, build-pdf, copy-sample" />
+	<target name="all" depends="clean, copy, build-html, build-chunks, build-pdf" />
 
 </project>

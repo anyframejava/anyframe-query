@@ -27,7 +27,6 @@ import org.anyframe.query.QueryService;
 import org.anyframe.query.vo.BatchTestVO;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
-
 /**
  * TestCase Name : QueryServiceOracleBatchUpdateTest <br>
  * <br>
@@ -37,6 +36,12 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
  * <ul>
  * <li>#-1 Positive Case : QueryService의 batchUpdate() 메소드를 호출하여 여러건의 데이터를
  * Batch로 수정하고 수정이 성공적으로 이루어졌는지, 수정된 건수를 정확한지 확인한다.</li>
+ * <li>#-2 Positive Case : QueryService의 batchExecute() 메소드를 호출하여 수정할 대상 데이터들을
+ * HashMap 객체에 담아 Batch로 수정하고 수정 작업이 성공적으로 이루어졌는지 확인한다. batchUpdate() 메소드 실행을 통해
+ * 수행되는 쿼리는 프로시저를 호출한다.</li>
+ * <li>#-3 Positive Case : QueryService의 batchExecuteBySQL() 메소드를 호출하여 수정할 대상
+ * 데이터들을 Object[] 객체에 담아 Batch로 수정하고 수정 작업이 성공적으로 이루어졌는지 확인한다.
+ * batchExecuteBySQL() 메소드 실행을 통해 수행되는 쿼리는 프로시저를 호출한다.</li>
  * </ul>
  * 
  * @author SoYon Lim
@@ -193,12 +198,93 @@ public class QueryServiceOracleBatchUpdateTest extends
 			int[] rtVal = queryService.batchUpdate(args);
 			assertTrue("Fail to batch update by object.", rtVal.length == 3);
 
-			assertEquals("Fail to batch update by object - result value.",
-					0, rtVal[0]);
-			assertEquals("Fail to batch update by object - result value.",
-					0, rtVal[1]);
-			assertEquals("Fail to batch update by object - result value.",
-					3, rtVal[2] );
+			assertEquals("Fail to batch update by object - result value.", 0,
+					rtVal[0]);
+			assertEquals("Fail to batch update by object - result value.", 0,
+					rtVal[1]);
+			assertEquals("Fail to batch update by object - result value.", 3,
+					rtVal[2]);
 		}
+	}
+
+	/**
+	 * [Flow #-2] Positive Case : QueryService의 batchExecute() 메소드를 호출하여 수정할 대상
+	 * 데이터들을 HashMap 객체에 담아 Batch로 수정하고 수정 작업이 성공적으로 이루어졌는지 확인한다. batchExecute()
+	 * 메소드 실행을 통해 수행되는 쿼리는 프로시저를 호출한다.
+	 * 
+	 * @throws Exception
+	 *             throws exception which is from QueryService
+	 */
+	public void testBatchInsertWithProcedure() throws Exception {
+		ArrayList args = new ArrayList();
+		Object[] arg = new Object[3];
+
+		arg[0] = "test1";
+		arg[1] = "test1";
+		arg[2] = 1;
+		args.add(arg);
+
+		arg = new Object[3];
+		arg[0] = "test2";
+		arg[1] = "test2";
+		arg[2] = 2;
+		args.add(arg);
+
+		arg = new Object[3];
+		arg[0] = "test3";
+		arg[1] = "test3";
+		arg[2] = 3;
+		args.add(arg);
+
+		queryService.batchExecute("batchInsertWithProcedure", args);
+
+		ArrayList rtList = (ArrayList) queryService.find("findBatchTest",
+				new Object[] {});
+		assertTrue("Fail to batch insert.", rtList.size() == 7);
+	}
+
+	/**
+	 * [Flow #-3] Positive Case : QueryService의 batchExecuteBySQL() 메소드를 호출하여
+	 * 수정할 대상 데이터들을 Object[] 객체에 담아 Batch로 수정하고 수정 작업이 성공적으로 이루어졌는지 확인한다.
+	 * batchExecuteBySQL() 메소드 실행을 통해 수행되는 쿼리는 프로시저를 호출한다.
+	 * 
+	 * @throws Exception
+	 *             throws exception which is from QueryService
+	 */
+	public void testBatchInsertWithProcedureBySQL() throws Exception {
+		String sql = "DECLARE  " + "col1      VARCHAR2(50):= ?;  "
+				+ "col2      VARCHAR2(50):= ?;  " + "col3      NUMBER:= ?; "
+				+ "BEGIN " + "PROC_BATCH_TEST(col1, col2, col3 ); " + "END; ";
+
+		String[] types = new String[3];
+		types[0] = "VARCHAR";
+		types[1] = "VARCHAR";
+		types[2] = "NUMERIC";
+
+		ArrayList args = new ArrayList();
+		Object[] arg = new Object[3];
+
+		arg[0] = "test1";
+		arg[1] = "test1";
+		arg[2] = 1;
+		args.add(arg);
+
+		arg = new Object[3];
+		arg[0] = "test2";
+		arg[1] = "test2";
+		arg[2] = 2;
+		args.add(arg);
+
+		arg = new Object[3];
+		arg[0] = "test3";
+		arg[1] = "test3";
+		arg[2] = 3;
+		args.add(arg);
+
+		queryService.batchExecuteBySQL(sql, types, args);
+
+		ArrayList rtList = (ArrayList) queryService.find("findBatchTest",
+				new Object[] {});
+		assertTrue("Fail to batch insert.", rtList.size() == 7);
 	}
 }

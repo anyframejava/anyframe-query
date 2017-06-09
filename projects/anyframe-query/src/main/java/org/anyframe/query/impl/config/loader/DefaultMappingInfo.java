@@ -99,7 +99,7 @@ public class DefaultMappingInfo implements MappingInfo {
 	 */
 	public String getSelectByPrimaryKeyQuery() {
 		if (selectByPrimaryKeyQuery == null) {
-			StringBuffer sql = new StringBuffer("SELECT ");
+			StringBuilder sql = new StringBuilder("SELECT ");
 
 			for (int i = 0, size = columnNames.length; i < size; i++) {
 				sql.append(columnNames[i]);
@@ -132,7 +132,7 @@ public class DefaultMappingInfo implements MappingInfo {
 	 */
 	public String getInsertQuery() {
 		if (insertQuery == null) {
-			StringBuffer sql = new StringBuffer("INSERT INTO " + tableName
+			StringBuilder sql = new StringBuilder("INSERT INTO " + tableName
 					+ " (");
 
 			for (int i = 0, size = columnNames.length; i < size; i++) {
@@ -162,7 +162,7 @@ public class DefaultMappingInfo implements MappingInfo {
 	 */
 	public String getUpdateQuery() {
 		if (updateQuery == null) {
-			StringBuffer sql = new StringBuffer("UPDATE " + tableName + " SET ");
+			StringBuilder sql = new StringBuilder("UPDATE " + tableName + " SET ");
 
 			for (int i = 0, size = columnNames.length; i < size; i++) {
 				sql.append(columnNames[i]);
@@ -196,7 +196,7 @@ public class DefaultMappingInfo implements MappingInfo {
 	 */
 	public String getDeleteQuery() {
 		if (deleteQuery == null) {
-			StringBuffer sql = new StringBuffer("DELETE ");
+			StringBuilder sql = new StringBuilder("DELETE ");
 
 			sql.append(" FROM ");
 			sql.append(tableName);

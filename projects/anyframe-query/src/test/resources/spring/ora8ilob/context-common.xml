@@ -9,6 +9,7 @@
         <property name="username" value="system"/>
         <property name="password" value="manager"/>
         <property name="defaultAutoCommit" value="false"/>
+        <property name="maxActive" value="3"/>
     </bean>
     	         	 
 	<bean class="org.springframework.context.support.ResourceBundleMessageSource"

@@ -27,15 +27,22 @@
 					</xsd:documentation>
 				</xsd:annotation>
 				<xsd:simpleType>
-					<xsd:restriction base="xsd:NMTOKEN">
-						<xsd:enumeration value="altibase"/>
-						<xsd:enumeration value="db2"/>
-						<xsd:enumeration value="hsqldb"/>
-						<xsd:enumeration value="mysql"/>
-						<xsd:enumeration value="oracle"/>
-						<xsd:enumeration value="others"/>
-					</xsd:restriction>
-				</xsd:simpleType>
+					<xsd:union>
+						<xsd:simpleType>
+							<xsd:restriction base="xsd:NMTOKEN">
+								<xsd:enumeration value="altibase"/>
+								<xsd:enumeration value="db2"/>
+								<xsd:enumeration value="hsqldb"/>
+								<xsd:enumeration value="mysql"/>
+								<xsd:enumeration value="oracle"/>
+								<xsd:enumeration value="default"/>
+							</xsd:restriction>						
+						</xsd:simpleType>
+						<xsd:simpleType>
+							<xsd:restriction base="xsd:string"/>
+						</xsd:simpleType>
+					</xsd:union>
+				</xsd:simpleType>			
 			</xsd:attribute>
 			<xsd:attribute name="dataSource-ref" type="xsd:string">
 				<xsd:annotation>

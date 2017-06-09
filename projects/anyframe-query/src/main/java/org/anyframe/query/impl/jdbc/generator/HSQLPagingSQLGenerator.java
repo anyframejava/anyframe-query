@@ -26,7 +26,7 @@ public class HSQLPagingSQLGenerator extends AbstractPagingSQLGenerator {
     // phase.
     public String getCountSQL(String originalSql) {
         int idx = originalSql.toLowerCase().lastIndexOf("order by");
-        StringBuffer sql = new StringBuffer("SELECT count(*) FROM ( ");
+        StringBuilder sql = new StringBuilder("SELECT count(*) FROM ( ");
         if (idx != -1)
             sql.append(originalSql.substring(0, idx));
         else
@@ -38,7 +38,7 @@ public class HSQLPagingSQLGenerator extends AbstractPagingSQLGenerator {
     public String getPaginationSQL(String originalSql, Object[] originalArgs,
             int[] originalArgTypes, int pageIndex, int pageSize) {
         String sql =
-            new StringBuffer(originalSql.length() + 10).append(originalSql)
+            new StringBuilder(originalSql.length() + 10).append(originalSql)
                 .insert(originalSql.toLowerCase().indexOf("select") + 6,
                     " limit ? ?").toString();
 

@@ -224,7 +224,7 @@ public class QueryServiceTest extends
 		Map queryMap = queryService.getQueryMap();
 
 		// 2. assert
-		assertEquals("Fail to get the size of query map.", 59, queryMap.size());
+		assertEquals("Fail to get the size of query map.", 60, queryMap.size());
 		assertEquals("Fail to get query map.", (String) queryMap
 				.get("callFunction"), "{? = call FUNC_RETURN_NUM(?)}");
 	}
@@ -253,7 +253,7 @@ public class QueryServiceTest extends
 	 */
 	public void testCountQuery() throws Exception {
 		// 1. get total count of queries and assert
-		assertEquals("Fail to count total queries.", 59, queryService
+		assertEquals("Fail to count total queries.", 60, queryService
 				.countQuery());
 	}
 

@@ -83,15 +83,15 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * 
  * <pre>
  * &lt;beans xmlns="http://www.springframework.org/schema/beans"
- *	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- *	xmlns:query="http://www.anyframejava.org/schema/query"
- *	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+ * xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ * xmlns:query="http://www.anyframejava.org/schema/query"
+ * xsi:schemaLocation="http://www.springframework.org/schema/beans 
  *  http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
- *	http://www.anyframejava.org/schema/query 
+ * http://www.anyframejava.org/schema/query 
  *  http://www.anyframejava.org/schema/query/anyframe-query-1.0.xsd"&gt;
- *
- *	&lt;query:auto-config dbType="oracle"/&gt;
- *
+ * 
+ * &lt;query:auto-config dbType="oracle"/&gt;
+ * 
  * &lt;/beans&gt;
  * </pre>
  * 
@@ -99,12 +99,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * 
  * <pre>
  * &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
- *
+ * 
  * &lt;queryservice xmlns="http://www.anyframejava.org/schema/query/mapping" 
- *	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
- *	xsi:schemaLocation="http://www.anyframejava.org/schema/query/mapping 
+ * xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ * xsi:schemaLocation="http://www.anyframejava.org/schema/query/mapping 
  *  http://www.anyframejava.org/schema/query/mapping/anyframe-query-mapping-1.0.xsd "&gt;
- *
+ * 
  *              &lt;table-mapping&gt;
  *                      &lt;table name=&quot;TBL_CUSTOMER&quot; class=&quot;org.anyframe.query.Customer&quot;&gt;
  *                              &lt;field-mapping&gt;
@@ -264,7 +264,7 @@ public interface QueryService {
 	String LIST = "LIST";
 
 	/**
-	 * Issue multiple update statements (INSERT) using JDBC 2.0 batch updates
+	 * Issue update statement (INSERT) using JDBC 2.0 batch updates
 	 * and PreparedStatementSetters to set values on a PreparedStatement created
 	 * by this method.
 	 * 
@@ -275,10 +275,10 @@ public interface QueryService {
 	 * @throws QueryServiceException
 	 *             if there is any problem issuing the update
 	 */
-	int[] batchCreate(List<Object> targets) throws QueryServiceException;
+	int[] batchCreate(List targets) throws QueryServiceException;
 
 	/**
-	 * Issue multiple update statements (DELETE) using JDBC 2.0 batch updates
+	 * Issue update statement (DELETE) using JDBC 2.0 batch updates
 	 * and PreparedStatementSetters to set values on a PreparedStatement created
 	 * by this method.
 	 * 
@@ -289,10 +289,10 @@ public interface QueryService {
 	 * @throws QueryServiceException
 	 *             if there is any problem issuing the update
 	 */
-	int[] batchRemove(List<Object> targets) throws QueryServiceException;
+	int[] batchRemove(List targets) throws QueryServiceException;
 
 	/**
-	 * Issue multiple update statements (UPDATE) using JDBC 2.0 batch updates
+	 * Issue update statement (UPDATE) using JDBC 2.0 batch updates
 	 * and PreparedStatementSetters to set values on a PreparedStatement created
 	 * by this method.
 	 * 
@@ -303,10 +303,10 @@ public interface QueryService {
 	 * @throws QueryServiceException
 	 *             if there is any problem issuing the update
 	 */
-	int[] batchUpdate(List<Object> targets) throws QueryServiceException;
+	int[] batchUpdate(List targets) throws QueryServiceException;
 
 	/**
-	 * Issue multiple update statements (INSERT, UPDATE, DELETE) using JDBC 2.0
+	 * Issue update statement (INSERT, UPDATE, DELETE) using JDBC 2.0
 	 * batch updates and PreparedStatementSetters to set values on a
 	 * PreparedStatement created by this method.
 	 * 
@@ -319,11 +319,28 @@ public interface QueryService {
 	 * @throws QueryServiceException
 	 *             if there is any problem issuing the update
 	 */
-	int[] batchUpdate(String queryId, List<Object> targets)
+	int[] batchUpdate(String queryId, List targets)
 			throws QueryServiceException;
 
 	/**
-	 * Issue multiple update statements (INSERT, UPDATE, DELETE) using JDBC 2.0
+	 * Issue procedure includes INSERT, UPDATE, DELETE using JDBC 2.0 batch
+	 * updates and CallableStatementSetters to set values on a CallableStatement
+	 * created by this method.
+	 * 
+	 * @param queryId
+	 *            identifier of query statement to execute
+	 * @param targets
+	 *            a set of variable for executing query (is the List of
+	 *            Object[])
+	 * @return an array of the number of rows affected by each statement
+	 * @throws QueryServiceException
+	 *             if there is any problem issuing the update
+	 */
+	int[] batchExecute(String queryId, List targets)
+			throws QueryServiceException;
+
+	/**
+	 * Issue update statement (INSERT, UPDATE, DELETE) using JDBC 2.0
 	 * batch updates and PreparedStatementSetters to set values on a
 	 * PreparedStatement created by this method Execute update statments, Using
 	 * update statement directly without being defined in mapping xml files.
@@ -340,7 +357,28 @@ public interface QueryService {
 	 * @throws QueryServiceException
 	 *             if there is any problem issuing the update
 	 */
-	int[] batchUpdateBySQL(String sql, String[] types, List<Object> targets)
+	int[] batchUpdateBySQL(String sql, String[] types, List targets)
+			throws QueryServiceException;
+
+	/**
+	 * Issue procedure includes INSERT, UPDATE, DELETE using JDBC 2.0 batch
+	 * updates and CallableStatementSetters to set values on a CallableStatement
+	 * created by this method Execute update statments, Using update statement
+	 * directly without being defined in mapping xml files.
+	 * 
+	 * @param sql
+	 *            query statement.
+	 * @param types
+	 *            is matched with input parameters. A type must belong to fields
+	 *            defined java.sql.Types package
+	 * @param targets
+	 *            a set of variable for executing query (is the List of
+	 *            Object[])
+	 * @return an array of the number of rows affected by each statement
+	 * @throws QueryServiceException
+	 *             if there is any problem issuing the update
+	 */
+	int[] batchExecuteBySQL(String sql, String[] types, List targets)
 			throws QueryServiceException;
 
 	/**
@@ -399,8 +437,7 @@ public interface QueryService {
 	 * @throws QueryServiceException
 	 *             if there is any problem issuing the execute
 	 */
-	Map execute(String queryId, Map values)
-			throws QueryServiceException;
+	Map execute(String queryId, Map values) throws QueryServiceException;
 
 	/**
 	 * Execute a query statement using a CallableStatement which defined in
@@ -417,8 +454,8 @@ public interface QueryService {
 	 * @throws QueryServiceException
 	 *             if there is any problem issuing the execute
 	 */
-	Map execute(String queryId, Map values,
-			int pageIndex) throws QueryServiceException;
+	Map execute(String queryId, Map values, int pageIndex)
+			throws QueryServiceException;
 
 	/**
 	 * Execute a query statement using a CallableStatement which defined in
@@ -438,8 +475,8 @@ public interface QueryService {
 	 * @throws QueryServiceException
 	 *             if there is any problem issuing the execute
 	 */
-	Map execute(String queryId, Map values,
-			int pageIndex, int pageSize) throws QueryServiceException;
+	Map execute(String queryId, Map values, int pageIndex, int pageSize)
+			throws QueryServiceException;
 
 	/**
 	 * Execute a query statement using a CallableStatement.
@@ -460,9 +497,8 @@ public interface QueryService {
 	 * @throws QueryServiceException
 	 *             if there is any problem issuing the execute
 	 */
-	Map executeBySQL(String sql, String[] types,
-			String[] names, String[] bindings, Map values)
-			throws QueryServiceException;
+	Map executeBySQL(String sql, String[] types, String[] names,
+			String[] bindings, Map values) throws QueryServiceException;
 
 	/**
 	 * Execute an Sql call using a CallableStatement.
@@ -488,9 +524,9 @@ public interface QueryService {
 	 * @throws QueryServiceException
 	 *             if there is any problem issuing the execute
 	 */
-	Map executeBySQL(String sql, String[] types,
-			String[] names, String[] bindings, Map values,
-			int pageIndex, int pageSize) throws QueryServiceException;
+	Map executeBySQL(String sql, String[] types, String[] names,
+			String[] bindings, Map values, int pageIndex, int pageSize)
+			throws QueryServiceException;
 
 	/**
 	 * Execute a SELECT query, Using object, which class is matched with table
@@ -558,8 +594,8 @@ public interface QueryService {
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
 	 */
-	Collection find(String queryId, Object[] values, int pageIndex,
-			int pageSize) throws QueryServiceException;
+	Collection find(String queryId, Object[] values, int pageIndex, int pageSize)
+			throws QueryServiceException;
 
 	/**
 	 * Execute a SELECT query, Using query statement directly without being
@@ -624,8 +660,8 @@ public interface QueryService {
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
 	 */
-	Map findBySQLWithRowCount(String sql, String[] types,
-			Object[] values) throws QueryServiceException;
+	Map findBySQLWithRowCount(String sql, String[] types, Object[] values)
+			throws QueryServiceException;
 
 	/**
 	 * Execute a SELECT query, Using query statement directly without being
@@ -651,9 +687,8 @@ public interface QueryService {
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
 	 */
-	Map findBySQLWithRowCount(String sql, String[] types,
-			Object[] values, int pageIndex, int pageSize)
-			throws QueryServiceException;
+	Map findBySQLWithRowCount(String sql, String[] types, Object[] values,
+			int pageIndex, int pageSize) throws QueryServiceException;
 
 	/**
 	 * Execute a SELECT query, using given queryId which defined in mapping xml
@@ -694,8 +729,8 @@ public interface QueryService {
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
 	 */
-	Map findWithColInfo(String queryId, Object[] values,
-			int pageIndex) throws QueryServiceException;
+	Map findWithColInfo(String queryId, Object[] values, int pageIndex)
+			throws QueryServiceException;
 
 	/**
 	 * Execute a SELECT query, using given queryId which defined in mapping xml
@@ -719,8 +754,8 @@ public interface QueryService {
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
 	 */
-	Map findWithColInfo(String queryId, Object[] values,
-			int pageIndex, int pageSize) throws QueryServiceException;
+	Map findWithColInfo(String queryId, Object[] values, int pageIndex,
+			int pageSize) throws QueryServiceException;
 
 	/**
 	 * Execute a SELECT query, using given queryId which defined in mapping xml
@@ -758,8 +793,8 @@ public interface QueryService {
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
 	 */
-	Map findWithRowCount(String queryId, Object[] values,
-			int pageIndex) throws QueryServiceException;
+	Map findWithRowCount(String queryId, Object[] values, int pageIndex)
+			throws QueryServiceException;
 
 	/**
 	 * Execute a SELECT query, using given queryId which defined in mapping xml
@@ -782,8 +817,8 @@ public interface QueryService {
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
 	 */
-	Map findWithRowCount(String queryId, Object[] values,
-			int pageIndex, int pageSize) throws QueryServiceException;
+	Map findWithRowCount(String queryId, Object[] values, int pageIndex,
+			int pageSize) throws QueryServiceException;
 
 	/**
 	 * Execute DELETE query, using object, which class is matched with table by
@@ -900,8 +935,7 @@ public interface QueryService {
 	 * @throws QueryServiceException
 	 *             if there is any problem find parameters.
 	 */
-	ArrayList getQueryParams(String queryId)
-			throws QueryServiceException;
+	ArrayList getQueryParams(String queryId) throws QueryServiceException;
 
 	/**
 	 * Get JdbcTemplate which QueryService uses.
