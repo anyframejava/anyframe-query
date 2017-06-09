@@ -13,25 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.anyframe.query.exception;
+package org.anyframe.query;
 
-import org.anyframe.exception.PersistenceException;
+import org.anyframe.exception.BaseException;
 
 /**
- * This is an exception class for query execution
+ * This is an exception class for handling the exceptions in operating
+ * QueryService.
  * 
- * @author Jongpil Park
- * 
- * @since 1.1.4
+ * @author SoYon Lim
+ * @author JongHoon Kim
  */
-public class QueryException extends PersistenceException {
+@Deprecated
+public class QueryServiceException extends BaseException {
 
 	private static final long serialVersionUID = 1L;
 
 	private String sqlErrorCode = "";
 	private String sqlErrorMessage = "";
 
-	public QueryException(String message) {
+	/**
+	 * Constructor with a message.
+	 * 
+	 * @param message
+	 *            the message of this exception
+	 */
+	public QueryServiceException(String message) {
 		super(message);
 	}
 
@@ -43,7 +50,7 @@ public class QueryException extends PersistenceException {
 	 * @param exception
 	 *            the exception that is wrapped in this exception
 	 */
-	public QueryException(String message, Throwable exception) {
+	public QueryServiceException(String message, Throwable exception) {
 		super(message, exception);
 	}
 

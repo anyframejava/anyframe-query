@@ -68,9 +68,9 @@ public class ReflectionResultSetMapper<T> extends AbstractResultSetMapperSupport
 
 //	private List aggregateClasses = new ArrayList();
 
-	private final Map<Class<?>, ResultSetMappingConfiguration> classConfigMap = new HashMap<Class<?>, ResultSetMappingConfiguration>();
+	private Map<Class<?>, ResultSetMappingConfiguration> classConfigMap = new HashMap<Class<?>, ResultSetMappingConfiguration>();
 
-	private final MappingInfo mappingInfo;
+	private MappingInfo mappingInfo = null;
 
 	protected SqlLoader sqlLoader = null;
 

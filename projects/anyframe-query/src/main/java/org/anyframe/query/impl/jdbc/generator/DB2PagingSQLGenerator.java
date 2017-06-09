@@ -21,7 +21,7 @@ import java.sql.Types;
  * DB2 implements of PagingSQLGenerator
  * @author SoYon Lim
  */
-public class DB2PagingSQLGenerator extends AbstractPagingSQLGenerator { 
+public class DB2PagingSQLGenerator extends AbstractPagingSQLGenerator {
 
     /**
      * Generate sql for paging
@@ -68,7 +68,9 @@ public class DB2PagingSQLGenerator extends AbstractPagingSQLGenerator {
             int pageSize) {
         Object[] args = new Object[originalArgs.length + 2];
 
-        System.arraycopy(originalArgs, 0, args, 0, originalArgs.length);
+        for (int i = 0; i < originalArgs.length; i++) {
+            args[i] = originalArgs[i];
+        }
         args[originalArgs.length] = new Long((pageIndex - 1) * pageSize + 1);
         args[originalArgs.length + 1] = new Long(pageIndex * pageSize);
 
@@ -78,7 +80,10 @@ public class DB2PagingSQLGenerator extends AbstractPagingSQLGenerator {
     public int[] setQueryArgTypes(int[] originalArgTypes) {
         int[] argTypes = new int[originalArgTypes.length + 2];
 
-        System.arraycopy(originalArgTypes, 0, argTypes, 0, originalArgTypes.length);
+        for (int i = 0; i < originalArgTypes.length; i++) {
+            argTypes[i] = originalArgTypes[i];
+        }
+
         argTypes[originalArgTypes.length] = Types.BIGINT;
         argTypes[originalArgTypes.length + 1] = Types.BIGINT;
         

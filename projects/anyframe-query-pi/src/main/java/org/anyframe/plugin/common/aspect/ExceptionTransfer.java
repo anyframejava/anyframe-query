@@ -19,6 +19,8 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
+import org.anyframe.exception.BaseException;
+import org.anyframe.exception.BaseRuntimeException;
 import org.anyframe.plugin.common.MovieFinderException;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
@@ -65,6 +67,16 @@ public class ExceptionTransfer {
 			logger.error(movieFinderEx.getMessage(), movieFinderEx);
 			throw movieFinderEx;
 		}
+		
+		if (exception instanceof BaseException) {
+			BaseException baseEx = (BaseException) exception;
+			logger.error(baseEx.getMessage(), baseEx);
+		}
+		
+		if (exception instanceof BaseRuntimeException) {
+			BaseRuntimeException baseEx = (BaseRuntimeException) exception;
+			logger.error(baseEx.getMessage(), baseEx);
+		}
 
 		try {
 			logger.error(messageSource.getMessage("error." + className + "."
@@ -74,7 +86,6 @@ public class ExceptionTransfer {
 					new String[] {}, Locale.getDefault()), exception);
 			throw new MovieFinderException("error.common");
 		}
-		throw new MovieFinderException(messageSource, "error." + className
-				+ "." + opName);
+		throw new MovieFinderException("error." + className + "." + opName);
 	}
 }

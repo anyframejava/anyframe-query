@@ -65,7 +65,7 @@ import org.springframework.util.Assert;
  * @author SoYon Lim
  * @author JongHoon Kim
  */
-public class PagingJdbcTemplate extends JdbcTemplate { 
+public class PagingJdbcTemplate extends JdbcTemplate {
 
 	// 2011.05.11
 	private PagingSQLGenerator paginationSQLGetter;
@@ -614,9 +614,9 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 
 		private final RowMapper rowMapper;
 
-		private final Pagination paginationVO;
+		private Pagination paginationVO;
 
-		private final int queryMaxFetchSize;
+		private int queryMaxFetchSize;
 
 		public PagingRowMapperResultSetExtractor(RowMapper rowMapper,
 				Pagination paginationVO) {
@@ -683,8 +683,8 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 			ResultSetExtractor {
 
 		private final RowCallbackHandler rch;
-		private final Pagination paginationVO;
-		private final int queryMaxFetchSize;
+		private Pagination paginationVO;
+		private int queryMaxFetchSize;
 
 		public PagingRowCallbackHandlerResultSetExtractor(
 				RowCallbackHandler rch, Pagination paginationVO,
@@ -763,7 +763,7 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 
 		private final RowCallbackHandler rch;
 
-		private final int queryMaxFetchSize;
+		private int queryMaxFetchSize;
 
 		public NonPagingRowCallbackHandlerResultSetExtractor(
 				RowCallbackHandler rch, int queryMaxFetchSize) {
@@ -808,7 +808,7 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 
 		private final RowMapper rowMapper;
 
-		private final int queryMaxFetchSize;
+		private int queryMaxFetchSize;
 
 		public NonPagingRowMapperResultSetExtractor(RowMapper rowMapper,
 				int queryMaxFetchSize) {
@@ -852,9 +852,9 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 	@SuppressWarnings("unchecked")
 	private class Oracle8iResultSetExtractor implements ResultSetExtractor {
 
-		private final Oracle8iLobHandler lobHandler;
+		private Oracle8iLobHandler lobHandler;
 
-		private final Object[] lobValues;
+		private Object[] lobValues;
 
 		public Oracle8iResultSetExtractor(Oracle8iLobHandler lobHandler,
 				Object[] lobValues) {

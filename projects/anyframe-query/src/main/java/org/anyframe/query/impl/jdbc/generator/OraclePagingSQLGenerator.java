@@ -21,7 +21,7 @@ import java.sql.Types;
  * oracle implements of PagingSQLGenerator
  * 
  * @author SoYon Lim
- * @author JongHoon Kim 
+ * @author JongHoon Kim
  */
 public class OraclePagingSQLGenerator extends AbstractPagingSQLGenerator {
 	public String getPaginationSQL(String originalSql, Object[] originalArgs,
@@ -40,7 +40,10 @@ public class OraclePagingSQLGenerator extends AbstractPagingSQLGenerator {
 			int pageSize) {
 		Object[] args = new Object[originalArgs.length + 3];
 
-		System.arraycopy(originalArgs, 0, args, 0, originalArgs.length);
+		for (int i = 0; i < originalArgs.length; i++) {
+			args[i] = originalArgs[i];
+		}
+
 		args[originalArgs.length] = String.valueOf(new Long(pageIndex
 				* pageSize));
 		args[originalArgs.length + 1] = String.valueOf(new Long((pageIndex - 1)
@@ -54,7 +57,10 @@ public class OraclePagingSQLGenerator extends AbstractPagingSQLGenerator {
 	public int[] setQueryArgTypes(int[] originalArgTypes) {
 		int[] argTypes = new int[originalArgTypes.length + 3];
 
-		System.arraycopy(originalArgTypes, 0, argTypes, 0, originalArgTypes.length);
+		for (int i = 0; i < originalArgTypes.length; i++) {
+			argTypes[i] = originalArgTypes[i];
+		}
+
 		argTypes[originalArgTypes.length] = Types.VARCHAR;
 		argTypes[originalArgTypes.length + 1] = Types.VARCHAR;
 		argTypes[originalArgTypes.length + 2] = Types.VARCHAR;

@@ -26,7 +26,7 @@ import java.sql.Types;
  */
 public class MSSQLPagingSQLGenerator extends AbstractPagingSQLGenerator {
 
-	private static final int SEPARATOR_LENGTH = 6; 
+	private static final int SEPARATOR_LENGTH = 6;
 
 	public String getPaginationSQL(String originalSql, Object[] originalArgs,
 			int[] originalArgTypes, int pageIndex, int pageSize) {
@@ -52,7 +52,10 @@ public class MSSQLPagingSQLGenerator extends AbstractPagingSQLGenerator {
 			int pageSize) {
 		Object[] args = new Object[originalArgs.length + 2];
 
-		System.arraycopy(originalArgs, 0, args, 0, originalArgs.length);
+		for (int i = 0; i < originalArgs.length; i++) {
+			args[i] = originalArgs[i];
+		}
+
 		args[originalArgs.length + 0] = new Long((pageIndex - 1)
 				* pageSize + 1);
 		args[originalArgs.length + 1] = new Long(pageIndex * pageSize);
@@ -63,7 +66,10 @@ public class MSSQLPagingSQLGenerator extends AbstractPagingSQLGenerator {
 	public int[] setQueryArgTypes(int[] originalArgTypes) {
 		int[] argTypes = new int[originalArgTypes.length + 2];
 
-		System.arraycopy(originalArgTypes, 0, argTypes, 0, originalArgTypes.length);
+		for (int i = 0; i < originalArgTypes.length; i++) {
+			argTypes[i] = originalArgTypes[i];
+		}
+
 		argTypes[originalArgTypes.length + 0] = Types.INTEGER;
 		argTypes[originalArgTypes.length + 1] = Types.INTEGER;
 

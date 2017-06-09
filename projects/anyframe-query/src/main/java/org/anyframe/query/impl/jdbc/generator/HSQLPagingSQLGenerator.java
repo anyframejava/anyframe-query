@@ -30,17 +30,19 @@ public class HSQLPagingSQLGenerator extends AbstractPagingSQLGenerator {
         if (idx != -1)
             sql.append(originalSql.substring(0, idx));
         else
-            sql.append(originalSql); 
+            sql.append(originalSql);
         sql.append(" )");
         return sql.toString();
     }
 
     public String getPaginationSQL(String originalSql, Object[] originalArgs,
             int[] originalArgTypes, int pageIndex, int pageSize) {
-        return
+        String sql =
             new StringBuilder(originalSql.length() + 10).append(originalSql)
                 .insert(originalSql.toLowerCase().indexOf("select") + 6,
                     " limit ? ?").toString();
+
+        return sql;
     }
 
     public Object[] setQueryArgs(Object[] originalArgs, int pageIndex,
@@ -49,8 +51,11 @@ public class HSQLPagingSQLGenerator extends AbstractPagingSQLGenerator {
 
         args[0] = new Integer((pageIndex - 1) * pageSize);
         args[1] = new Integer(pageSize);
-        System.arraycopy(originalArgs, 0, args, 2, originalArgs.length);
-        
+
+        for (int i = 0; i < originalArgs.length; i++) {
+            args[i + 2] = originalArgs[i];
+        }
+
         return args;
     }
 
@@ -59,7 +64,10 @@ public class HSQLPagingSQLGenerator extends AbstractPagingSQLGenerator {
 
         argTypes[0] = Types.INTEGER;
         argTypes[1] = Types.INTEGER;
-        System.arraycopy(originalArgTypes, 0, argTypes, 2, originalArgTypes.length);
+
+        for (int i = 0; i < originalArgTypes.length; i++) {
+            argTypes[i + 2] = originalArgTypes[i];
+        }
         
         return argTypes;
     }

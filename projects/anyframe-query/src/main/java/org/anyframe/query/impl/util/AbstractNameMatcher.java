@@ -19,10 +19,8 @@ import java.lang.reflect.Field;
 import java.util.Map;
 
 /**
- * @author Warren Mayocchi
- * 
- * @author modified by SoYon Lim
- * @author modified by JongHoon Kim
+ * @author SoYon Lim
+ * @author JongHoon Kim
  */
 public abstract class AbstractNameMatcher implements Cloneable {
 

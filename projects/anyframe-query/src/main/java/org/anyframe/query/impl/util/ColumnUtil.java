@@ -19,12 +19,12 @@ import org.anyframe.util.StringUtil;
 
 public class ColumnUtil {
 	public static String changeColumnName(String mappingStyle, String columnName) {
-		if ("camel".equals(mappingStyle)) {
+		if (mappingStyle.equals("camel")) {
 			return StringUtil.convertToCamelCase(columnName);
-		} else if ("lower".equals(mappingStyle))
+		} else if (mappingStyle.equals("lower"))
 			return columnName.toLowerCase();
-		else if ("upper".equals(mappingStyle))
+		else if (mappingStyle.equals("upper"))
 			return columnName.toUpperCase();
-		return columnName; 
+		return columnName;
 	}
 }

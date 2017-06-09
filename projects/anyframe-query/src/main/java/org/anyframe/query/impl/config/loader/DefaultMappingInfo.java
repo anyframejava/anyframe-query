@@ -20,7 +20,6 @@ import java.util.Map;
 
 import org.anyframe.exception.MissingRequiredPropertyException;
 import org.anyframe.query.MappingInfo;
-import org.anyframe.util.StringUtil;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -286,7 +285,7 @@ public class DefaultMappingInfo implements MappingInfo {
 
 	private void checkRequiredAttribute(String element, String name,
 			String value) {
-		if (StringUtil.isEmpty(value)) {
+		if (value.equals("")) {
 			throw new MissingRequiredPropertyException("Query Service : "
 					+ name + " is essential attribute in a <" + element + ">.");
 		}

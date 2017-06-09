@@ -26,20 +26,20 @@ import org.anyframe.query.QueryService;
  */
 public class Pagination {
 
-	private long recordCount; 
+	private long recordCount;
 
 	private int pageSize = 20;
 
 	private int pageIndex = 1;
 
-	private boolean paging = true;
+	private boolean isPaging = true;
 
 	public boolean isPaging() {
-		return paging;
+		return isPaging;
 	}
 
-	public void setPaging(boolean paging) {
-		this.paging = paging;
+	public void setPaging(boolean isPaging) {
+		this.isPaging = isPaging;
 	}
 
 	private boolean countRecordSize = false;
@@ -96,7 +96,7 @@ public class Pagination {
 
 	// 2009.05.12
 	public void setPageIndex(int pageIndex) {
-		if (paging && pageIndex < 1)
+		if (isPaging && pageIndex < 1)
 			QueryService.LOGGER.debug(
 					"Page number must have over 1. (current page number = {})",
 					pageIndex);
@@ -105,7 +105,7 @@ public class Pagination {
 
 	// 2009.05.12
 	public void setPageIndexToLast() {
-		if (paging && this.pageIndex > getPageCount()) {
+		if (isPaging && this.pageIndex > getPageCount()) {
 			QueryService.LOGGER
 					.warn(
 							"Current page number is bigger than last page number of result. (current page number = {}, last page number = {}",
