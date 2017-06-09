@@ -15,9 +15,8 @@
  */
 package org.anyframe.query.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -72,7 +71,7 @@ public class QueryServiceResultSetMapperTest {
 	 * Table TB_CUSTOMER is created for test and initial data is added.
 	 */
 	@Before
-	public void onSetUp() throws Exception {
+	public void onSetUp() {
 		System.out.println("Attempting to drop old table");
 		try {
 			queryService.updateBySQL("DROP TABLE TB_CUSTOMER", new String[] {},
@@ -116,18 +115,18 @@ public class QueryServiceResultSetMapperTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testFindWithCustomResultSetMapper() throws Exception {
+	public void testFindWithCustomResultSetMapper() {
 		// 1. execute query
-		Collection rtList = queryService.find(
+		List<Customer> results = queryService.find(
 				"findCustomerWithResultSetMapper", new Object[] { "%123456%" });
 		// 2. assert a size of result
 		Assert.assertEquals("Fail to select with custom ResultSetMapper.", 3,
-				rtList.size());
+				results.size());
 
 		// 3. assert in detail
-		Iterator resultItr = rtList.iterator();
+		Iterator<Customer> resultItr = results.iterator();
 		while (resultItr.hasNext()) {
-			Customer customer = (Customer) resultItr.next();
+			Customer customer = resultItr.next();
 			Assert.assertTrue("Fail to compare result in defail.", customer
 					.getAddr().equals("Seoul"));
 		}
@@ -151,19 +150,19 @@ public class QueryServiceResultSetMapperTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testFindWithCustomResultSetMapperAndLength() throws Exception {
+	public void testFindWithCustomResultSetMapperAndLength() {
 		// 1. execute query
-		Collection rtList = queryService.find(
+		List<Customer> results = queryService.find(
 				"findCustomerWithResultSetMapperAndLength",
 				new Object[] { "%123456%" }, 1);
 		// 2. assert a size of result
 		Assert.assertEquals("Fail to select with custom ResultSetMapper.", 2,
-				rtList.size());
+				results.size());
 
 		// 3. assert in detail
-		Iterator resultItr = rtList.iterator();
+		Iterator<Customer> resultItr = results.iterator();
 		while (resultItr.hasNext()) {
-			Customer customer = (Customer) resultItr.next();
+			Customer customer = resultItr.next();
 			Assert.assertTrue("Fail to compare result in defail.", customer
 					.getAddr().equals("Seoul"));
 		}
@@ -173,10 +172,10 @@ public class QueryServiceResultSetMapperTest {
 	 * [Flow #-3] Positive Case : By calling for findWithRowCount() method of
 	 * QueryService along with pageIndex and result length information on
 	 * relevant query within mapping XML file, query statement defined at
-	 * mapping XML is implemented and by using IResultSestMapper type Mapper
+	 * mapping XML is implemented and by using ResultSestMapper type Mapper
 	 * defined at mapping XML, the result value is mapped. Checked is whether
 	 * paging is processed. (In the case of selecting class implementing
-	 * IResultSetMapper with property value within <result>, Mapper’s mapRow()
+	 * ResultSetMapper with property value within <result>, Mapper’s mapRow()
 	 * method is called for and its result value is mapped. In the case of
 	 * automatically mapping result value into ordinary VO type class via
 	 * QueryService, Reflection API call can lead to weakened performance.
@@ -186,11 +185,11 @@ public class QueryServiceResultSetMapperTest {
 	 * @throws Exception
 	 *             throws exception which is from QueryService
 	 */
+	@SuppressWarnings("unchecked")
 	@Test
-	public void testFindWithRowCountWithCustomResultSetMapperAndLength()
-			throws Exception {
+	public void testFindWithRowCountWithCustomResultSetMapperAndLength() {
 		// 1. execute query
-		Map rtMap = queryService.findWithRowCount(
+		Map<String, Object> rtMap = queryService.findWithRowCount(
 				"findCustomerWithResultSetMapper", new Object[] { "%123456%" },
 				1, 2);
 
@@ -200,12 +199,12 @@ public class QueryServiceResultSetMapperTest {
 				totalCount.intValue());
 
 		// 3. assert result size
-		ArrayList rtList = (ArrayList) rtMap.get(QueryService.LIST);
+		List<Customer> rtList = (List<Customer>) rtMap.get(QueryService.LIST);
 		Assert.assertEquals("Fail to get results.", 2, rtList.size());
 
 		// 4. assert in detail
 		for (int i = 0; i < rtList.size(); i++) {
-			Customer customer = (Customer) rtList.get(i);
+			Customer customer = rtList.get(i);
 			Assert.assertTrue("Fail to compare result.", customer.getNm()
 					.startsWith("test"));
 		}

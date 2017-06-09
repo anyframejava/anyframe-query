@@ -20,23 +20,23 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 public class ResultSetMappingConfiguration {
-	private String[] columnNames;
-	private int[] columnTypes;
+	private final String[] columnNames;
+	private final int[] columnTypes;
 	private Field[] attributes;
 	private Method[] setters;
 	// 2009.03.17 - start
-	private Map compositeObjMap;
-	private Class resultClass;
+	private Map<String, ResultSetMappingConfiguration> compositeObjMap;
+	private Class<?> resultClass;
 	private Method compositeClassSetter;
 	private int columnCount = 0;
 	private String[] columnKeys = null;
 	// add for Gauce (2008-04-15)
-	private int[] columnPrecisions = null;
+	private int[] columnPrecisions = null; 
 	private int[] columnScales = null;
 
-	public ResultSetMappingConfiguration(
-			String[] columnNames, int[] columnTypes, Field[] attributes,
-			Method[] setters, Map compositeObjMap) {
+	public ResultSetMappingConfiguration(String[] columnNames,
+			int[] columnTypes, Field[] attributes, Method[] setters,
+			Map<String, ResultSetMappingConfiguration> compositeObjMap) {
 		this.columnNames = columnNames;
 		this.columnTypes = columnTypes;
 		this.attributes = attributes;
@@ -57,14 +57,14 @@ public class ResultSetMappingConfiguration {
 		this.columnScales = columnScales;
 	}
 
-	public void setResultClass(Class resultClass) {
+	public void setResultClass(Class<?> resultClass) {
 		this.resultClass = resultClass;
 	}
 
 	public void setCompositeClassSetter(Method compositeClassSetter) {
 		this.compositeClassSetter = compositeClassSetter;
 	}
-	
+
 	public String[] getColumnNames() {
 		return columnNames;
 	}
@@ -81,11 +81,11 @@ public class ResultSetMappingConfiguration {
 		return setters;
 	}
 
-	public Map getCompositeObjMap() {
+	public Map<String, ResultSetMappingConfiguration> getCompositeObjMap() {
 		return compositeObjMap;
 	}
 
-	public Class getResultClass() {
+	public Class<?> getResultClass() {
 		return resultClass;
 	}
 

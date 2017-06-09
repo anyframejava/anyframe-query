@@ -15,8 +15,8 @@
  */
 package org.anyframe.query.impl;
 
-import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -24,7 +24,7 @@ import javax.inject.Inject;
 import junit.framework.Assert;
 
 import org.anyframe.query.QueryService;
-import org.anyframe.query.QueryServiceException;
+import org.anyframe.query.exception.QueryException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -70,7 +70,7 @@ public class QueryServiceSQLTest {
 	 * Table TB_CUSTOMER is created for test.
 	 */
 	@Before
-	public void onSetUp() throws Exception {
+	public void onSetUp() {
 		System.out.println("Attempting to drop old table");
 		try {
 			queryService.updateBySQL("DROP TABLE TB_CUSTOMER", new String[] {},
@@ -93,7 +93,7 @@ public class QueryServiceSQLTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testFindBySQLWithoutPageInfo() throws Exception {
+	public void testFindBySQLWithoutPageInfo() {
 		// 1. insert test data
 		insertCustomerBySQL("1234567890123", "Anyframe1", "Seoul");
 		insertCustomerBySQL("1234567890111", "Anyframe2", "Seoul");
@@ -103,17 +103,17 @@ public class QueryServiceSQLTest {
 		insertCustomerBySQL("1234567890555", "Anyframe6", "Seoul");
 
 		// 2. execute query
-		Collection rtCollection = queryService.findBySQL(
+		List<Map<String, Object>> results = queryService.findBySQL(
 				"select NAME, ADDRESS from TB_CUSTOMER where SSNO like ?",
 				new String[] { "VARCHAR" }, new Object[] { "%12345678%" });
 
 		// 3. assert
-		Assert.assertEquals("Fail to find Customer.", 6, rtCollection.size());
+		Assert.assertEquals("Fail to find Customer.", 6, results.size());
 
 		// 4. assert in detail
-		Iterator rtIterator = rtCollection.iterator();
+		Iterator<Map<String, Object>> rtIterator = results.iterator();
 		while (rtIterator.hasNext()) {
-			Map map = (Map) rtIterator.next();
+			Map<String, Object> map = rtIterator.next();
 			Assert.assertTrue("Fail to compare result.", ((String) map
 					.get("name")).startsWith("Anyframe"));
 		}
@@ -130,7 +130,7 @@ public class QueryServiceSQLTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testFindBySQLWithPageInfo() throws Exception {
+	public void testFindBySQLWithPageInfo() {
 		// 1. insert test data
 		insertCustomerBySQL("1234567890123", "Anyframe1", "Seoul");
 		insertCustomerBySQL("1234567890111", "Anyframe2", "Seoul");
@@ -140,19 +140,19 @@ public class QueryServiceSQLTest {
 		insertCustomerBySQL("1234567890555", "Anyframe6", "Seoul");
 
 		// 2. execute query
-		Collection rtCollection = queryService
+		List<Map<String, Object>> results = queryService
 				.findBySQL(
 						"select NAME, ADDRESS from TB_CUSTOMER where SSNO like ?",
 						new String[] { "VARCHAR" },
 						new Object[] { "%12345678%" }, 1, 2);
 
 		// 3. assert
-		Assert.assertEquals("Fail to find Customer.", 2, rtCollection.size());
+		Assert.assertEquals("Fail to find Customer.", 2, results.size());
 
 		// 4. assert in detail
-		Iterator rtIterator = rtCollection.iterator();
+		Iterator<Map<String, Object>> rtIterator = results.iterator();
 		while (rtIterator.hasNext()) {
-			Map map = (Map) rtIterator.next();
+			Map<String, Object> map = rtIterator.next();
 			Assert.assertTrue("Fail to compare result.", ((String) map
 					.get("name")).startsWith("Anyframe"));
 		}
@@ -169,7 +169,7 @@ public class QueryServiceSQLTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void findBySQLWithNullArg() throws Exception {
+	public void findBySQLWithNullArg() {
 		try {
 			// 1. execute query with null args
 			queryService.findBySQL("select NAME, ADDRESS from TB_CUSTOMER",
@@ -178,9 +178,9 @@ public class QueryServiceSQLTest {
 		} catch (Exception e) {
 			// 2. assert
 			Assert.assertTrue("Fail to compare exception type.",
-					e instanceof QueryServiceException);
+					e instanceof QueryException);
 			Assert.assertTrue("Fail to compare exception message.",
-					((QueryServiceException) e).getMessage().startsWith(
+					((QueryException) e).getMessage().startsWith(
 							"Query Service : Fail to"));
 		}
 	}
@@ -194,7 +194,7 @@ public class QueryServiceSQLTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testUpdateBySQL() throws Exception {
+	public void testUpdateBySQL() {
 		// 1. insert test data
 		insertCustomerBySQL("1234567890123", "Anyframe1", "Seoul");
 
@@ -218,7 +218,7 @@ public class QueryServiceSQLTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testRemoveBySQL() throws Exception {
+	public void testRemoveBySQL() {
 		// 1. insert test data
 		insertCustomerBySQL("1234567890123", "Anyframe1", "Seoul");
 
@@ -229,10 +229,10 @@ public class QueryServiceSQLTest {
 
 		// 3. assert
 		Assert.assertEquals("Fail to update customer.", 1, result);
-		Collection rtCollection = queryService.findBySQL(
+		List<Map<String, Object>> results = queryService.findBySQL(
 				"select NAME, ADDRESS from TB_CUSTOMER WHERE SSNO = ?",
 				new String[] { "VARCHAR" }, new Object[] { "1234567890123" });
-		Assert.assertEquals("Fail to find customer by SQL.", 0, rtCollection
+		Assert.assertEquals("Fail to find customer by SQL.", 0, results
 				.size());
 	}
 
@@ -246,19 +246,18 @@ public class QueryServiceSQLTest {
 	 * @throws Exception
 	 *             fail to find customer by SQL
 	 */
-	private void findCustomerBySQL(String ssno, String name, String address)
-			throws Exception {
+	private void findCustomerBySQL(String ssno, String name, String address) {
 		// 1. execute query
-		Collection rtCollection = queryService.findBySQL(
+		List<Map<String, Object>> results = queryService.findBySQL(
 				"select NAME, ADDRESS from TB_CUSTOMER WHERE SSNO = ?",
 				new String[] { "VARCHAR" }, new Object[] { ssno });
 
 		// 2. assert
-		Assert.assertEquals("Fail to find customer by SQL.", 1, rtCollection
+		Assert.assertEquals("Fail to find customer by SQL.", 1, results
 				.size());
 
 		// 3. assert in detail
-		Map rtMap = (Map) rtCollection.iterator().next();
+		Map<String, Object> rtMap = results.iterator().next();
 		Assert.assertEquals("Fail to compare result.", address, (String) rtMap
 				.get("address"));
 		Assert.assertEquals("Fail to compare result.", name, (String) rtMap
@@ -275,8 +274,7 @@ public class QueryServiceSQLTest {
 	 * @throws Exception
 	 *             fail to insert customer by SQL
 	 */
-	private void insertCustomerBySQL(String ssno, String name, String address)
-			throws Exception {
+	private void insertCustomerBySQL(String ssno, String name, String address) {
 		// 1. execute query
 		int result = queryService.createBySQL(
 				"insert into TB_CUSTOMER values (?, ?, ?)", new String[] {

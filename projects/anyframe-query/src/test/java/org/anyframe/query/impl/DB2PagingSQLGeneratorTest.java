@@ -51,7 +51,7 @@ public class DB2PagingSQLGeneratorTest extends TestCase {
             generator.getPaginationSQL(sql1, new Object[0], new int[0], 0, 10);
         assertEquals(
             "fail to generate SQL using DB2PagingSQLGenerator.",
-            "SELECT * FROM ( SELECT INNER_TABLE.*, rownumber() over() as ROW_SEQ FROM (select USER_NAME from USERS) AS INNER_TABLE ) WHERE ROW_SEQ BETWEEN ? AND ?",
+             "SELECT * FROM ( SELECT INNER_TABLE.*, rownumber() over() as ROW_SEQ FROM (select USER_NAME from USERS) AS INNER_TABLE ) WHERE ROW_SEQ BETWEEN ? AND ?",
             generatedSql);
 
         String sql2 = "select DISTINCT USER_ID from USERS";

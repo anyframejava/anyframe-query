@@ -16,8 +16,8 @@
 package org.anyframe.query.impl;
 
 import java.sql.Types;
-import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -85,7 +85,7 @@ public class PagingJdbcTemplateTest {
 	 * Initial data is entered and table TB_CUSTOMER is created for test.
 	 */
 	@Before
-	public void initialize() throws Exception {
+	public void initialize() {
 		try {
 			queryService.updateBySQL("DROP TABLE TB_CUSTOMER", new String[] {},
 					new Object[] {});
@@ -118,8 +118,9 @@ public class PagingJdbcTemplateTest {
 	 * @throws Exception
 	 *             throws exception which is from PagingJdbcTemplate
 	 */
+	@SuppressWarnings("unchecked")
 	@Test
-	public void testQueryForListWithPagination() throws Exception {
+	public void testQueryForListWithPagination() {
 		// 1. set page information
 		Pagination context = new Pagination();
 		context.setPageSize(2);
@@ -127,22 +128,27 @@ public class PagingJdbcTemplateTest {
 		context.setCountRecordSize(true);
 
 		// 2. execute query
-		Collection rtCollection = jdbcTemplate.queryForListWithPagination(
-				"select NAME, ADDRESS from TB_CUSTOMER where SSNO like ?",
-				new Object[] { "%12345%" }, new int[] { 12 }, -1, context);
+		List<LinkedCaseInsensitiveMap<Object>> results = jdbcTemplate
+				.queryForListWithPagination(
+						"select NAME, ADDRESS from TB_CUSTOMER where SSNO like ?",
+						new Object[] { "%12345%" }, new int[] { 12 }, -1,
+						context);
 
 		// 3. assert size of result
+		// Assert.assertEquals("Fail to find using PagingJdbcTemplate.", 2,
+		// rtCollection.size());
 		Assert.assertEquals("Fail to find using PagingJdbcTemplate.", 2,
-				rtCollection.size());
+				results.size());
 		// 4. assert total size of result
 		Assert.assertEquals("Fail to compare total count of results.", 6,
 				context.getRecordCount());
 
 		// 5. compare result in detail
-		Iterator rtIterator = rtCollection.iterator();
+		// Iterator rtIterator = rtCollection.iterator();
+		Iterator<LinkedCaseInsensitiveMap<Object>> rtIterator = results
+				.iterator();
 		while (rtIterator.hasNext()) {
-			LinkedCaseInsensitiveMap map = (LinkedCaseInsensitiveMap) rtIterator
-					.next();
+			LinkedCaseInsensitiveMap<Object> map = rtIterator.next();
 			Assert.assertTrue("Fail to compare result.", ((String) map
 					.get("name")).startsWith("Anyframe"));
 		}
@@ -161,8 +167,9 @@ public class PagingJdbcTemplateTest {
 	 * @throws Exception
 	 *             throws exception which is from PagingJdbcTemplate
 	 */
+	@SuppressWarnings("unchecked")
 	@Test
-	public void testQueryForListWithPaginationGenerator() throws Exception {
+	public void testQueryForListWithPaginationGenerator() {
 		// 1. set OraclePagingSQLGenerator
 		jdbcTemplate.setPaginationSQLGetter(new OraclePagingSQLGenerator());
 
@@ -173,21 +180,26 @@ public class PagingJdbcTemplateTest {
 		context.setCountRecordSize(true);
 
 		// 3. execute query
-		Collection rtCollection = jdbcTemplate.queryForListWithPagination(
-				"select NAME, ADDRESS from TB_CUSTOMER where SSNO like ?",
-				new Object[] { "%12345%" }, new int[] { 12 }, -1, context);
+		List<LinkedCaseInsensitiveMap<Object>> results = jdbcTemplate
+				.queryForListWithPagination(
+						"select NAME, ADDRESS from TB_CUSTOMER where SSNO like ?",
+						new Object[] { "%12345%" }, new int[] { 12 }, -1,
+						context);
 		// 4. assert size of result
+		// Assert.assertEquals("Fail to find using PagingJdbcTemplate.", 2,
+		// rtCollection.size());
 		Assert.assertEquals("Fail to find using PagingJdbcTemplate.", 2,
-				rtCollection.size());
+				results.size());
 		// 5. assert total size of result
 		Assert.assertEquals("Fail to compare total count of results.", 6,
 				context.getRecordCount());
 
 		// 6. compare result in detail
-		Iterator rtIterator = rtCollection.iterator();
+		// Iterator rtIterator = rtCollection.iterator();
+		Iterator<LinkedCaseInsensitiveMap<Object>> rtIterator = results
+				.iterator();
 		while (rtIterator.hasNext()) {
-			LinkedCaseInsensitiveMap map = (LinkedCaseInsensitiveMap) rtIterator
-					.next();
+			LinkedCaseInsensitiveMap<Object> map = rtIterator.next();
 			Assert.assertTrue("Fail to compare result.", ((String) map
 					.get("name")).startsWith("Anyframe"));
 		}
@@ -205,8 +217,9 @@ public class PagingJdbcTemplateTest {
 	 * @throws Exception
 	 *             throws exception which is from PagingJdbcTemplate
 	 */
+	@SuppressWarnings("unchecked")
 	@Test
-	public void testQueryForListWithPaginationWithNoArgs() throws Exception {
+	public void testQueryForListWithPaginationWithNoArgs() {
 		// 1. set page information
 		Pagination context = new Pagination();
 		context.setPageSize(2);
@@ -214,23 +227,26 @@ public class PagingJdbcTemplateTest {
 		context.setCountRecordSize(true);
 
 		// 2. execute query
-		Collection rtCollection = jdbcTemplate
+		List<LinkedCaseInsensitiveMap<Object>> results = jdbcTemplate
 				.queryForListWithPagination(
 						"select NAME, ADDRESS from TB_CUSTOMER where SSNO like '%12345%'",
 						new Object[] {}, new int[] {}, -1, context);
 
 		// 3. assert size of result
+		// Assert.assertEquals("Fail to find using PagingJdbcTemplate.", 2,
+		// rtCollection.size());
 		Assert.assertEquals("Fail to find using PagingJdbcTemplate.", 2,
-				rtCollection.size());
+				results.size());
 		// 4. assert total size of result
 		Assert.assertEquals("Fail to compare total count of results.", 6,
 				context.getRecordCount());
 
 		// 5. compare result in detail
-		Iterator rtIterator = rtCollection.iterator();
+		// Iterator rtIterator = rtCollection.iterator();
+		Iterator<LinkedCaseInsensitiveMap<Object>> rtIterator = results
+				.iterator();
 		while (rtIterator.hasNext()) {
-			LinkedCaseInsensitiveMap map = (LinkedCaseInsensitiveMap) rtIterator
-					.next();
+			LinkedCaseInsensitiveMap<Object> map = rtIterator.next();
 			Assert.assertTrue("Fail to compare result.", ((String) map
 					.get("name")).startsWith("Anyframe"));
 		}
@@ -247,8 +263,7 @@ public class PagingJdbcTemplateTest {
 	 *             throws exception which is from PagingJdbcTemplate
 	 */
 	@Test
-	public void testQueryForListWithPaginationWithNoArgsError()
-			throws Exception {
+	public void testQueryForListWithPaginationWithNoArgsError() {
 		// 1. set page information
 		Pagination context = new Pagination();
 		context.setPageSize(2);
@@ -283,8 +298,7 @@ public class PagingJdbcTemplateTest {
 	 * @throws Exception
 	 *             throws exception which is from QueryService
 	 */
-	private void insertCustomerBySQL(String ssno, String name, String address)
-			throws Exception {
+	private void insertCustomerBySQL(String ssno, String name, String address) {
 		int result = queryService.createBySQL(
 				"insert into TB_CUSTOMER values (?, ?, ?)", new String[] {
 						"VARCHAR", "VARCHAR", "VARCHAR" }, new Object[] { ssno,

@@ -66,17 +66,17 @@ public class NameConverter extends AbstractNameMatcher {
 		return false;
 	}
 	
-	public Field isMatching(Map attributeMap, String columnName,
+	public Field isMatching(Map<String, Field> attributeMap, String columnName,
 			String parentFieldName) {
 		
 		String camelCasedColumnName = prefix.concat(
 				NameConverter.convertToCamelCase(columnName)).concat(suffix);
 		// TODO : ignore case
 		if (attributeMap.containsKey(camelCasedColumnName)) {
-			return (Field)attributeMap.get(camelCasedColumnName);
+			return attributeMap.get(camelCasedColumnName);
 		}
 		return null;
-	}	
+	}
 
 	/**
 	 * Convert a camel case string to underscore representation.

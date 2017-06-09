@@ -15,7 +15,6 @@
  */
 package org.anyframe.query.impl.jdbc.generator;
 
-import org.anyframe.query.impl.jdbc.generator.PagingSQLGenerator;
 
 /**
  * Default implements of PagingSQLGenerator <br/>
@@ -44,7 +43,7 @@ public class DefaultPagingSQLGenerator implements PagingSQLGenerator {
 	}
 
 	public String getPaginationSQL(String originalSql, Object[] originalArgs,
-			int[] originalArgTypes, int first, int pageSize) throws Exception {
+			int[] originalArgTypes, int first, int pageSize) {
 		// TODO Auto-generated method stub
 		return "";
 	}

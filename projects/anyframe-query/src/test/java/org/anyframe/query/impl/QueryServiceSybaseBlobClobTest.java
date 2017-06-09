@@ -53,7 +53,7 @@ public class QueryServiceSybaseBlobClobTest {
 	 * Table TB_BINARY_TEST is created for test. 
 	 */
 	@Before
-	public void onSetUp() throws Exception {
+	public void onSetUp() {
 		/*
 		System.out.println("Attempting to drop old table");
 		try {
@@ -78,7 +78,7 @@ public class QueryServiceSybaseBlobClobTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testFindClobBlob() throws Exception {
+	public void testFindClobBlob() {
 		/*
 		// 1. set data for insert
 		insertClobBlob();
@@ -106,7 +106,7 @@ public class QueryServiceSybaseBlobClobTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testFindClobBlobWithResultClass() throws Exception {
+	public void testFindClobBlobWithResultClass() {
 		/*
 		// 1. set data for insert
 		insertClobBlob();
@@ -132,7 +132,8 @@ public class QueryServiceSybaseBlobClobTest {
 	 * @throws Exception
 	 *             throws exception which is from QueryService
 	 */
-	private void insertClobBlob() throws Exception {
+	@SuppressWarnings("unused")
+	private void insertClobBlob() {
 		// 1. execute query
 		queryService.create("insertBlobClob", new Object[] { new Integer(5),
 				"12345".getBytes(), val });

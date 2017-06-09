@@ -15,7 +15,7 @@
  */
 package org.anyframe.query.impl;
 
-import java.util.Collection;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -25,6 +25,7 @@ import org.anyframe.pagination.Page;
 import org.anyframe.query.QueryService;
 import org.anyframe.query.dao.UserSupportDaoWithResultClass;
 import org.anyframe.query.vo.UsersVO;
+import org.anyframe.util.DateUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,7 +69,7 @@ public class SupportDaoWithResultTest {
 	 * Table USERS are created for test.
 	 */
 	@Before
-	public void onSetUp() throws Exception {
+	public void onSetUp() {
 		// Try to drop the table. It may not
 		// exist and throw an exception.
 		System.out.println("Attempting to drop old table");
@@ -97,12 +98,13 @@ public class SupportDaoWithResultTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testUserDaoWithResult() throws Exception {
+	public void testUserDaoWithResult() {
 		// 1. insert a new user
 		UsersVO usersVO1 = new UsersVO();
 		usersVO1.setUserId("admin");
 		usersVO1.setUserName("ADMIN");
 		usersVO1.setPassword("admin123");
+		usersVO1.setRegDate(DateUtil.stringToDate("2012-11-22 11:11:11", "yyyy-MM-dd HH:mm:ss"));
 		userSupportDaoWithResultClass.createUsers(usersVO1);
 
 		// 2. insert another new user
@@ -114,6 +116,7 @@ public class SupportDaoWithResultTest {
 
 		// 3. check for inserting
 		UsersVO result = userSupportDaoWithResultClass.findUsers(usersVO1);
+		Assert.assertEquals("2012-11-22 11:11:11", DateUtil.dateToString(result.getRegDate(), "yyyy-MM-dd HH:mm:ss"));
 		Assert.assertEquals(usersVO1.getUserName(), result.getUserName());
 
 		// 4. check for inserting
@@ -134,7 +137,7 @@ public class SupportDaoWithResultTest {
 		Assert.assertEquals(2, page.getTotalCount());
 
 		// 8. assert in detail
-		Collection list = page.getList();
+		List<?> list = page.getList();
 		Assert.assertEquals(1, list.size());
 		result = (UsersVO) list.iterator().next();
 		Assert.assertEquals(usersVO1.getUserName(), result.getUserName());

@@ -17,6 +17,8 @@ package org.anyframe.query.impl.jdbc.generator;
 
 import java.sql.Types;
 
+import org.anyframe.query.exception.PagingSQLCreationException;
+
 /**
  * ALTIBASE implements of PagingSQLGenerator
  * 
@@ -25,7 +27,7 @@ import java.sql.Types;
 public class AltibasePagingSQLGenerator extends AbstractPagingSQLGenerator {
 
 	/**
-	 * Generate sql for paging
+	 * Generate sql for paging 
 	 * 
 	 * @param originalSql
 	 *            original SQL
@@ -38,10 +40,9 @@ public class AltibasePagingSQLGenerator extends AbstractPagingSQLGenerator {
 	 * @return generated SQL
 	 */
 	public String getPaginationSQL(String originalSql, Object[] originalArgs,
-			int[] originalArgTypes, int pageIndex, int pageSize)
-			throws Exception {
+			int[] originalArgTypes, int pageIndex, int pageSize) {
 		if (pageIndex < 1 || pageSize < 1) {
-			throw new Exception(
+			throw new PagingSQLCreationException(
 					"Query Service : Can't generate paging SQL under Altibase. Because page number or page size is smaller than 1. [current page number = "
 							+ pageIndex + ", page size = " + pageSize + "]");
 		}
@@ -54,27 +55,22 @@ public class AltibasePagingSQLGenerator extends AbstractPagingSQLGenerator {
 	public Object[] setQueryArgs(Object[] originalArgs, int pageIndex,
 			int pageSize) {
 		Object[] args = new Object[originalArgs.length + 2];
-
-		for (int i = 0; i < originalArgs.length; i++) {
-			args[i] = originalArgs[i];
-		}
+		
+		System.arraycopy(originalArgs, 0, args, 0, originalArgs.length);
 
 		args[originalArgs.length] = new Long(((pageIndex - 1) * pageSize) + 1);
 		args[originalArgs.length + 1] = new Long(pageSize);
-		
+
 		return args;
 	}
 
 	public int[] setQueryArgTypes(int[] originalArgTypes) {
 		int[] argTypes = new int[originalArgTypes.length + 2];
 
-		for (int i = 0; i < originalArgTypes.length; i++) {
-			argTypes[i] = originalArgTypes[i];
-		}
-
+		System.arraycopy(originalArgTypes, 0, argTypes, 0, originalArgTypes.length);
 		argTypes[originalArgTypes.length] = Types.BIGINT;
 		argTypes[originalArgTypes.length + 1] = Types.BIGINT;
-		
+
 		return argTypes;
 	}
 }

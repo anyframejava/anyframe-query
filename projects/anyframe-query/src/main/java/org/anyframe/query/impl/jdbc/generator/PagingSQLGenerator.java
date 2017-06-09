@@ -15,6 +15,8 @@
  */
 package org.anyframe.query.impl.jdbc.generator;
 
+import org.anyframe.query.exception.PagingSQLCreationException;
+
 
 /**
  * The pagination SQL generator.
@@ -39,7 +41,7 @@ public interface PagingSQLGenerator {
      * @return pagination SQL
      */
     String getPaginationSQL(String originalSql, Object[] originalArgs,
-            int[] originalArgTypes, int first, int pageSize) throws Exception;
+            int[] originalArgTypes, int first, int pageSize) throws PagingSQLCreationException;
 
     /**
      * get the count SQL basing the original SQL.

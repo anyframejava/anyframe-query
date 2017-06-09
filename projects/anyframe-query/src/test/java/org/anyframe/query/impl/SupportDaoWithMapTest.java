@@ -15,8 +15,8 @@
  */
 package org.anyframe.query.impl;
 
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -68,7 +68,7 @@ public class SupportDaoWithMapTest {
 	 * Table USERS are created for test.
 	 */
     @Before
-    public void onSetUp() throws Exception {
+    public void onSetUp() {
         // Try to drop the table. It may not
         // exist and throw an exception.
         System.out.println("Attempting to drop old table");
@@ -98,7 +98,7 @@ public class SupportDaoWithMapTest {
 	 */
     @SuppressWarnings("unchecked")
 	@Test
-    public void testUserDaoWithMap() throws Exception {
+    public void testUserDaoWithMap() {
         // 1. insert a new user
         Map<String,String> usersMap1 = new HashMap<String, String>();
         usersMap1.put("userId", "admin");
@@ -114,7 +114,7 @@ public class SupportDaoWithMapTest {
         userSupportDaoWithMap.createUsers(usersMap2);
 
         // 3. check for inserting
-        Map result = userSupportDaoWithMap.findUsers(usersMap1);
+        Map<String, Object> result = userSupportDaoWithMap.findUsers(usersMap1);
         Assert.assertEquals(usersMap1.get("userName"), result.get("userName"));
 
         // 4. check for inserting
@@ -130,15 +130,14 @@ public class SupportDaoWithMapTest {
         Assert.assertEquals(usersMap2.get("userName"), result.get("userName"));
 
         // 7. select user list
-        Map searchMap = new HashMap();
+        Map<String, String> searchMap = new HashMap<String, String>();
         Page page = userSupportDaoWithMap.findUsersList(searchMap, 1, 1, 10);
         Assert.assertEquals(2, page.getTotalCount());
 
         // 8. assert in detail
-        Collection list = page.getList();
+        List<?> list = page.getList();
         Assert.assertEquals(1, list.size());
         result = (Map) list.iterator().next();
         Assert.assertEquals(usersMap1.get("userName"), result.get("userName"));
     }
-
 }

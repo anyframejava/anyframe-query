@@ -26,17 +26,18 @@ import org.anyframe.query.impl.util.ColumnUtil;
 import org.anyframe.query.impl.util.SQLTypeTransfer;
 import org.anyframe.util.StringUtil;
 import org.apache.commons.collections.map.ListOrderedMap;
-import org.springframework.core.CollectionFactory;
 import org.springframework.jdbc.support.lob.LobHandler;
+import org.springframework.util.LinkedCaseInsensitiveMap;
 
 /**
  * @author SOOYEON PARK
  */
-public class CallbackResultSetMapper extends DefaultReflectionResultSetMapper {
+public class CallbackResultSetMapper<T> extends DefaultReflectionResultSetMapper<T> {
 
 	// 2009.05.28
-	public CallbackResultSetMapper(Class targetClass, MappingInfo mappingInfo,
-			LobHandler lobHandler, Map nullchecks, String mappingStyle) {
+	public CallbackResultSetMapper(Class<T> targetClass,
+			MappingInfo mappingInfo, LobHandler lobHandler,
+			Map<String, String> nullchecks, String mappingStyle) {
 		super(targetClass, mappingInfo, nullchecks, lobHandler);
 		this.targetClass = targetClass;
 		this.mappingStyle = mappingStyle;
@@ -54,21 +55,23 @@ public class CallbackResultSetMapper extends DefaultReflectionResultSetMapper {
 	 * @param rowNum
 	 *            Current Row Number
 	 */
-	public Object mapRow(ResultSet resultSet, int rowNum) throws SQLException {
+	@SuppressWarnings("unchecked")
+	public T mapRow(ResultSet resultSet, int rowNum) throws SQLException {
 		// 2009.01.15 - custom resultset mapper
 		if (customResultSetMapper != null) {
-			return customResultSetMapper.mapRow(resultSet);
+			return (T)customResultSetMapper.mapRow(resultSet);
 		}
-		return this.mapRow(resultSet);
+		return (T)this.mapRow(resultSet);
 	}
 
-	public Object mapRow(ResultSet resultSet) throws SQLException {
+	@SuppressWarnings("unchecked")
+	public T mapRow(ResultSet resultSet) throws SQLException {
 		// 2009.01.15 - custom resultset mapper
 		if (Map.class.isAssignableFrom(targetClass)) {
-			return generateMap(resultSet);
+			return (T)generateMap(resultSet);
 		} else {
 			// Handling by calling for mapRow of ReflectionResultSetMapper
-			return super.mapRow(resultSet);
+			return (T)super.mapRow(resultSet);
 		}
 	}
 
@@ -89,13 +92,13 @@ public class CallbackResultSetMapper extends DefaultReflectionResultSetMapper {
 
 		if (!initialized)
 			makeMeta(resultSet);
-		Map mapOfColValues = createColumnMap(mappingConfiguration
+		Map<String, Object> mapOfColValues = createColumnMap(mappingConfiguration
 				.getColumnCount());
 		for (int i = 1; i <= mappingConfiguration.getColumnCount(); i++) {
 			String key = mappingConfiguration.getColumnKeys()[i - 1];
-			Object obj = getValue(resultSet,
-					mappingConfiguration.getColumnTypes()[i - 1],
-					mappingConfiguration.getColumnNames()[i - 1], i);
+			Object obj = getValue(resultSet, mappingConfiguration
+					.getColumnTypes()[i - 1], mappingConfiguration
+					.getColumnNames()[i - 1], i);
 			mapOfColValues.put(key, obj);
 		}
 		return mapOfColValues;
@@ -106,11 +109,11 @@ public class CallbackResultSetMapper extends DefaultReflectionResultSetMapper {
 	 * 
 	 * @return Map saving column information
 	 */
+	@SuppressWarnings("unchecked")
 	public Map getColumnInfo() {
 		ListOrderedMap colInfo = new ListOrderedMap();
 		for (int i = 0; i < mappingConfiguration.getColumnCount(); i++)
-			colInfo.put(
-					mappingConfiguration.getColumnKeys()[i],
+			colInfo.put(mappingConfiguration.getColumnKeys()[i],
 					SQLTypeTransfer.getSQLTypeName(mappingConfiguration
 							.getColumnTypes()[i])
 							+ ":"
@@ -127,11 +130,12 @@ public class CallbackResultSetMapper extends DefaultReflectionResultSetMapper {
 	 * @param initialCapacity
 	 *            the initial capacity of the Map
 	 * @return the new Map instance
-	 * @see org.springframework.core.CollectionFactory
+	 * @see org.springframework.util.LinkedCaseInsensitiveMap
 	 */
-	protected Map createColumnMap(int initialCapacity) {
-		return CollectionFactory
-				.createLinkedCaseInsensitiveMapIfPossible(initialCapacity);
+	protected Map<String, Object> createColumnMap(int initialCapacity) {
+		// return CollectionFactory
+		// .createLinkedCaseInsensitiveMapIfPossible(initialCapacity);
+		return new LinkedCaseInsensitiveMap<Object>(initialCapacity);
 	}
 
 	/**
@@ -155,8 +159,8 @@ public class CallbackResultSetMapper extends DefaultReflectionResultSetMapper {
 
 			// check if mapping information exists
 			if (getMappingInfo() != null) {
-				mappedAttribute = (String) getMappingInfo()
-						.getMappingInfoAsMap().get(columnName.toLowerCase());
+				mappedAttribute = getMappingInfo().getMappingInfoAsMap().get(
+						columnName.toLowerCase());
 
 				if (!StringUtil.isEmpty(mappedAttribute))
 					return mappedAttribute.equals(attributeName);
@@ -169,9 +173,9 @@ public class CallbackResultSetMapper extends DefaultReflectionResultSetMapper {
 				if (parentAttributeName != null) {
 					// Based on mapping XML definition, Columns and attributes
 					// are mapped according to their order.
-					String[] columns = (String[]) getMappingInfo()
+					String[] columns = getMappingInfo()
 							.getCompositeColumnNames().get(parentAttributeName);
-					String[] attributes = (String[]) getMappingInfo()
+					String[] attributes = getMappingInfo()
 							.getCompositeFieldNames().get(parentAttributeName);
 
 					for (int i = 0; i < columns.length; i++) {
@@ -194,18 +198,18 @@ public class CallbackResultSetMapper extends DefaultReflectionResultSetMapper {
 			// 2009.03.17 - end
 		}
 
-		public Field isMatching(Map attributeMap, String columnName,
-				String parentAttributeName) {
+		public Field isMatching(Map<String, Field> attributeMap,
+				String columnName, String parentAttributeName) {
 			// 2009.03.17 - start
 			String mappedAttribute = null;
 
 			// check if mapping information exists
 			if (getMappingInfo() != null) {
-				mappedAttribute = (String) getMappingInfo()
-						.getMappingInfoAsMap().get(columnName.toLowerCase());
+				mappedAttribute = getMappingInfo().getMappingInfoAsMap().get(
+						columnName.toLowerCase());
 
 				if (!StringUtil.isEmpty(mappedAttribute))
-					return (Field) attributeMap.get(mappedAttribute);
+					return attributeMap.get(mappedAttribute);
 
 				// In the case where parentAttributeName exists without
 				// property information mapped within relevant column, namely,
@@ -215,15 +219,15 @@ public class CallbackResultSetMapper extends DefaultReflectionResultSetMapper {
 				if (parentAttributeName != null) {
 					// Based on mapping XML definition, Columns and attributes
 					// are mapped according to their order.
-					String[] columns = (String[]) getMappingInfo()
+					String[] columns = getMappingInfo()
 							.getCompositeColumnNames().get(parentAttributeName);
-					String[] attributes = (String[]) getMappingInfo()
+					String[] attributes = getMappingInfo()
 							.getCompositeFieldNames().get(parentAttributeName);
 
 					for (int i = 0; i < columns.length; i++) {
 						if (columnName.equals(columns[i])) {
 							mappedAttribute = attributes[i];
-							return (Field) attributeMap.get(mappedAttribute);
+							return attributeMap.get(mappedAttribute);
 						}
 					}
 				}
@@ -237,7 +241,7 @@ public class CallbackResultSetMapper extends DefaultReflectionResultSetMapper {
 
 			// If mappedAttribute is not found via above process, it is handled
 			// as no mapping information.
-			return (Field) attributeMap.get(mappedAttribute);
+			return attributeMap.get(mappedAttribute);
 		}
 
 		public void setFieldPrefix(String fieldPrefix) {

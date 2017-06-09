@@ -21,22 +21,22 @@ package org.anyframe.query.impl.jdbc.generator;
  */
 public abstract class AbstractPagingSQLGenerator implements PagingSQLGenerator {
 
-    public abstract String getPaginationSQL(String originalSql,
-            Object[] originalArgs, int[] originalArgTypes, int first,
-            int pageSize) throws Exception;
+	public abstract String getPaginationSQL(String originalSql,
+			Object[] originalArgs, int[] originalArgTypes, int first,
+			int pageSize);
 
-    /**
-     * Generate sql for counting total size of result
-     * rows
-     * @param originalSql
-     *        original SQL
-     * @return generated SQL
-     */
-    public String getCountSQL(String originalSql) {
-    	StringBuilder sql = new StringBuilder("SELECT count(*) FROM ( ");
-        sql.append(originalSql);
-        sql.append(" ) ");
-        return sql.toString();
-    }
+	/**
+	 * Generate sql for counting total size of result rows
+	 * 
+	 * @param originalSql
+	 *            original SQL
+	 * @return generated SQL
+	 */
+	public String getCountSQL(String originalSql) {
+		StringBuilder sql = new StringBuilder("SELECT count(*) FROM ( ");
+		sql.append(originalSql);
+		sql.append(" ) ");
+		return sql.toString();
+	}
 
 }

@@ -17,6 +17,7 @@ package org.anyframe.query.impl.util;
 
 import java.sql.SQLException;
 
+import org.anyframe.query.exception.InternalDataAccessException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.support.SQLExceptionTranslator;
 

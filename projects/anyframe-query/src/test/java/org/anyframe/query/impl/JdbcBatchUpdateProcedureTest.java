@@ -21,6 +21,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
@@ -63,7 +64,7 @@ public class JdbcBatchUpdateProcedureTest {
 	@Inject
 	NativeJdbcExtractor nativeJdbcExtractor;
 
-	ArrayList<Object[]> args = new ArrayList<Object[]>();
+	List<Object[]> args = new ArrayList<Object[]>();
 
 	String sql = null;
 
@@ -150,7 +151,7 @@ public class JdbcBatchUpdateProcedureTest {
 		PreparedStatement ps = conn.prepareStatement(sql);
 
 		for (int i = 0; i < args.size(); i++) {
-			Object[] psArg = (Object[]) args.get(i);
+			Object[] psArg = args.get(i);
 
 			for (int j = 0; j < psArg.length; j++) {
 				StatementCreatorUtils.setParameterValue(ps, j + 1,
@@ -175,7 +176,7 @@ public class JdbcBatchUpdateProcedureTest {
 	 *             throws exception which is from PreparedStatement
 	 */
 	@Test
-	public void testBatchSpringJdbcTemplate() throws Exception {
+	public void testBatchSpringJdbcTemplate() {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
 		int[] numUpdates = jdbcTemplate.batchUpdate(sql,
@@ -187,7 +188,7 @@ public class JdbcBatchUpdateProcedureTest {
 
 					public void setValues(PreparedStatement ps, int index)
 							throws SQLException {
-						Object[] arg = (Object[]) (args.get(index));
+						Object[] arg = args.get(index);
 						for (int i = 0; i < arg.length; i++) {
 							StatementCreatorUtils.setParameterValue(ps, i + 1,
 									SqlTypeValue.TYPE_UNKNOWN, null, arg[i]);
@@ -217,12 +218,8 @@ public class JdbcBatchUpdateProcedureTest {
 			cs = nativeJdbcExtractor.getNativeCallableStatement(cs);
 		}
 
-//		Method setExecuteBatchMethod = cs.getClass().getMethod(
-//				"setExecuteBatch", new Class[] { int.class });
-//		setExecuteBatchMethod.invoke(cs, new Object[] { new Integer(4) });
-
 		for (int i = 0; i < args.size(); i++) {
-			Object[] psArg = (Object[]) args.get(i);
+			Object[] psArg = args.get(i);
 
 			for (int j = 0; j < psArg.length; j++) {
 				StatementCreatorUtils.setParameterValue(cs, j + 1,

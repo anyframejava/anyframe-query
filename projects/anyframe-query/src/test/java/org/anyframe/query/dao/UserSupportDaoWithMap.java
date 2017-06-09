@@ -22,26 +22,26 @@ import org.anyframe.query.dao.QueryServiceDaoSupport;
 
 public class UserSupportDaoWithMap extends QueryServiceDaoSupport  {
 
-    public void createUsers(Map usersMap) throws Exception {
+    public void createUsers(Map<String, String> usersMap) {
         create("createUsers", usersMap);
     }
 
-    public Map findUsers(Map usersMap) throws Exception {
-        return (Map) findByPk("findUsersByPk", usersMap);
+	public Map<String, Object> findUsers(Map<String, String> usersMap) {
+		Map<String, Object> map = findByPk("findUsersByPk", usersMap);
+		return map;
     }
 
-    public Page findUsersList(Map searchMap, int pageIndex, int pageSize,
-            int pageUnit) throws Exception {
+    public Page findUsersList(Map<String, String> searchMap, int pageIndex, int pageSize,
+            int pageUnit) {
         return findListWithPaging("findUsersList", searchMap, pageIndex, pageSize,
             pageUnit);
     }
 
-    public void removeUsers(Map usersMap) throws Exception {
+    public void removeUsers(Map<String, String> usersMap) {
         remove("removeUsers", usersMap);
     }
 
-    public void updateUsers(Map usersMap) throws Exception {
+    public void updateUsers(Map<String, String> usersMap) {
         update("updateUsers", usersMap);
     }
-
 }

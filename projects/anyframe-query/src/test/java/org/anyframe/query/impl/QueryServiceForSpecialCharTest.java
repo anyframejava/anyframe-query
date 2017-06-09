@@ -15,7 +15,7 @@
  */
 package org.anyframe.query.impl;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -46,79 +46,66 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = { "classpath*:/spring/context-*.xml" })
 public class QueryServiceForSpecialCharTest {
 
-    @Inject
-    QueryService queryService;
-    
-//	private QueryService queryService = null;
-
-//    public void setQueryService(QueryService queryService) {
-//        this.queryService = queryService;
-//    }
-//
-//    protected String[] getConfigLocations() {
-//        setAutowireMode(AbstractDependencyInjectionSpringContextTests.AUTOWIRE_BY_NAME);
-//        return new String[] {"classpath*:/spring/context-*.xml" };
-//    }
+	@Inject
+	QueryService queryService;
 
 	/**
 	 * Table TB_USER is created for test and initial data is entered.
 	 */
-    @Before
-    public void onSetUp() throws Exception {
-        try {
-            queryService.updateBySQL("DROP TABLE TB_USER", new String[] {},
-                new Object[] {});
-        } catch (Exception e) {
-            System.out.println("Fail to DROP Table.");
-        }
-        queryService.updateBySQL("CREATE TABLE TB_USER ( "
-            + "LOGON_ID  VARCHAR(20), " + "PASSWORD VARCHAR(20),"
-            + "NAME VARCHAR(20)," + "PRIMARY KEY (LOGON_ID))", new String[] {},
-            new Object[] {});
+	@Before
+	public void onSetUp() {
+		try {
+			queryService.updateBySQL("DROP TABLE TB_USER", new String[] {},
+					new Object[] {});
+		} catch (Exception e) {
+			System.out.println("Fail to DROP Table.");
+		}
+		queryService.updateBySQL("CREATE TABLE TB_USER ( "
+				+ "LOGON_ID  VARCHAR(20), " + "PASSWORD VARCHAR(20),"
+				+ "NAME VARCHAR(20)," + "PRIMARY KEY (LOGON_ID))",
+				new String[] {}, new Object[] {});
 
-        queryService.createBySQL(
-            "INSERT INTO TB_USER VALUES ('admin', 'admin', 'ADMIN')",
-            new String[] {}, new Object[] {});
-        queryService.createBySQL(
-            "INSERT INTO TB_USER VALUES ('test', 'test123', 'TESTER&123')",
-            new String[] {}, new Object[] {});
-    }
+		queryService.createBySQL(
+				"INSERT INTO TB_USER VALUES ('admin', 'admin', 'ADMIN')",
+				new String[] {}, new Object[] {});
+		queryService.createBySQL(
+				"INSERT INTO TB_USER VALUES ('test', 'test123', 'TESTER&123')",
+				new String[] {}, new Object[] {});
+	}
 
 	/**
 	 * [Flow #-1] Positive Case : By calling for findBySQL()method of
 	 * QueryService, query statement including special character is executed and
 	 * its result value is verified.
 	 * 
-     * @throws Exception
-     *         throws exception which is from
-     *         QueryService
-     */
-    @Test
-    public void testUserUsingConditionWithSpecialChar() throws Exception {
-        // 1. set query statement
-        String sql =
-            "select * from TB_USER "
-                + "where NAME like '%~`!@#$^&*()+-={}|[]\\:\";''<>?,./%' ";
+	 * @throws Exception
+	 *             throws exception which is from QueryService
+	 */
+	@Test
+	public void testUserUsingConditionWithSpecialChar() {
+		// 1. set query statement
+		String sql = "select * from TB_USER "
+				+ "where NAME like '%~`!@#$^&*()+-={}|[]\\:\";''<>?,./%' ";
 
-        // 2. execute query
-        Collection rtCollection =
-            queryService.findBySQL(sql, new String[] {}, new Object[] {});
+		// 2. execute query
+		List<Map<String, Object>> results = queryService.findBySQL(sql,
+				new String[] {}, new Object[] {});
 
-        // 3. assert
-        Assert.assertTrue("Fail to execute query with special character.",
-            rtCollection.size() == 0);
+		// 3. assert
+		Assert.assertTrue("Fail to execute query with special character.",
+				results.size() == 0);
 
-        // 4. set another query statement
-        sql = "select * from TB_USER " + "where NAME like '%&%' ";
+		// 4. set another query statement
+		sql = "select * from TB_USER " + "where NAME like '%&%' ";
 
-        // 5. execute query
-        rtCollection =
-            queryService.findBySQL(sql, new String[] {}, new Object[] {});
+		// 5. execute query
+		results = queryService.findBySQL(sql, new String[] {}, new Object[] {});
 
-        // 6. assert
-        Assert.assertTrue("Fail to execute query with special character.",
-            rtCollection.size() == 1);
-        Map result = (Map) rtCollection.iterator().next();
-        Assert.assertEquals("Fail to compare result.", "test", result.get("LOGON_ID"));
-    }
+		// 6. assert
+		Assert.assertTrue("Fail to execute query with special character.",
+				results.size() == 1);
+		Map<String, Object> result = results.iterator().next();
+		Assert.assertEquals("Fail to compare result.", "test", result
+				.get("LOGON_ID"));
+	}
 }

@@ -17,6 +17,7 @@ package org.anyframe.query.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -38,7 +39,7 @@ public class QueryServicePerformaceTest {
      * Table TB_EXT_CATEGORY is created for test and initial data is entered. 
      */
 	@Before
-    public void onSetUp() throws Exception {
+    public void onSetUp() {
         try {
             queryService.updateBySQL("DROP TABLE TB_CATEGORY", new String[] {},
                 new Object[] {});
@@ -64,17 +65,10 @@ public class QueryServicePerformaceTest {
     }
 	
 	@Test
-    public void testResultSetMapperPerformance() throws Exception {
-//        findCategoryList();
-//        findCategoryListUsingResultMapper();
-//        findCategoryListUsingHashMap();
-    }
-	
-	@Test
-    public void findCategoryList() throws Exception {
+    public void findCategoryList() throws InterruptedException {
         long beforetime = new Date().getTime();
 
-        ArrayList<QueryThread> threadList = new ArrayList<QueryThread>();
+        List<QueryThread> threadList = new ArrayList<QueryThread>();
         for (int i = 0; i < 100; i++) {
             QueryThread thread =
                 new QueryThread("Thread " + i, queryService,
@@ -93,10 +87,10 @@ public class QueryServicePerformaceTest {
     }
 
     @Test
-	public void findCategoryListUsingResultMapper() throws Exception {
+	public void findCategoryListUsingResultMapper() throws InterruptedException {
         long beforetime = new Date().getTime();
 
-        ArrayList<QueryThread> threadList = new ArrayList<QueryThread>();
+        List<QueryThread> threadList = new ArrayList<QueryThread>();
         for (int i = 0; i < 100; i++) {
             QueryThread thread =
                 new QueryThread("Thread " + i, queryService,
@@ -115,10 +109,10 @@ public class QueryServicePerformaceTest {
     }
 
     @Test
-    public void findCategoryListUsingHashMap() throws Exception {
+    public void findCategoryListUsingHashMap() throws InterruptedException {
         long beforetime = new Date().getTime();
 
-        ArrayList<QueryThread> threadList = new ArrayList<QueryThread>();
+        List<QueryThread> threadList = new ArrayList<QueryThread>();
         for (int i = 0; i < 100; i++) {
             QueryThread thread =
                 new QueryThread("Thread " + i, queryService,

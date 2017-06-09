@@ -18,8 +18,9 @@ package org.anyframe.query.impl.config.loader;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.anyframe.query.ConfigurationException;
+import org.anyframe.exception.MissingRequiredPropertyException;
 import org.anyframe.query.MappingInfo;
+import org.anyframe.util.StringUtil;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -52,7 +53,7 @@ public class DefaultMappingInfo implements MappingInfo {
 
 	private String updateQuery = null;
 
-	public void configure(Element table) throws ConfigurationException {
+	public void configure(Element table) {
 		className = table.getAttribute("class");
 		checkRequiredAttribute("table", "class", className);
 
@@ -94,9 +95,9 @@ public class DefaultMappingInfo implements MappingInfo {
 	}
 
 	/**
-	 * SELECT statement for single item search including Named Parameter is created based
-	 * on table mapping information. (Named Parameter is 'Anyframe.related class property 
-	 * name')
+	 * SELECT statement for single item search including Named Parameter is
+	 * created based on table mapping information. (Named Parameter is
+	 * 'Anyframe.related class property name')
 	 */
 	public String getSelectByPrimaryKeyQuery() {
 		if (selectByPrimaryKeyQuery == null) {
@@ -128,8 +129,8 @@ public class DefaultMappingInfo implements MappingInfo {
 	}
 
 	/**
-	 * INSERT statement including Named Parameter is created based
-	 * on table mapping information. (Named Parameter is 'Anyframe.related class property 
+	 * INSERT statement including Named Parameter is created based on table
+	 * mapping information. (Named Parameter is 'Anyframe.related class property
 	 * name')
 	 * 
 	 */
@@ -160,13 +161,14 @@ public class DefaultMappingInfo implements MappingInfo {
 	}
 
 	/**
-	 * UPDATE statement including Named Parameter is created based
-	 * on table mapping information. (Named Parameter is 'Anyframe.related class property 
+	 * UPDATE statement including Named Parameter is created based on table
+	 * mapping information. (Named Parameter is 'Anyframe.related class property
 	 * name')
 	 */
 	public String getUpdateQuery() {
 		if (updateQuery == null) {
-			StringBuilder sql = new StringBuilder("UPDATE " + tableName + " SET ");
+			StringBuilder sql = new StringBuilder("UPDATE " + tableName
+					+ " SET ");
 
 			for (int i = 0, size = columnNames.length; i < size; i++) {
 				sql.append(columnNames[i]);
@@ -195,8 +197,8 @@ public class DefaultMappingInfo implements MappingInfo {
 	}
 
 	/**
-	 *  DELETE statement including Named Parameter is created based
-	 * on table mapping information. (Named Parameter is 'Anyframe.related class property 
+	 * DELETE statement including Named Parameter is created based on table
+	 * mapping information. (Named Parameter is 'Anyframe.related class property
 	 * name')
 	 */
 	public String getDeleteQuery() {
@@ -259,10 +261,10 @@ public class DefaultMappingInfo implements MappingInfo {
 	}
 
 	// 2009.03.17 - start
-	//In the case where Custom Class Type is defined within Result Class,
-	//mapping information needed for setting search return value on relevant object. 
-	
-	
+	// In the case where Custom Class Type is defined within Result Class,
+	// mapping information needed for setting search return value on relevant
+	// object.
+
 	public Map<String, String[]> getCompositeColumnNames() {
 		return compositeColumnNames;
 	}
@@ -283,26 +285,28 @@ public class DefaultMappingInfo implements MappingInfo {
 	// 2009.03.17 - end
 
 	private void checkRequiredAttribute(String element, String name,
-			String value) throws ConfigurationException {
-		if (value.equals("")) {
-			throw new ConfigurationException("Query Service : " + name
-					+ " is essential attribute in a <" + element + ">.");
+			String value) {
+		if (StringUtil.isEmpty(value)) {
+			throw new MissingRequiredPropertyException("Query Service : "
+					+ name + " is essential attribute in a <" + element + ">.");
 		}
 	}
 
 	private void hasMultipleElements(String parentElement, String childElement,
-			int length) throws ConfigurationException {
+			int length) {
 		if (length == 0) {
-			throw new ConfigurationException("Query Service : must have <"
-					+ childElement + "> over one in a <" + parentElement + ">.");
+			throw new MissingRequiredPropertyException(
+					"Query Service : must have <" + childElement
+							+ "> over one in a <" + parentElement + ">.");
 		}
 	}
 
 	private void hasOnlyOneElements(String parentElement, String childElement,
-			int length) throws ConfigurationException {
+			int length) {
 		if (length == 0 || length > 1) {
-			throw new ConfigurationException("Query Service : must have one <"
-					+ childElement + "> in a <" + parentElement + ">.");
+			throw new MissingRequiredPropertyException(
+					"Query Service : must have one <" + childElement
+							+ "> in a <" + parentElement + ">.");
 		}
 	}
 }

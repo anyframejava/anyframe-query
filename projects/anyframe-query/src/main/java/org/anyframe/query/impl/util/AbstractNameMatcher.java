@@ -19,8 +19,10 @@ import java.lang.reflect.Field;
 import java.util.Map;
 
 /**
- * @author SoYon Lim
- * @author JongHoon Kim
+ * @author Warren Mayocchi
+ * 
+ * @author modified by SoYon Lim
+ * @author modified by JongHoon Kim
  */
 public abstract class AbstractNameMatcher implements Cloneable {
 
@@ -35,9 +37,9 @@ public abstract class AbstractNameMatcher implements Cloneable {
 	 */
 	public abstract boolean isMatching(String attributeName, String columnName,
 			String parentAttributeName);
-	
-	public abstract Field isMatching(Map attributeMap, String columnName,
-			String parentAttributeName);	
+
+	public abstract Field isMatching(Map<String, Field> attributeMap,
+			String columnName, String parentAttributeName);
 
 	/**
 	 * Set the prefix to use when matching a field name to column name. The

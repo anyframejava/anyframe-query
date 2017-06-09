@@ -17,24 +17,25 @@ package org.anyframe.query.impl;
 
 /**
  * This class is to expend Pagination to support Live Scrolling function.
+ * 
  * @author SoYon Lim
  * @author JongHoon Kim
  */
 public class LiveScrollPagination extends Pagination {
-    private int startIndex = 1;
+	private int startIndex = 1;
 
-    private boolean useStartIndex = false;
+	private boolean useStartIndex = false;
 
-    public int getStartIndex() {
-        return startIndex;
-    }
+	public int getStartIndex() {
+		return startIndex;
+	}
 
-    public void setStartIndex(int startIndex) {
-        this.useStartIndex = true;
-        this.startIndex = startIndex;
-    }
+	public void setStartIndex(int startIndex) {
+		this.useStartIndex = true;
+		this.startIndex = startIndex;
+	}
 
-    public boolean isUseStartIndex() {
-        return useStartIndex;
-    }
+	public boolean isUseStartIndex() {
+		return useStartIndex;
+	}
 }

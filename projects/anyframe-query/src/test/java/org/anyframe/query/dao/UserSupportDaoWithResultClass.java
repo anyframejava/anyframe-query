@@ -18,27 +18,28 @@ package org.anyframe.query.dao;
 import org.anyframe.pagination.Page;
 import org.anyframe.query.dao.QueryServiceDaoSupport;
 import org.anyframe.query.vo.UsersVO;
+
 public class UserSupportDaoWithResultClass extends QueryServiceDaoSupport {
-    public void createUsers(UsersVO usersVO) throws Exception {
-        create("createUsers", usersVO);
-    }
+	
+	public void createUsers(UsersVO usersVO) {
+		create("createUsers", usersVO);
+	}
 
-    public UsersVO findUsers(UsersVO usersVO) throws Exception {
-        return (UsersVO) findByPk("findUsersByPk", usersVO);
-    }
+	public UsersVO findUsers(UsersVO usersVO) {
+		return (UsersVO) findByPk("findUsersByPk", usersVO);
+	}
 
-    public Page findUsersList(UsersVO usersVO, int pageIndex, int pageSize,
-            int pageUnit) throws Exception {
-        return findListWithPaging("findUsersList", usersVO, pageIndex, pageSize,
-            pageUnit);
-    }
+	public Page findUsersList(UsersVO usersVO, int pageIndex, int pageSize,
+			int pageUnit) {
+		return findListWithPaging("findUsersList", usersVO, pageIndex,
+				pageSize, pageUnit);
+	}
 
-    public void removeUsers(UsersVO usersVO) throws Exception {
-        remove("removeUsers", usersVO);
-    }
+	public void removeUsers(UsersVO usersVO) {
+		remove("removeUsers", usersVO);
+	}
 
-    public void updateUsers(UsersVO usersVO) throws Exception {
-        update("updateUsers", usersVO);
-    }
-
+	public void updateUsers(UsersVO usersVO) {
+		update("updateUsers", usersVO);
+	}
 }

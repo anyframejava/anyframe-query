@@ -20,6 +20,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
@@ -62,15 +64,15 @@ public class QueryServiceOracleBatchUpdateTest {
 
 	@Inject
 	QueryService queryService;
-	
+
 	@Inject
 	DataSource dataSource;
-	
+
 	/**
 	 * Table TB_BATCH_TEST is created for test.
 	 */
 	@Before
-	public void onSetUp() throws Exception {
+	public void onSetUp() {
 		try {
 			Connection conn = dataSource.getConnection();
 			try {
@@ -98,10 +100,10 @@ public class QueryServiceOracleBatchUpdateTest {
 
 	@Test
 	public void testOraclePagingJdbcTemplateBatchUpdatePerformance()
-			throws Exception {
+			throws InterruptedException {
 		long beforetime = new Date().getTime();
 
-		ArrayList<QueryThread> threadList = new ArrayList<QueryThread>();
+		List<QueryThread> threadList = new ArrayList<QueryThread>();
 		for (int i = 0; i < 1; i++) {
 			QueryThread thread = new QueryThread(queryService);
 			threadList.add(thread);
@@ -126,9 +128,9 @@ public class QueryServiceOracleBatchUpdateTest {
 	 * @throws Exception
 	 *             throws exception which is from QueryService
 	 */
-	private void batchInsertByObject() throws Exception {
+	private void batchInsertByObject() {
 		// 1. set data for insert
-		ArrayList<BatchTestVO> args = new ArrayList<BatchTestVO>();
+		List<BatchTestVO> args = new ArrayList<BatchTestVO>();
 		BatchTestVO batchTestVO = new BatchTestVO();
 		batchTestVO.setCol1("I1BatchCreateByObject");
 		batchTestVO.setCol2("I1BatchCreateByObject");
@@ -180,9 +182,9 @@ public class QueryServiceOracleBatchUpdateTest {
 		 * @throws Exception
 		 *             throws exception which is from QueryService
 		 */
-		public void testBatchUpdateByObject() throws Exception {
+		public void testBatchUpdateByObject() {
 			// 2. set data for update
-			ArrayList<BatchTestVO> args = new ArrayList<BatchTestVO>();
+			List<BatchTestVO> args = new ArrayList<BatchTestVO>();
 			BatchTestVO batchTestVO = new BatchTestVO();
 			batchTestVO.setCol1("I1BatchCreateByObject");
 			batchTestVO.setCol2("Modified");
@@ -201,13 +203,17 @@ public class QueryServiceOracleBatchUpdateTest {
 
 			// 3. execute query
 			int[] rtVal = queryService.batchUpdate(args);
-			Assert.assertTrue("Fail to batch update by object.", rtVal.length == 3);
+			Assert.assertTrue("Fail to batch update by object.",
+					rtVal.length == 3);
 
-			Assert.assertEquals("Fail to batch update by object - result value.", 0,
+			Assert.assertEquals(
+					"Fail to batch update by object - result value.", 0,
 					rtVal[0]);
-			Assert.assertEquals("Fail to batch update by object - result value.", 0,
+			Assert.assertEquals(
+					"Fail to batch update by object - result value.", 0,
 					rtVal[1]);
-			Assert.assertEquals("Fail to batch update by object - result value.", 3,
+			Assert.assertEquals(
+					"Fail to batch update by object - result value.", 3,
 					rtVal[2]);
 		}
 	}
@@ -222,8 +228,8 @@ public class QueryServiceOracleBatchUpdateTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testBatchInsertWithProcedure() throws Exception {
-		ArrayList<Object[]> args = new ArrayList<Object[]>();
+	public void testBatchInsertWithProcedure() {
+		List<Object[]> args = new ArrayList<Object[]>();
 		Object[] arg = new Object[3];
 
 		arg[0] = "test1";
@@ -245,9 +251,9 @@ public class QueryServiceOracleBatchUpdateTest {
 
 		queryService.batchExecute("batchInsertWithProcedure", args);
 
-		ArrayList rtList = (ArrayList) queryService.find("findBatchTest",
+		List<Map<String, Object>> results = queryService.find("findBatchTest",
 				new Object[] {});
-		Assert.assertTrue("Fail to batch insert.", rtList.size() == 7);
+		Assert.assertTrue("Fail to batch insert.", results.size() == 7);
 	}
 
 	/**
@@ -259,7 +265,7 @@ public class QueryServiceOracleBatchUpdateTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testBatchInsertWithProcedureBySQL() throws Exception {
+	public void testBatchInsertWithProcedureBySQL() {
 		String sql = "DECLARE  " + "col1      VARCHAR2(50):= ?;  "
 				+ "col2      VARCHAR2(50):= ?;  " + "col3      NUMBER:= ?; "
 				+ "BEGIN " + "PROC_BATCH_TEST(col1, col2, col3 ); " + "END; ";
@@ -269,7 +275,7 @@ public class QueryServiceOracleBatchUpdateTest {
 		types[1] = "VARCHAR";
 		types[2] = "NUMERIC";
 
-		ArrayList<Object[]> args = new ArrayList<Object[]>();
+		List<Object[]> args = new ArrayList<Object[]>();
 		Object[] arg = new Object[3];
 
 		arg[0] = "test1";
@@ -291,8 +297,8 @@ public class QueryServiceOracleBatchUpdateTest {
 
 		queryService.batchExecuteBySQL(sql, types, args);
 
-		ArrayList rtList = (ArrayList) queryService.find("findBatchTest",
+		List<Map<String, Object>> results = queryService.find("findBatchTest",
 				new Object[] {});
-		Assert.assertTrue("Fail to batch insert.", rtList.size() == 7);
+		Assert.assertTrue("Fail to batch insert.", results.size() == 7);
 	}
 }

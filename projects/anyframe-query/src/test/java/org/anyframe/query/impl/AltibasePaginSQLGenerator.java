@@ -42,7 +42,7 @@ public class AltibasePaginSQLGenerator extends TestCase {
 	 * @throws Exception
 	 *             throws exception which is from AltibasePagingSQLGenerator
 	 */
-	public void testGetPaginationSQL() throws Exception {
+	public void testGetPaginationSQL() {
 		AltibasePagingSQLGenerator generator = new AltibasePagingSQLGenerator();
 
 		String sql1 = "select USER_NAME from USERS";

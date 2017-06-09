@@ -15,8 +15,8 @@
  */
 package org.anyframe.query.impl;
 
-import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -74,7 +74,7 @@ public class QueryServiceMappingStyleTest {
 	 * Table TB_CUSTOMER is created for test.
 	 */
 	@Before
-	public void onSetUp() throws Exception {
+	public void onSetUp() {
 		try {
 			queryService.updateBySQL("DROP TABLE TB_CUSTOMER", new String[] {},
 					new Object[] {});
@@ -123,10 +123,10 @@ public class QueryServiceMappingStyleTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testFindCustomerWithCamelCased() throws Exception {
-		Collection rtCollection = queryService.find(
+	public void testFindCustomerWithCamelCased() {
+		List<Map<String, Object>> results = queryService.find(
 				"findCustomerWithCamelCased", new Object[] { "%%" });
-		assertFindCustomer(rtCollection, "socialSecurityNumber",
+		assertFindCustomer(results, "socialSecurityNumber",
 				"customerName", "customerAddress");
 	}
 
@@ -140,10 +140,10 @@ public class QueryServiceMappingStyleTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testFindCustomerWithUpperCased() throws Exception {
-		Collection rtCollection = queryService.find(
+	public void testFindCustomerWithUpperCased() {
+		List<Map<String, Object>> results = queryService.find(
 				"findCustomerWithUpperCased", new Object[] { "%%" });
-		assertFindCustomer(rtCollection, "SOCIAL_SECURITY_NUMBER",
+		assertFindCustomer(results, "SOCIAL_SECURITY_NUMBER",
 				"CUSTOMER_NAME", "CUSTOMER_ADDRESS");
 	}
 
@@ -157,10 +157,10 @@ public class QueryServiceMappingStyleTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testFindCustomerWithLowerCased() throws Exception {
-		Collection rtCollection = queryService.find(
+	public void testFindCustomerWithLowerCased() {
+		List<Map<String, Object>> results = queryService.find(
 				"findCustomerWithLowerCased", new Object[] { "%%" });
-		assertFindCustomer(rtCollection, "social_security_number",
+		assertFindCustomer(results, "social_security_number",
 				"customer_name", "customer_address");
 	}
 
@@ -174,10 +174,10 @@ public class QueryServiceMappingStyleTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testFindCustomerWithNone() throws Exception {
-		Collection rtCollection = queryService.find("findCustomerWithNone",
+	public void testFindCustomerWithNone() {
+		List<Map<String, Object>> results = queryService.find("findCustomerWithNone",
 				new Object[] { "%%" });
-		assertFindCustomer(rtCollection, "social_security_number",
+		assertFindCustomer(results, "social_security_number",
 				"customer_name", "customer_address");
 	}
 
@@ -191,10 +191,10 @@ public class QueryServiceMappingStyleTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testFindCustomerWithIsCamelCaseTrue() throws Exception {
-		Collection rtCollection = queryService.find(
+	public void testFindCustomerWithIsCamelCaseTrue() {
+		List<Map<String, Object>> results = queryService.find(
 				"findCustomerWithIsCamelCaseTrue", new Object[] { "%%" });
-		assertFindCustomer(rtCollection, "socialSecurityNumber",
+		assertFindCustomer(results, "socialSecurityNumber",
 				"customerName", "customerAddress");
 	}
 
@@ -208,22 +208,22 @@ public class QueryServiceMappingStyleTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testFindCustomerWithIsCamelCaseFalse() throws Exception {
-		Collection rtCollection = queryService.find(
+	public void testFindCustomerWithIsCamelCaseFalse() {
+		List<Map<String, Object>> results = queryService.find(
 				"findCustomerWithIsCamelCaseFalse", new Object[] { "%%" });
-		assertFindCustomer(rtCollection, "socialSecurityNumber",
+		assertFindCustomer(results, "socialSecurityNumber",
 				"customerName", "customerAddress");
 	}
 
 	/**
 	 * Checked is searched result value.
 	 */
-	private void assertFindCustomer(Collection rtCollection, String ssnoKey,
-			String nameKey, String addressKey) throws Exception {
-		Iterator rtItr = rtCollection.iterator();
+	private void assertFindCustomer(List<Map<String, Object>> rtList, String ssnoKey,
+			String nameKey, String addressKey) {
+		Iterator<Map<String, Object>> rtItr = rtList.iterator();
 		int i = 0;
 		while (rtItr.hasNext()) {
-			Map result = (Map) rtItr.next();
+			Map<String, Object> result = rtItr.next();
 			Assert.assertEquals("Fail to assert - social security number.",
 					"123456789010" + i, result.get(ssnoKey));
 			Assert.assertEquals("Fail to assert - social security number.",

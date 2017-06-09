@@ -15,7 +15,7 @@
  */
 package org.anyframe.query.impl;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -45,25 +45,15 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath*:/spring/maxfetchsize/context-*.xml" })
 public class QueryServiceColInfoTest {
-	
+
 	@Inject
 	QueryService queryService;
-	
-//	private QueryService queryService = null;
-//
-//	public void setQueryService(QueryService queryService) {
-//		this.queryService = queryService;
-//	}
-//
-//	protected String[] getConfigLocations() {
-//		return new String[] { "classpath*:/spring/maxfetchsize/context-*.xml" };
-//	}
 
 	/**
 	 * Table TB_CUSTOMER is created for test.
 	 */
 	@Before
-	public void onSetUp() throws Exception {
+	public void onSetUp() {
 		System.out.println("Attempting to drop old table");
 		try {
 			queryService.updateBySQL("DROP TABLE TB_CUSTOMER", new String[] {},
@@ -85,8 +75,9 @@ public class QueryServiceColInfoTest {
 	 * @throws Exception
 	 *             throws exception which is from QueryService
 	 */
+	@SuppressWarnings("unchecked")
 	@Test
-	public void testFindWithColInfo() throws Exception {
+	public void testFindWithColInfo() {
 		// 1. insert test data over maxFetchSize
 		insertCustomerBySQL("1234567890123", "Anyframe1", "Seoul");
 		insertCustomerBySQL("1234567890111", "Anyframe2", "Seoul");
@@ -94,10 +85,11 @@ public class QueryServiceColInfoTest {
 		insertCustomerBySQL("1234567890333", "Anyframe4", "Seoul");
 
 		// 6. execute select query
-		Map results = queryService.findWithColInfo("findCustomerWithResult",
-				new Object[] { "%987654%" }, 1, 4);
+		Map<String, Object> results = queryService.findWithColInfo(
+				"findCustomerWithResult", new Object[] { "%987654%" }, 1, 4);
 
-		Map columnInfos = (Map) results.get(QueryService.COL_INFO);
+		Map<String, Object> columnInfos = (Map) results
+				.get(QueryService.COL_INFO);
 
 		Assert.assertEquals("fail to find column information about ssno",
 				"VARCHAR:13:0", columnInfos.get("ssno"));
@@ -139,18 +131,17 @@ public class QueryServiceColInfoTest {
 	 * @throws Exception
 	 *             fail to find customer by SQL
 	 */
-	private void findCustomerBySQL(String ssno, String name, String address)
-			throws Exception {
+	private void findCustomerBySQL(String ssno, String name, String address) {
 		// 1. execute query
-		Collection rtCollection = queryService.findBySQL(
+		List<Map<String, Object>> results = queryService.findBySQL(
 				"select NAME, ADDRESS from TB_CUSTOMER WHERE SSNO = ?",
 				new String[] { "VARCHAR" }, new Object[] { ssno });
 
 		// 2. assert
-		Assert.assertEquals("Fail to find customer by SQL.", 1, rtCollection.size());
+		Assert.assertEquals("Fail to find customer by SQL.", 1, results.size());
 
 		// 3. assert in detail
-		Map rtMap = (Map) rtCollection.iterator().next();
+		Map<String, Object> rtMap = results.iterator().next();
 		Assert.assertEquals("Fail to compare result.", address, (String) rtMap
 				.get("address"));
 		Assert.assertEquals("Fail to compare result.", name, (String) rtMap
@@ -167,8 +158,7 @@ public class QueryServiceColInfoTest {
 	 * @throws Exception
 	 *             fail to insert customer by SQL
 	 */
-	private void insertCustomerBySQL(String ssno, String name, String address)
-			throws Exception {
+	private void insertCustomerBySQL(String ssno, String name, String address) {
 		// 1. execute query
 		int result = queryService.createBySQL(
 				"insert into TB_CUSTOMER values (?, ?, ?)", new String[] {

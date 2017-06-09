@@ -21,7 +21,7 @@ import org.springframework.jdbc.core.SqlParameter;
 
 /**
  * This is a class for the role of saving the info about query statement defined
- * in the query mapping xml file.
+ * in the query mappings.
  * 
  * @author SoYon Lim
  * @author JongHoon Kim
@@ -82,7 +82,7 @@ public interface QueryInfo {
 	 * Tramsmits the size of result operated for the appropriate query
 	 * statement.
 	 * 
-	 * @return size of the result which is defined as the child element of an
+	 * @return size of the result which is defined as the attribute of an
 	 *         arbitrary query statement
 	 */
 	int getFetchCountPerQuery();

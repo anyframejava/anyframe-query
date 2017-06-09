@@ -16,7 +16,6 @@
 package org.anyframe.query.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +24,7 @@ import javax.inject.Inject;
 import junit.framework.Assert;
 
 import org.anyframe.query.QueryService;
-import org.anyframe.query.QueryServiceException;
+import org.anyframe.query.exception.QueryException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -85,7 +84,7 @@ public class QueryServiceDynamicSQLTest {
 	 * Table TB_USER is created for test and initial data is added.
 	 */
 	@Before
-	public void onSetUp() throws Exception {
+	public void onSetUp() {
 		try {
 			queryService.updateBySQL("DROP TABLE TB_USER", new String[] {},
 					new Object[] {});
@@ -115,20 +114,20 @@ public class QueryServiceDynamicSQLTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testDynamicQueryUsingNamedParameter() throws Exception {
+	public void testDynamicQueryUsingNamedParameter() {
 		// 1. set data for test
 		Object[] iVal = new Object[2];
 		iVal[0] = "lowID=a";
 		iVal[1] = "highID=s";
 
 		// 2. execute query
-		ArrayList rtList = (ArrayList) (queryService.find("findLogonIdByRange",
-				iVal));
+		List<Map<String, Object>> results = queryService.find("findLogonIdByRange",
+				iVal);
 
 		// 3. assert
-		Assert.assertTrue("Fail to execute dynamic query.", rtList.size() == 1);
-		for (int i = 0; i < rtList.size(); i++) {
-			Map result = (Map) rtList.get(i);
+		Assert.assertTrue("Fail to execute dynamic query.", results.size() == 1);
+		for (int i = 0; i < results.size(); i++) {
+			Map<String, Object> result = results.get(i);
 			Assert.assertEquals("Fail to compare result.", "admin", result
 					.get("logonId"));
 		}
@@ -145,8 +144,7 @@ public class QueryServiceDynamicSQLTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testDynamicQueryUsingWrongDefinedNamedParameter()
-			throws Exception {
+	public void testDynamicQueryUsingWrongDefinedNamedParameter() {
 		// 1. set data for test
 		Object[] iVal = new Object[2];
 		iVal[0] = "a";
@@ -158,7 +156,7 @@ public class QueryServiceDynamicSQLTest {
 		} catch (Exception e) {
 			// 3. assert
 			Assert.assertTrue("Fail to find exception class type.",
-					e instanceof QueryServiceException);
+					e instanceof QueryException);
 			Assert.assertTrue("Fail to compare exception message.", e
 					.getMessage()
 					.startsWith("Query Service : Invalid Argument"));
@@ -174,18 +172,18 @@ public class QueryServiceDynamicSQLTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testDynamicQueryUsingTextReplace() throws Exception {
+	public void testDynamicQueryUsingTextReplace() {
 		// 1. set data for test
 		Object[] iVal = new Object[2];
 		iVal[0] = "schema=TB_USER";
 		iVal[1] = "sortColumn=NAME";
 
 		// 2. execute query
-		ArrayList rtList = (ArrayList) (queryService.find("findUsers", iVal));
+		List<Map<String, Object>> results = queryService.find("findUsers", iVal);
 
 		// 3. assert
-		Assert.assertTrue("Fail to execute dynamic query.", rtList.size() == 2);
-		Map result = (Map) rtList.get(0);
+		Assert.assertTrue("Fail to execute dynamic query.", results.size() == 2);
+		Map<String, Object> result = results.get(0);
 		Assert.assertEquals("Fail to compare result.", "admin", result
 				.get("logonId"));
 	}
@@ -201,7 +199,7 @@ public class QueryServiceDynamicSQLTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testDynamicQueryUsingWrongTextReplace() throws Exception {
+	public void testDynamicQueryUsingWrongTextReplace() {
 		// 1. set data for test
 		Object[] iVal = new Object[0];
 		try {
@@ -211,7 +209,7 @@ public class QueryServiceDynamicSQLTest {
 		} catch (Exception e) {
 			// 3. assert
 			Assert.assertTrue("Fail to find exception class type.",
-					e instanceof QueryServiceException);
+					e instanceof QueryException);
 		}
 	}
 
@@ -224,19 +222,19 @@ public class QueryServiceDynamicSQLTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testDynamicQueryUsingCondition() throws Exception {
+	public void testDynamicQueryUsingCondition() {
 		// 1. set data for test
 		Object[] iVal = new Object[2];
 		iVal[0] = "id=test";
 		iVal[1] = "sortColumn=NAME";
 
 		// 2. execute query
-		ArrayList rtList = (ArrayList) (queryService.find(
-				"findUsersByCondition", iVal));
+		List<Map<String, Object>> results = queryService.find(
+				"findUsersByCondition", iVal);
 
 		// 3. assert
-		Assert.assertTrue("Fail to execute dynamic query.", rtList.size() == 1);
-		Map result = (Map) rtList.get(0);
+		Assert.assertTrue("Fail to execute dynamic query.", results.size() == 1);
+		Map<String, Object> result = results.get(0);
 		Assert.assertEquals("Fail to compare result.", "test", result
 				.get("logonId"));
 	}
@@ -250,29 +248,30 @@ public class QueryServiceDynamicSQLTest {
 	 * @throws Exception
 	 *             throws exception which is from QueryService
 	 */
+	@SuppressWarnings("unchecked")
 	@Test
-	public void testDynamicQueryUsingPagination() throws Exception {
+	public void testDynamicQueryUsingPagination() {
 		// 1. set data for test
 		Object[] iVal = new Object[2];
 		iVal[0] = "schema=TB_USER";
 		iVal[1] = "sortColumn=NAME";
 
 		// 2. execute query
-		HashMap rtMap = (HashMap) (queryService.findWithRowCount("findUsers",
-				iVal, 2, 1));
+		Map<String, Object> rtMap = queryService.findWithRowCount("findUsers",
+				iVal, 2, 1);
 
 		// 3. get result size and total size
-		ArrayList rtList = (ArrayList) rtMap.get(QueryService.LIST);
+		List<Map<String,Object>> results = (List) rtMap.get(QueryService.LIST);
 		Long intVal = (Long) rtMap.get(QueryService.COUNT);
 
 		// 4. assert
-		Assert.assertTrue("Fail to execute dynamic query - result.", rtList
+		Assert.assertTrue("Fail to execute dynamic query - result.", results
 				.size() == 1);
 		Assert.assertTrue("Fail to execute dynamic query - total count.",
 				intVal.intValue() == 2);
 
 		// 5. assert in detail
-		Map result = (Map) rtList.get(0);
+		Map<String, Object> result = results.get(0);
 		Assert.assertEquals("Fail to compare result.", "test", result
 				.get("logonId"));
 	}
@@ -286,19 +285,19 @@ public class QueryServiceDynamicSQLTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testDynamicQueryUsingForEach() throws Exception {
+	public void testDynamicQueryUsingForEach() {
 		// 1. set data for test
 		List<String> logonIdList = new ArrayList<String>();
 		logonIdList.add("admin");
 		logonIdList.add("test");
 
 		// 2. execute query
-		ArrayList rtList = (ArrayList) (queryService.find("dynamicWithForEach",
-				new Object[] { new Object[] { "logonIdList", logonIdList } }));
+		List<Map<String, Object>> results = queryService.find("dynamicWithForEach",
+				new Object[] { new Object[] { "logonIdList", logonIdList } });
 
 		// 3. assert
-		Assert.assertTrue("Fail to execute dynamic query.", rtList.size() == 2);
-		Map result = (Map) rtList.get(0);
+		Assert.assertTrue("Fail to execute dynamic query.", results.size() == 2);
+		Map<String, Object> result = results.get(0);
 		Assert.assertEquals("Fail to compare result.", "admin", result
 				.get("logonId"));
 	}
@@ -314,21 +313,20 @@ public class QueryServiceDynamicSQLTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testDynamicQueryUsingNamedParameterWithBlockComments()
-			throws Exception {
+	public void testDynamicQueryUsingNamedParameterWithBlockComments() {
 		// 1. set data for test
 		Object[] iVal = new Object[2];
 		iVal[0] = "lowID=a";
 		iVal[1] = "highID=s";
 
 		// 2. execute query
-		ArrayList rtList = (ArrayList) (queryService.find(
-				"findLogonIdByRangeWithBlockComments", iVal));
+		List<Map<String, Object>> results = queryService.find(
+				"findLogonIdByRangeWithBlockComments", iVal);
 
 		// 3. assert
-		Assert.assertTrue("Fail to execute dynamic query.", rtList.size() == 1);
-		for (int i = 0; i < rtList.size(); i++) {
-			Map result = (Map) rtList.get(i);
+		Assert.assertTrue("Fail to execute dynamic query.", results.size() == 1);
+		for (int i = 0; i < results.size(); i++) {
+			Map<String, Object> result = results.get(i);
 			Assert.assertEquals("Fail to compare result.", "admin", result
 					.get("logonId"));
 		}
@@ -345,21 +343,20 @@ public class QueryServiceDynamicSQLTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testDynamicQueryUsingNamedParameterWithLineComments()
-			throws Exception {
+	public void testDynamicQueryUsingNamedParameterWithLineComments() {
 		// 1. set data for test
 		Object[] iVal = new Object[2];
 		iVal[0] = "lowID=a";
 		iVal[1] = "highID=s";
 
 		// 2. execute query
-		ArrayList rtList = (ArrayList) (queryService.find(
-				"findLogonIdByRangeWithLineComments", iVal));
+		List<Map<String, Object>> results = queryService.find(
+				"findLogonIdByRangeWithLineComments", iVal);
 
 		// 3. assert
-		Assert.assertTrue("Fail to execute dynamic query.", rtList.size() == 1);
-		for (int i = 0; i < rtList.size(); i++) {
-			Map result = (Map) rtList.get(i);
+		Assert.assertTrue("Fail to execute dynamic query.", results.size() == 1);
+		for (int i = 0; i < results.size(); i++) {
+			Map<String, Object> result = results.get(i);
 			Assert.assertEquals("Fail to compare result.", "admin", result
 					.get("logonId"));
 		}

@@ -44,7 +44,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath*:/spring/context-*.xml" })
 public class QueryServiceConcurrentTest {
-	
+
 	@Inject
 	QueryService queryService;
 
@@ -52,7 +52,7 @@ public class QueryServiceConcurrentTest {
 	 * Table TB_RESERVATION is created for test.
 	 */
 	@Before
-	public void onSetUp() throws Exception {
+	public void onSetUp() {
 		System.out.println("Attempting to drop old table");
 		try {
 			queryService.updateBySQL("DROP TABLE TB_CONCURRENT",
@@ -80,11 +80,13 @@ public class QueryServiceConcurrentTest {
 	 * [Flow #-1] Positive Case : Query statement is executed through
 	 * findWithRowCount() of QueryService and its result value is verified.
 	 * 
+	 * @throws InterruptedException
+	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testConcurrentExecution() throws Exception {
+	public void testConcurrentExecution() throws InterruptedException {
 		// make race condition situation
 		// THREAD #1
 		new TestThread(1, "A", 1, 5).start();
@@ -119,6 +121,7 @@ public class QueryServiceConcurrentTest {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void worker(String condition, int pageIndex, int pageSize) {
 		try {
 
@@ -137,15 +140,15 @@ public class QueryServiceConcurrentTest {
 						condition);
 			}
 
-			Map result = queryService.findWithRowCount("findWithConcurrent",
-					new Object[] { new Object[] { "condition", condition } },
-					pageIndex, pageSize);
+			Map<String, Object> result = queryService.findWithRowCount(
+					"findWithConcurrent", new Object[] { new Object[] {
+							"condition", condition } }, pageIndex, pageSize);
 
-			Set set = result.keySet();
-			Iterator itr = set.iterator();
+			Set<String> set = result.keySet();
+			Iterator<String> itr = set.iterator();
 
 			while (itr.hasNext()) {
-				String key = (String) itr.next();
+				String key = itr.next();
 				System.out.println(Thread.currentThread()
 						+ "][Location:TESTCASE][KEY:" + key + "][VALUE:"
 						+ result.get(key) + "]");

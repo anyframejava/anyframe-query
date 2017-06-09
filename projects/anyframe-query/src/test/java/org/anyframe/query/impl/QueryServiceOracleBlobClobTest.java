@@ -23,8 +23,9 @@ import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.Collection;
+import java.sql.SQLException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -65,7 +66,7 @@ public class QueryServiceOracleBlobClobTest {
 	 * Table TB_BINARY_TEST is created for test.
 	 */
 	@Before
-	public void onSetUp() throws Exception {
+	public void onSetUp() {
 		System.out.println("Attempting to drop old table");
 		try {
 			queryService.updateBySQL("DROP TABLE TB_BINARY_TEST",
@@ -88,19 +89,19 @@ public class QueryServiceOracleBlobClobTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testFindClobBlob() throws Exception {
+	public void testFindClobBlob() {
 		// 1. set data for insert
 		insertClobBlob();
 
 		// 2. execute query
-		Collection results = queryService.find("findBlobClob",
+		List<Map<String, Object>> results = queryService.find("findBlobClob",
 				new Object[] { "5" });
 		assertEquals(1, results.size());
 
 		// 3. assert
-		Iterator resultItr = results.iterator();
+		Iterator<Map<String, Object>> resultItr = results.iterator();
 		while (resultItr.hasNext()) {
-			Map binary = (Map) resultItr.next();
+			Map<String, Object> binary = resultItr.next();
 			assertEquals("Fail to find clob.", val, binary.get("myclob"));
 			assertEquals("Fail to find blob.", "12345", new String(
 					(byte[]) binary.get("myblob")));
@@ -115,19 +116,19 @@ public class QueryServiceOracleBlobClobTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testFindClobBlobWithResultClass() throws Exception {
+	public void testFindClobBlobWithResultClass() {
 		// 1. set data for insert
 		insertClobBlob();
 
 		// 2. execute query
-		Collection results = queryService.find("findBlobClobWithResultClass",
+		List<LobVO> results = queryService.find("findBlobClobWithResultClass",
 				new Object[] { "5" });
 		assertEquals(1, results.size());
 
 		// 3. assert
-		Iterator resultItr = results.iterator();
+		Iterator<LobVO> resultItr = results.iterator();
 		while (resultItr.hasNext()) {
-			LobVO binary = (LobVO) resultItr.next();
+			LobVO binary = resultItr.next();
 			assertEquals("Fail to find clob.", val, binary.getMyclob());
 			assertEquals("Fail to find blob.", "12345", new String(binary
 					.getMyblob()));
@@ -135,7 +136,7 @@ public class QueryServiceOracleBlobClobTest {
 	}
 
 	// @Test
-	public void testFindClobBlobWithJdbc() throws Exception {
+	public void testFindClobBlobWithJdbc() {
 		// 1. set data for insert
 		insertClobBlob();
 
@@ -149,30 +150,29 @@ public class QueryServiceOracleBlobClobTest {
 					.prepareStatement("select bin_id , myblob, myclob, mylong from TB_BINARY_TEST");
 
 			rs = statement.executeQuery();
-
+			
 			while (rs.next()) {
 				System.out.println("bin_id : " + rs.getInt("bin_id"));
+				@SuppressWarnings("unused")
 				Blob myblob = rs.getBlob("myblob");
-				// System.out
-				// .println("myblob : "
-				// + new String(myblob.getBytes(1, (int) myblob
-				// .length())));
+				@SuppressWarnings("unused")
 				Clob clob = rs.getClob("myclob");
-				// System.out.println("myclob : "
-				// + clob.getSubString(1, (int) clob.length() - 1));
-				// System.out.println("mylong : " + rs.getLong("mylong"));
 			}
 		} catch (Exception e) {
 			fail("Fail to execute query with lob. Reason : " + e.getMessage());
-		} finally {
-			rs.close();
-			statement.close();
-			conn.close();
+		} finally {			
+			try {
+				rs.close();
+				statement.close();
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
 	// @Test
-	public void testFindClobBlobWithStream() throws Exception {
+	public void testFindClobBlobWithStream() {
 		// 1. set data for insert
 		insertClobBlob();
 
@@ -204,9 +204,12 @@ public class QueryServiceOracleBlobClobTest {
 			e.printStackTrace();
 			fail("Fail to execute query with lob. Reason : " + e.getMessage());
 		} finally {
-
-			statement.close();
-			conn.close();
+			try {
+				statement.close();
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -217,7 +220,7 @@ public class QueryServiceOracleBlobClobTest {
 	 * @throws Exception
 	 *             throws exception which is from QueryService
 	 */
-	private void insertClobBlob() throws Exception {
+	private void insertClobBlob() {
 		// 1. execute query
 		queryService.create("insertBlobClob", new Object[] { new Integer(5),
 				"12345".getBytes(), val });

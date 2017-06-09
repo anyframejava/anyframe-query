@@ -15,6 +15,7 @@
  */
 package org.anyframe.query.impl.jdbc.setter;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -26,43 +27,46 @@ import org.anyframe.query.impl.util.NameConverter;
 import org.springframework.jdbc.core.SqlTypeValue;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
-
 /**
  * @author SoYon Lim
  * @author JongHoon Kim
  */
-public class DefaultDynamicSqlParameterSource extends MapSqlParameterSource implements
-		DynamicSqlParameterSource {
+public class DefaultDynamicSqlParameterSource extends MapSqlParameterSource
+		implements DynamicSqlParameterSource {
 	public DefaultDynamicSqlParameterSource() {
 	}
 
+	@SuppressWarnings("unchecked")
 	public DefaultDynamicSqlParameterSource(Map properties) {
 		super(properties);
 	}
 
 	/**
-	 * Input parameter(paramName) property value is extracted from Map or relevant object.
-	 * In the case where there is no extracted return value,
+	 * Input parameter(paramName) property value is extracted from Map or
+	 * relevant object. In the case where there is no extracted return value,
 	 * property value extraction is once tried with VariableUtil.
 	 */
 	public Object getValue(String paramName) {
 		Object value = getVariableFromContext(paramName);
-		//In the case where Value is null,
-		//Logic to extract Value is removed by using VariableUtil.getValueString(). 
-		//This considers the case where query statement includes strings such as 
-		//'%||searchKeyword||%'. Therefore, even in the case where added logic or actual 
-		//input value is NULL, this losic allows format. 
-		//For details, please refer to  VariableUtil.getValueString() method.
+		// In the case where Value is null,
+		// Logic to extract Value is removed by using
+		// VariableUtil.getValueString().
+		// This considers the case where query statement includes strings such
+		// as
+		// '%||searchKeyword||%'. Therefore, even in the case where added logic
+		// or actual
+		// input value is NULL, this losic allows format.
+		// For details, please refer to VariableUtil.getValueString() method.
 		return value;
 	}
 
 	public Object[] getKeys() {
-		Map values = getValues();
+		Map<String, Object> values = getValues();
 		Object[] keys = new Object[values.size()];
 
 		if (keys.length != 0) {
 			int i = 0;
-			Iterator keyIterator = values.keySet().iterator();
+			Iterator<String> keyIterator = values.keySet().iterator();
 			if (keyIterator != null) {
 				keys[i++] = keyIterator.next();
 			}
@@ -85,14 +89,16 @@ public class DefaultDynamicSqlParameterSource extends MapSqlParameterSource impl
 		return valuesMap;
 	}
 
-	// 2009.08.21 : prefix -> get~(), is~()
+//	2009.08.21 : prefix -> get~(), is~()
+	@SuppressWarnings("unchecked")
 	public static Object getProperty(Object obj, String propertyName)
-			throws Exception {
+			throws NoSuchMethodException, IllegalAccessException,
+			InvocationTargetException {
 		if (obj instanceof Map) {
 			return ((Map) obj).get(propertyName);
 		}
 
-		Class[] paramTypes = new Class[0];
+		Class<?>[] paramTypes = new Class[0];
 		Object[] args = new Object[0];
 		Object result = null;
 
@@ -110,7 +116,7 @@ public class DefaultDynamicSqlParameterSource extends MapSqlParameterSource impl
 		return result;
 	}
 
-	// 2009.08.21 : prefix -> get~(), is~()
+//	2009.08.21 : prefix -> get~(), is~()
 	protected static String buildPropertyGetterName(String prefix,
 			String propertyName) {
 		if (propertyName.endsWith("()"))
@@ -144,7 +150,7 @@ public class DefaultDynamicSqlParameterSource extends MapSqlParameterSource impl
 		return strArray;
 	}
 
-	private final Map sqlTypes = new HashMap();
+	private final Map<String, Integer> sqlTypes = new HashMap<String, Integer>();
 
 	/**
 	 * Register a SQL type for the given parameter.
@@ -167,12 +173,11 @@ public class DefaultDynamicSqlParameterSource extends MapSqlParameterSource impl
 	 *         not registered
 	 */
 	public int getSqlType(String paramName) {
-		Integer sqlType = (Integer) this.sqlTypes.get(paramName);
+		Integer sqlType = this.sqlTypes.get(paramName);
 		if (sqlType != null) {
 			return sqlType.intValue();
 		} else {
 			return SqlTypeValue.TYPE_UNKNOWN;
 		}
 	}
-
 }

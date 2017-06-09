@@ -76,12 +76,11 @@ public class OraclePagingJdbcTemplate extends PagingJdbcTemplate {
 		return cs;
 	}
 
-	@SuppressWarnings("unchecked")
 	public int[] batchUpdate(String sql, final BatchCallableStatementSetter css) {
 		logger.debug("Executing SQL batch update [" + sql + "]");
 
-		return (int[]) execute(sql, new CallableStatementCallback() {
-			public Object doInCallableStatement(CallableStatement cs)
+		return execute(sql, new CallableStatementCallback<int[]>() {
+			public int[] doInCallableStatement(CallableStatement cs)
 					throws SQLException {
 				int batchSize = css.getBatchSize();
 
@@ -124,7 +123,7 @@ public class OraclePagingJdbcTemplate extends PagingJdbcTemplate {
 					}
 					return updateCountArray;
 				} else {
-					List rowsAffected = new ArrayList();
+					List<Integer> rowsAffected = new ArrayList<Integer>();
 
 					for (int i = 0; i < batchSize; i++) {
 						css.setValues(cs, i);
@@ -132,8 +131,7 @@ public class OraclePagingJdbcTemplate extends PagingJdbcTemplate {
 					}
 					int[] rowsAffectedArray = new int[rowsAffected.size()];
 					for (int i = 0; i < rowsAffectedArray.length; i++) {
-						rowsAffectedArray[i] = ((Integer) rowsAffected.get(i))
-								.intValue();
+						rowsAffectedArray[i] = rowsAffected.get(i).intValue();
 					}
 					return rowsAffectedArray;
 				}
@@ -141,19 +139,19 @@ public class OraclePagingJdbcTemplate extends PagingJdbcTemplate {
 		});
 	}
 
-	@SuppressWarnings("unchecked")
 	public int[] batchUpdate(String sql, final BatchPreparedStatementSetter pss)
 			throws DataAccessException {
 		logger.debug("Executing SQL batch update [" + sql + "]");
 
-		return (int[]) execute(sql, new PreparedStatementCallback() {
-			public Object doInPreparedStatement(PreparedStatement ps)
+		return execute(sql, new PreparedStatementCallback<int[]>() {
+			public int[] doInPreparedStatement(PreparedStatement ps)
 					throws SQLException {
 				try {
 					int batchSize = pss.getBatchSize();
 
 					if (JdbcUtils.supportsBatchUpdates(ps.getConnection())) {
-						//Native PreparedStatement extraction accordin go DataSource implementation
+						// Native PreparedStatement extraction accordin go
+						// DataSource implementation
 						if (nativeJdbcExtractor != null) {
 							ps = nativeJdbcExtractor
 									.getNativePreparedStatement(ps);
@@ -167,7 +165,8 @@ public class OraclePagingJdbcTemplate extends PagingJdbcTemplate {
 									.getMethod("setExecuteBatch",
 											new Class[] { int.class });
 							// 2011.08.29 - for ojdbc6 - makeAccessible
-							ReflectionUtils.makeAccessible(setExecuteBatchMethod);
+							ReflectionUtils
+									.makeAccessible(setExecuteBatchMethod);
 							setExecuteBatchMethod.invoke(ps,
 									new Object[] { new Integer(batchSize) });
 						} catch (Exception e) {
@@ -193,7 +192,7 @@ public class OraclePagingJdbcTemplate extends PagingJdbcTemplate {
 						}
 						return updateCountArray;
 					} else {
-						List rowsAffected = new ArrayList();
+						List<Integer> rowsAffected = new ArrayList<Integer>();
 
 						InterruptibleBatchPreparedStatementSetter ipss = (pss instanceof InterruptibleBatchPreparedStatementSetter ? (InterruptibleBatchPreparedStatementSetter) pss
 								: null);
@@ -207,8 +206,8 @@ public class OraclePagingJdbcTemplate extends PagingJdbcTemplate {
 						}
 						int[] rowsAffectedArray = new int[rowsAffected.size()];
 						for (int i = 0; i < rowsAffectedArray.length; i++) {
-							rowsAffectedArray[i] = ((Integer) rowsAffected
-									.get(i)).intValue();
+							rowsAffectedArray[i] = rowsAffected.get(i)
+									.intValue();
 						}
 						return rowsAffectedArray;
 					}

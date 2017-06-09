@@ -19,9 +19,11 @@ import java.math.BigDecimal;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -79,7 +81,7 @@ public class QueryServiceCallableStatementTest {
 	 * PACKAGE PKG_REFCURSOR_TESTs for test.
 	 */
 	@Before
-	public void onSetUp() throws Exception {
+	public void onSetUp() {
 		System.out.println("Attempting to drop old table");
 
 		// 1. drop function
@@ -177,13 +179,14 @@ public class QueryServiceCallableStatementTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testFunction() throws Exception {
+	public void testFunction() {
 		// 1. set data for test
-		HashMap<String, Integer> inVal = new HashMap<String, Integer>();
+		Map<String, Integer> inVal = new HashMap<String, Integer>();
 		inVal.put("inVal", new Integer(1));
 
 		// 2. execute query
-		Map results = queryService.execute("callFunction", inVal);
+		Map<String, Object> results = queryService.execute("callFunction",
+				inVal);
 
 		// 3. assert
 		Assert.assertTrue("Fail to execute function.", results.size() == 1);
@@ -204,14 +207,15 @@ public class QueryServiceCallableStatementTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testProcedure() throws Exception {
+	public void testProcedure() {
 		// 1. set data for test
-		HashMap<String, Timestamp> inVal = new HashMap<String, Timestamp>();
-		inVal.put("inVal", new Timestamp(DateUtil.string2Date("20081111",
+		Map<String, Timestamp> inVal = new HashMap<String, Timestamp>();
+		inVal.put("inVal", new Timestamp(DateUtil.stringToDate("20081111",
 				"yyyyMMdd").getTime()));
 
 		// 2. execute query
-		Map results = queryService.execute("callProcedure", inVal);
+		Map<String, Object> results = queryService.execute("callProcedure",
+				inVal);
 
 		// 3. assert
 		Assert.assertTrue("Fail to execute function.", results.size() == 1);
@@ -231,26 +235,28 @@ public class QueryServiceCallableStatementTest {
 	 * @throws Exception
 	 *             throws exception which is from QueryService
 	 */
+	@SuppressWarnings("unchecked")
 	@Test
-	public void testPackage() throws Exception {
+	public void testPackage() {
 		// 1. set data for test
-		HashMap<String, Object> inVal = new HashMap<String, Object>();
+		Map<String, Object> inVal = new HashMap<String, Object>();
 		inVal.put("inVal", "KKN");
 
 		// 2. execute query
-		Map results = queryService.execute("callPackage", inVal);
+		Map<String, Object> results = queryService
+				.execute("callPackage", inVal);
 
 		// 3. assert
 		Assert.assertEquals("Fail to compare class type of outVal.",
 				ArrayList.class, results.get("outVal").getClass());
 
-		ArrayList rtVal = (ArrayList) results.get("outVal");
+		List<Map<String, Object>> rtVal = (List) results.get("outVal");
 
 		Assert.assertEquals("Fail to compare result size.", 3, rtVal.size());
 
 		// 4. assert in detail
 		for (int i = 0; i < rtVal.size(); i++) {
-			Map result = (Map) rtVal.get(i);
+			Map<String, Object> result = (Map<String, Object>) rtVal.get(i);
 
 			Assert.assertEquals("Fail to compare a value of NAME column.",
 					"KKN", result.get("NAME"));
@@ -279,12 +285,12 @@ public class QueryServiceCallableStatementTest {
 		Assert.assertEquals("Fail to compare class type of outVal.",
 				ArrayList.class, results.get("outVal").getClass());
 
-		rtVal = (ArrayList) results.get("outVal");
+		rtVal = (List) results.get("outVal");
 		Assert.assertEquals("Fail to compare result size.", 1, rtVal.size());
 
 		// 8. assert in detail
 		for (int i = 0; i < rtVal.size(); i++) {
-			Map result = (Map) rtVal.get(i);
+			Map<String, Object> result = rtVal.get(i);
 			Assert.assertEquals("Fail to compare a value of NAME column.",
 					"N/A", result.get("NAME"));
 			Assert.assertEquals("Fail to compare a value of STATUS column.",
@@ -303,7 +309,7 @@ public class QueryServiceCallableStatementTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testPackageByJdbc() throws Exception {
+	public void testPackageByJdbc() {
 		Connection conn = null;
 		ResultSet rs = null;
 		CallableStatement statement = null;
@@ -343,9 +349,13 @@ public class QueryServiceCallableStatementTest {
 			Assert.fail("Fail to execute Oracle package. Reason : "
 					+ e.getMessage());
 		} finally {
-			rs.close();
-			statement.close();
-			conn.close();
+			try {
+				rs.close();
+				statement.close();
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -358,16 +368,16 @@ public class QueryServiceCallableStatementTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testFunctionBySQL() throws Exception {
+	public void testFunctionBySQL() {
 		String sql = "{? = call FUNC_RETURN_NUM(?)}";
 		String[] paramTypeNames = { "NUMERIC", "NUMERIC" };
 		String[] bindings = { "OUT", "IN" };
 		String[] names = { "outVal", "inVal" };
 
-		HashMap<String, Integer> inVal = new HashMap<String, Integer>();
+		Map<String, Integer> inVal = new HashMap<String, Integer>();
 		inVal.put("inVal", new Integer(2));
-		Map results = queryService.executeBySQL(sql, paramTypeNames, names,
-				bindings, inVal);
+		Map<String, Object> results = queryService.executeBySQL(sql,
+				paramTypeNames, names, bindings, inVal);
 
 		Assert.assertEquals("{outVal=1}", results.toString());
 	}

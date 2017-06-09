@@ -16,8 +16,8 @@
 package org.anyframe.query.impl;
 
 import java.math.BigDecimal;
-import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -57,12 +57,12 @@ public class QueryServiceRoomTest {
 
 	@Inject
 	QueryService queryService;
-	
+
 	/**
 	 * Table TB_ROOM is created for test.
 	 */
 	@Before
-	public void onSetUp() throws Exception {
+	public void onSetUp() {
 		System.out.println("Attempting to drop old table");
 		try {
 			queryService.updateBySQL("DROP TABLE TB_ROOM", new String[] {},
@@ -87,7 +87,7 @@ public class QueryServiceRoomTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testUpdateRoomByObject() throws Exception {
+	public void testUpdateRoomByObject() {
 		// 1. set object value for test
 		Room room = insertRoomByObject();
 		room.setRoomPrice(new BigDecimal("250000"));
@@ -112,17 +112,17 @@ public class QueryServiceRoomTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testRemoveRoomByObject() throws Exception {
+	public void testRemoveRoomByObject() {
 		// 1. insert for test
 		Room room = insertRoomByObject();
 
 		// 2. execute query
-		int results = queryService.remove(room);
+		int rtDel = queryService.remove(room);
 
 		// 3. assert
-		Assert.assertEquals("Fail to remove room.", results, 1);
-		Collection rtCollection = (Collection) queryService.find(room);
-		Assert.assertEquals("Fail to remove room.", 0, rtCollection.size());
+		Assert.assertEquals("Fail to remove room.", rtDel, 1);
+		List<Room> results = queryService.find(room);
+		Assert.assertEquals("Fail to remove room.", 0, results.size());
 	}
 
 	/**
@@ -134,7 +134,7 @@ public class QueryServiceRoomTest {
 	 * @throws Exception
 	 *             throws exception which is from QueryService
 	 */
-	private Room insertRoomByObject() throws Exception {
+	private Room insertRoomByObject() {
 		// 1. set object value for test
 		BigDecimal roomNo = new BigDecimal("123");
 		BigDecimal roomPrice = new BigDecimal("300000");
@@ -165,16 +165,17 @@ public class QueryServiceRoomTest {
 	 *             fail to find Room
 	 */
 	private void findRoomByObject(BigDecimal roomNo, BigDecimal roomPrice,
-			BigDecimal roomSize) throws Exception {
+			BigDecimal roomSize) {
 		// 1. set object value for test
 		Room room = new Room(roomNo, roomPrice, roomSize);
 
 		// 2. execute query
-		Collection rtCollection = (Collection) queryService.find(room);
+//		Collection rtCollection = (Collection) queryService.find(room);
+		List<Room> results = queryService.find(room);
 
 		// 3. assert
-		Assert.assertEquals("Fail to find room.", 1, rtCollection.size());
-		Iterator rtIterator = rtCollection.iterator();
+		Assert.assertEquals("Fail to find room.", 1, results.size());
+		Iterator<Room> rtIterator = results.iterator();
 
 		// 4. assert in detail
 		Room result = (Room) rtIterator.next();

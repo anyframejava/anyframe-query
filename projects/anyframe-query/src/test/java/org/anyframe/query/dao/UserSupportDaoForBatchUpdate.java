@@ -19,8 +19,7 @@ import java.util.List;
 
 public class UserSupportDaoForBatchUpdate extends QueryServiceDaoSupport {
 
-	public int[] batchUpdateForObject(String queryId, List<?> targetList)
-			throws Exception {
+	public int[] batchUpdateForObject(String queryId, List<?> targetList) {
 		return super.batchUpdate(queryId, targetList);
 	}
 }

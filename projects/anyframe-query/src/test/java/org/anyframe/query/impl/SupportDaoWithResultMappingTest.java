@@ -15,7 +15,7 @@
  */
 package org.anyframe.query.impl;
 
-import java.util.Collection;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -68,7 +68,7 @@ public class SupportDaoWithResultMappingTest {
 	 * Table USERS are created for test.
 	 */
 	@Before
-	public void onSetUp() throws Exception {
+	public void onSetUp() {
 		// Try to drop the table. It may not
 		// exist and throw an exception.
 		System.out.println("Attempting to drop old table");
@@ -97,7 +97,7 @@ public class SupportDaoWithResultMappingTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testUserDaoWithResultMapping() throws Exception {
+	public void testUserDaoWithResultMapping() {
 		// 1. insert a new user
 		UsersVO usersVO1 = new UsersVO();
 		usersVO1.setUserId("admin");
@@ -134,7 +134,7 @@ public class SupportDaoWithResultMappingTest {
 		Assert.assertEquals(2, page.getTotalCount());
 
 		// 8. assert in detail
-		Collection list = page.getList();
+		List<?> list = page.getList();
 		Assert.assertEquals(1, list.size());
 		result = (UsersVO) list.iterator().next();
 		Assert.assertEquals(usersVO1.getUserName(), result.getUserName());

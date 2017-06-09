@@ -15,8 +15,8 @@
  */
 package org.anyframe.query.impl;
 
-import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -51,15 +51,15 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath*:/spring/context-*.xml" })
 public class QueryServiceBlobClobTest {
-	
+
 	@Inject
 	QueryService queryService;
-	
+
 	/**
 	 * Table TB_BINARY_TEST is created for test.
 	 */
 	@Before
-	public void onSetUp() throws Exception {
+	public void onSetUp() {
 		System.out.println("Attempting to drop old table");
 		try {
 			queryService.updateBySQL("DROP TABLE TB_BINARY_TEST",
@@ -80,22 +80,24 @@ public class QueryServiceBlobClobTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testFindClobBlob() throws Exception {
+	public void testFindClobBlob() {
 		// 1. set data for insert
 		insertClobBlob();
 
 		// 2. execute query
-		Collection results = queryService.find("findBlobClob",
+		List<Map<String, byte[]>> results = queryService.find("findBlobClob",
 				new Object[] { new Integer(5) });
 		Assert.assertEquals(1, results.size());
 
 		// 3. assert
-		Iterator resultItr = results.iterator();
+		Iterator<Map<String, byte[]>> resultItr = results.iterator();
 		while (resultItr.hasNext()) {
-			Map binary = (Map) resultItr.next();
-			Assert.assertEquals("Fail to find clob.", val, binary.get("myclob"));
+			Map<String, byte[]> binary = resultItr.next();
+			Assert
+					.assertEquals("Fail to find clob.", val, binary
+							.get("myclob"));
 			Assert.assertEquals("Fail to find blob.", "12345", new String(
-					(byte[]) binary.get("myblob")));
+					binary.get("myblob")));
 		}
 	}
 
@@ -108,7 +110,7 @@ public class QueryServiceBlobClobTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testDeleteClobBlob() throws Exception {
+	public void testDeleteClobBlob() {
 		// 1. set data for insert
 		insertClobBlob();
 
@@ -117,7 +119,7 @@ public class QueryServiceBlobClobTest {
 				new String[] { "INTEGER" }, new Object[] { new Integer(5) });
 
 		// 3. assert
-		Collection results = queryService.find("findBlobClob",
+		List<Map<String, Object>> results = queryService.find("findBlobClob",
 				new Object[] { new Integer(5) });
 
 		Assert.assertEquals("Fail to delete clob/blob.", 0, results.size());
@@ -131,22 +133,22 @@ public class QueryServiceBlobClobTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testFindClobBlobWithResultClass() throws Exception {
+	public void testFindClobBlobWithResultClass() {
 		// 1. set data for insert
 		insertClobBlob();
 
 		// 2. execute query
-		Collection results = queryService.find("findBlobClobWithResultClass",
+		List<LobVO> results = queryService.find("findBlobClobWithResultClass",
 				new Object[] { new Integer(5) });
 		Assert.assertEquals(1, results.size());
 
 		// 3. assert
-		Iterator resultItr = results.iterator();
+		Iterator<LobVO> resultItr = results.iterator();
 		while (resultItr.hasNext()) {
-			LobVO binary = (LobVO) resultItr.next();
+			LobVO binary = resultItr.next();
 			Assert.assertEquals("Fail to find clob.", val, binary.getMyclob());
-			Assert.assertEquals("Fail to find blob.", "12345", new String(binary
-					.getMyblob()));
+			Assert.assertEquals("Fail to find blob.", "12345", new String(
+					binary.getMyblob()));
 		}
 	}
 
@@ -157,7 +159,7 @@ public class QueryServiceBlobClobTest {
 	 * @throws Exception
 	 *             throws exception which is from QueryService
 	 */
-	private void insertClobBlob() throws Exception {
+	private void insertClobBlob() {
 		// 1. execute query
 		queryService.create("insertBlobClob", new Object[] { new Integer(5),
 				"12345".getBytes(), val });

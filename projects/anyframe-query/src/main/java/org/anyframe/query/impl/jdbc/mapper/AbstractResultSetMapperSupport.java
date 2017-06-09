@@ -19,13 +19,13 @@ import java.sql.ResultSet;
 import java.sql.Types;
 import java.util.Map;
 
+import org.anyframe.exception.NotSupportedColumnTypeException;
 import org.anyframe.query.QueryService;
-import org.anyframe.query.QueryServiceException;
 import org.anyframe.query.ResultSetMapper;
+import org.anyframe.query.impl.util.AbstractNameMatcher;
 import org.anyframe.query.impl.util.ClassValidator;
 import org.anyframe.query.impl.util.DefaultObjectValidator;
 import org.anyframe.query.impl.util.NameConverter;
-import org.anyframe.query.impl.util.AbstractNameMatcher;
 import org.anyframe.query.impl.util.ObjectValidator;
 import org.springframework.jdbc.support.lob.LobHandler;
 
@@ -45,7 +45,7 @@ public abstract class AbstractResultSetMapperSupport implements ResultSetMapper 
 
 	private ObjectValidator objectValidator;
 
-	protected Map nullchecks;
+	protected Map<String, String> nullchecks;
 
 	protected LobHandler lobHandler;
 
@@ -53,8 +53,10 @@ public abstract class AbstractResultSetMapperSupport implements ResultSetMapper 
 	 * DefaultObjectValidator and NameConverter are set as objectValidator and
 	 * nameMatcher.
 	 */
-	public AbstractResultSetMapperSupport(Map nullchecks, LobHandler lobHandler) {
+	public AbstractResultSetMapperSupport(Map<String, String> nullchecks,
+			LobHandler lobHandler) {
 		super();
+
 		this.nullchecks = nullchecks;
 		this.lobHandler = lobHandler;
 		this.objectValidator = defaultObjectValidator;
@@ -91,7 +93,7 @@ public abstract class AbstractResultSetMapperSupport implements ResultSetMapper 
 		return objectValidator;
 	}
 
-	public Map getNullchecks() {
+	public Map<String, String> getNullchecks() {
 		return nullchecks;
 	}
 
@@ -112,7 +114,7 @@ public abstract class AbstractResultSetMapperSupport implements ResultSetMapper 
 	/**
 	 * RIA
 	 */
-	public void setNullCheckInfos(Map nullCheckInfos) {
+	public void setNullCheckInfos(Map<String, String> nullCheckInfos) {
 		this.nullchecks = nullCheckInfos;
 	}
 
@@ -130,6 +132,7 @@ public abstract class AbstractResultSetMapperSupport implements ResultSetMapper 
 		if (object instanceof ClassValidator) {
 			return ((ClassValidator) object).isValid();
 		}
+
 		return objectValidator.isValid(object);
 	}
 
@@ -148,7 +151,7 @@ public abstract class AbstractResultSetMapperSupport implements ResultSetMapper 
 		try {
 			switch (columnType) {
 			case Types.ARRAY:
-				throw new QueryServiceException(
+				throw new NotSupportedColumnTypeException(
 						"Query Service : Not supported SQL type. Column Type - ARRAY. Column Name - "
 								+ columnName + ".");
 			case Types.BIGINT:
@@ -171,7 +174,7 @@ public abstract class AbstractResultSetMapperSupport implements ResultSetMapper 
 			case Types.DECIMAL:
 				return resultSet.getBigDecimal(columnIndex);
 			case Types.DISTINCT:
-				throw new QueryServiceException(
+				throw new NotSupportedColumnTypeException(
 						"Query Service : Not supported SQL type. Column Type - DISTINCT. Column Name - "
 								+ columnName + ".");
 			case Types.DOUBLE:
@@ -181,7 +184,7 @@ public abstract class AbstractResultSetMapperSupport implements ResultSetMapper 
 			case Types.INTEGER:
 				return new Integer(resultSet.getInt(columnIndex));
 			case Types.JAVA_OBJECT:
-				throw new QueryServiceException(
+				throw new NotSupportedColumnTypeException(
 						"Query Service : Not supported SQL type. Column Type - JAVA_OBJECT. Column Name - "
 								+ columnName + ".");
 			case Types.LONGVARBINARY:
@@ -192,25 +195,25 @@ public abstract class AbstractResultSetMapperSupport implements ResultSetMapper 
 					obj = changeNullValue("longvarchar");
 				return obj;
 			case Types.NULL:
-				throw new QueryServiceException(
+				throw new NotSupportedColumnTypeException(
 						"Query Service : Not supported SQL type. Column Type - NULL. Column Name - "
 								+ columnName + ".");
 			case Types.NUMERIC:
 				return resultSet.getBigDecimal(columnIndex);
 			case Types.OTHER:
-				throw new QueryServiceException(
+				throw new NotSupportedColumnTypeException(
 						"Query Service : Not supported SQL type. Column Type - OTHER. Column Name - "
 								+ columnName + ".");
 			case Types.REAL:
 				return new Float(resultSet.getFloat(columnIndex));
 			case Types.REF:
-				throw new QueryServiceException(
+				throw new NotSupportedColumnTypeException(
 						"Query Service : Not supported SQL type. Column Type - REF. Column Name - "
 								+ columnName + ".");
 			case Types.SMALLINT:
 				return new Short(resultSet.getShort(columnIndex));
 			case Types.STRUCT:
-				throw new QueryServiceException(
+				throw new NotSupportedColumnTypeException(
 						"Query Service : Not supported SQL type. Column Type - STRUCT. Column Name - "
 								+ columnName + ".");
 			case Types.TIME:
@@ -229,12 +232,13 @@ public abstract class AbstractResultSetMapperSupport implements ResultSetMapper 
 			default:
 				return resultSet.getString(columnIndex);
 			} // swich
-		} catch (Exception e) {
+		} catch (Exception ex) {
 			QueryService.LOGGER
 					.error(
 							"Query Service : Not supported SQL type. Column Name - {}.",
-							columnName, e);
+							columnName, ex);
 		}
+
 		return null;
 	}
 
@@ -249,7 +253,8 @@ public abstract class AbstractResultSetMapperSupport implements ResultSetMapper 
 	protected Object changeNullValue(String type) {
 		if (nullchecks.containsKey(type)) {
 			return nullchecks.get(type);
-		} else
+		} else {
 			return null;
+		}
 	}
 }

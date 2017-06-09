@@ -34,12 +34,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.anyframe.exception.InstanceCreationException;
 import org.anyframe.query.MappingInfo;
 import org.anyframe.query.QueryService;
 import org.anyframe.query.ResultSetMapper;
 import org.anyframe.query.RowMetadataCallbackHandler;
+import org.anyframe.query.SqlLoader;
 import org.anyframe.query.impl.Pagination;
-import org.anyframe.query.impl.config.loader.SQLLoader;
 import org.anyframe.query.impl.util.ColumnUtil;
 import org.anyframe.query.impl.util.ReflectionHelp;
 import org.anyframe.query.impl.util.SQLTypeTransfer;
@@ -54,8 +55,8 @@ import org.springframework.jdbc.support.lob.LobHandler;
  * 
  * @author SOOYEON PARK
  */
-public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
-		implements RowMapper, RowMetadataCallbackHandler {
+public class ReflectionResultSetMapper<T> extends AbstractResultSetMapperSupport
+		implements RowMapper<T>, RowMetadataCallbackHandler {
 	/**
 	 * Special array value used by <code>mapColumnsToFields</code> that
 	 * indicates there is no object field that matches a column from a
@@ -63,28 +64,29 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 	 */
 	protected static final int PROPERTY_NOT_FOUND = -1;
 
-	protected List targetClasses;
+	protected List<Class<T>> targetClasses;
 
-	private List aggregateClasses = new ArrayList();
+//	private List aggregateClasses = new ArrayList();
 
-	private HashMap classConfigMap = new HashMap();
+	private final Map<Class<?>, ResultSetMappingConfiguration> classConfigMap = new HashMap<Class<?>, ResultSetMappingConfiguration>();
 
-	private MappingInfo mappingInfo = null;
+	private final MappingInfo mappingInfo;
 
-	protected SQLLoader sqlLoader = null;
+	protected SqlLoader sqlLoader = null;
 
 	protected String queryId;
 
 	// 2009.01.15 - custom resultset mapper
 	protected ResultSetMapper customResultSetMapper = null;
 
+	@SuppressWarnings("unchecked")
 	protected List objects = new ArrayList();
 
 	protected boolean initialized = false;
 
 	protected boolean needColumnInfo = false;
 
-	protected Class targetClass = null;
+	protected Class<?> targetClass = null;
 
 	// 2008.8.21 CamelCase Option Addition
 	// private boolean isCamelCase = false;
@@ -94,7 +96,7 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 
 	protected ResultSetMappingConfiguration mappingConfiguration;
 
-	public void setSqlLoader(SQLLoader sqlLoader) {
+	public void setSqlLoader(SqlLoader sqlLoader) {
 		this.sqlLoader = sqlLoader;
 	}
 
@@ -112,6 +114,7 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 	 * 
 	 * @return the objects
 	 */
+	@SuppressWarnings("unchecked")
 	public List getObjects() {
 		return objects;
 	}
@@ -121,17 +124,19 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 	 * 
 	 * @param targetClass
 	 */
-	public ReflectionResultSetMapper(Class targetClass,
-			MappingInfo mappingInfo, Map nullchecks, LobHandler lobHandler) {
+	@SuppressWarnings("unchecked")
+	public ReflectionResultSetMapper(Class<T> targetClass,
+			MappingInfo mappingInfo, Map<String, String> nullchecks,
+			LobHandler lobHandler) {
 		super(nullchecks, lobHandler);
 		this.mappingInfo = mappingInfo;
 		targetClasses = new ArrayList();
 		targetClasses.add(targetClass);
 	}
 
-	public void setAggregateTargets(List aggregateTargetClasses) {
-		this.aggregateClasses = aggregateTargetClasses;
-	}
+//	public void setAggregateTargets(List aggregateTargetClasses) {
+//		this.aggregateClasses = aggregateTargetClasses;
+//	}
 
 	public MappingInfo getMappingInfo() {
 		return mappingInfo;
@@ -141,6 +146,8 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 	 * 2008.07.17 - added for meta data, processMetaData must be called within
 	 * extractData of ResultSetExtractor(Anyframe extended) just delegate to
 	 * makeMeta
+	 * 
+	 * @throws SQLException
 	 */
 	public void processMetaData(ResultSet resultSet) throws SQLException {
 		if (!this.initialized) {
@@ -157,6 +164,7 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 	 * @exception SQLException
 	 *                In the case where search result mapping fails
 	 */
+	@SuppressWarnings("unchecked")
 	public void processRow(ResultSet resultSet) throws SQLException {
 		objects.add(this.mapRow(resultSet, 9999));
 	}
@@ -168,20 +176,21 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 	 * @param resultSet
 	 *            One of search result is Row
 	 * @return Target class instance of search result
-	 * 
+	 * @throws SQLException 
 	 */
-	public Object mapRow(ResultSet resultSet) throws SQLException {
+	@SuppressWarnings("unchecked")
+	public T mapRow(ResultSet resultSet) throws SQLException {
 		Object object = null;
-		Iterator targetClassIterator = targetClasses.iterator();
+		Iterator<Class<T>> targetClassIterator = targetClasses.iterator();
 		while (targetClassIterator.hasNext() && object == null) {
-			Class targetClass = (Class) targetClassIterator.next();
+			Class<T> targetClass = targetClassIterator.next();
 			// 특정 클래스와 테이블의 매핑 정보 추출 Mapping information extraction on specific
 			// class and table
 			ResultSetMappingConfiguration config = getConfig(targetClass,
 					resultSet.getMetaData());
 			object = toObject(resultSet, targetClass, config);
 		}
-		return object;
+		return (T)object;
 	}
 
 	/**
@@ -193,12 +202,19 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 	 * @param targetClass
 	 *            Class to save search result
 	 * @return
-	 * @throws SQLException
+	 * @throws InstanceCreationException
 	 */
-	protected Object toObject(ResultSet resultSet, Class targetClass,
-			ResultSetMappingConfiguration config) throws SQLException {
+	protected Object toObject(ResultSet resultSet, Class<?> targetClass,
+			ResultSetMappingConfiguration config) {
 
-		Object object = createObject(resultSet, targetClass, config);
+		Object object;
+		try {
+			object = createObject(resultSet, targetClass, config);
+		} catch (Exception ex) {
+			throw new InstanceCreationException(
+					"Query Service : Cannot create " + targetClass.getName()
+							+ ", Reason : " + ex.getMessage());
+		}
 
 		// 2009.03.17 - start
 		// In the case where result class has not Primitive type but Custom
@@ -206,25 +222,34 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 		// relevant return value
 
 		if (!config.getCompositeObjMap().isEmpty()) {
-			Map compositeObjMap = config.getCompositeObjMap();
-			Set keySet = compositeObjMap.keySet();
-			Iterator keyItr = keySet.iterator();
+			Map<String, ResultSetMappingConfiguration> compositeObjMap = config
+					.getCompositeObjMap();
+			Set<String> keySet = compositeObjMap.keySet();
+			Iterator<String> keyItr = keySet.iterator();
 			while (keyItr.hasNext()) {
-				String attribute = (String) keyItr.next();
-				ResultSetMappingConfiguration subconfiguration = (ResultSetMappingConfiguration) config
+				String attribute = keyItr.next();
+				ResultSetMappingConfiguration subconfiguration = config
 						.getCompositeObjMap().get(attribute);
 				// Create instance of Custom Class Type Result Class has and set
 				// up lower property value
 
 				// Instance of Custom Class Type
-				Object compositeObj = createObject(resultSet, subconfiguration
-						.getResultClass(), subconfiguration);
+				Object compositeObj;
+				try {
+					compositeObj = createObject(resultSet, subconfiguration
+							.getResultClass(), subconfiguration);
+				} catch (Exception ex) {
+					throw new InstanceCreationException(
+							"Query Service : Cannot create "
+									+ subconfiguration.getClass().getName()
+									+ ", Reason : " + ex.getMessage());
+				}
 
 				try {
 					// Setting the custom object to result class.
 					subconfiguration.getCompositeClassSetter().invoke(object,
 							new Object[] { compositeObj });
-				} catch (Exception e) {
+				} catch (Exception ex) {
 					QueryService.LOGGER
 							.warn(
 									"Query Service : Fail to invoke setter['{}'] of target class['{}'].",
@@ -232,7 +257,7 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 											subconfiguration
 													.getCompositeClassSetter()
 													.getName(),
-											targetClass.getName() }, e);
+											targetClass.getName() }, ex);
 				}
 			}
 		}
@@ -255,19 +280,19 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 	 *             In the case Meta information fails to be extracted form
 	 *             ResultSetMetaData
 	 */
-	protected ResultSetMappingConfiguration getConfig(Class targetClass,
+	protected ResultSetMappingConfiguration getConfig(Class<?> targetClass,
 			ResultSetMetaData resultSetMetaData) throws SQLException {
 		ResultSetMappingConfiguration mappingConfiguration;
 
 		if (classConfigMap.containsKey(targetClass)) {
 			// In the case target class information transferred as entered
 			// parameter at classConfigMap is saved
-			mappingConfiguration = (ResultSetMappingConfiguration) classConfigMap
-					.get(targetClass);
+			mappingConfiguration = classConfigMap.get(targetClass);
 		} else {
 			// In the case target class information transferred as entered
 			// parameter at classConfigMap is not saved
-			Map attributeMap = ReflectionHelp.getAllDeclaredFields(targetClass);
+			Map<String, Field> attributeMap = ReflectionHelp
+					.getAllDeclaredFields(targetClass);
 
 			// AccessibleObject.setAccessible(attributes, true);
 
@@ -304,9 +329,9 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 	 *             ResultSetMetaData
 	 */
 	private ResultSetMappingConfiguration mapColumnsToAttributes(
-			Class targetClass, ResultSetMetaData resultSetMetaData,
-			Map attributeMap, String parentAttribute, boolean isComposite)
-			throws SQLException {
+			Class<?> targetClass, ResultSetMetaData resultSetMetaData,
+			Map<String, Field> attributeMap, String parentAttribute,
+			boolean isComposite) throws SQLException {
 		int totalCols = resultSetMetaData.getColumnCount();
 		Field[] attributes = new Field[totalCols];
 		String[] columnNames = new String[totalCols];
@@ -314,24 +339,24 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 		Method[] setters = new Method[totalCols];
 		// 2009.03.17 - start
 		// Map to save information on Custom Object defined within Result Class
-		Map compositeObjMap = new HashMap();
+		Map<String, ResultSetMappingConfiguration> compositeObjMap = new HashMap<String, ResultSetMappingConfiguration>();
 		// 2009.03.17 - end
 
 		Arrays.fill(columnTypes, PROPERTY_NOT_FOUND);
 
-		Map compositeFields = this.mappingInfo.getCompositeFieldNames();
+		Map<String, String[]> compositeFields = this.mappingInfo
+				.getCompositeFieldNames();
 
 		PropertyDescriptor[] descriptors = null;
 		try {
 			BeanInfo info = Introspector.getBeanInfo(targetClass,
 					Introspector.USE_ALL_BEANINFO);
 			descriptors = info.getPropertyDescriptors();
-		} catch (IntrospectionException e) {
+		} catch (IntrospectionException ex) {
 			QueryService.LOGGER
 					.warn(
 							"Query Service : Fail to find a property descriptor of target class['{}']. So, set a PropertyDescriptor array with size 0.",
 							targetClass.getName());
-			// TODO Auto-generated catch block
 			descriptors = new PropertyDescriptor[0];
 		}
 
@@ -369,19 +394,20 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 		// 2009.03.17 - end
 	}
 
-	public Map makeCompositeObjMap(Class targetClass,
-			PropertyDescriptor[] descriptors,
-			ResultSetMetaData resultSetMetaData, Map compositeFields,
-			Map attributeMap) throws SQLException {
-		Set keySet = compositeFields.keySet();
-		Iterator keyItr = keySet.iterator();
+	public Map<String, ResultSetMappingConfiguration> makeCompositeObjMap(
+			Class<?> targetClass, PropertyDescriptor[] descriptors,
+			ResultSetMetaData resultSetMetaData,
+			Map<String, String[]> compositeFields,
+			Map<String, Field> attributeMap) throws SQLException {
+		Set<String> keySet = compositeFields.keySet();
+		Iterator<String> keyItr = keySet.iterator();
 
-		Map compositeObjMap = new HashMap();
+		Map<String, ResultSetMappingConfiguration> compositeObjMap = new HashMap<String, ResultSetMappingConfiguration>();
 
 		while (keyItr.hasNext()) {
-			String key = (String) keyItr.next();
+			String key = keyItr.next();
 			if (attributeMap.containsKey(key)) {
-				Field attribute = (Field) attributeMap.get(key);
+				Field attribute = attributeMap.get(key);
 				// In the case of composite key type
 				Method compositeClassSetter = null;
 				// Check whether Setter on relevant property exists. if it
@@ -394,7 +420,7 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 
 				// Search lower property information that relevant property
 				// class owns
-				Map childAttributeMap = ReflectionHelp
+				Map<String, Field> childAttributeMap = ReflectionHelp
 						.getAllDeclaredFields(attribute.getType());
 				// AccessibleObject.setAccessible(childAttributes, true);
 
@@ -458,12 +484,15 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 	 *            Configuration to save mapping information between a specific
 	 *            class and table
 	 * @return Object to map search result
-	 * @throws SQLException
-	 *             In the case search result mapping is failed
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
+	 * @throws InvocationTargetException
 	 */
-	private Object createObject(ResultSet resultSet, Class targetClass,
-			ResultSetMappingConfiguration config) throws SQLException {
-		Object object = (Object) ReflectionHelp.newInstance(targetClass);
+	private Object createObject(ResultSet resultSet, Class<?> targetClass,
+			ResultSetMappingConfiguration config)
+			throws InstantiationException, IllegalAccessException,
+			InvocationTargetException {
+		Object object = ReflectionHelp.newInstance(targetClass);
 
 		String[] columnNames = config.getColumnNames();
 		int[] columnTypes = config.getColumnTypes();
@@ -497,40 +526,30 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 	 *            Object to map search result
 	 * @param value
 	 *            Search result value
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
 	 */
 	private void setValue(Field field, Method setter, Object object,
-			Object value) {
-		// if (value != null) { // if column value is null, set property value
-		// to null
+			Object value) throws IllegalAccessException,
+			InvocationTargetException {
 		boolean valueSet = false;
-		try {
-			if (setter != null) {
-				setter.invoke(object, new Object[] { value });
-				valueSet = true;
-			}
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(
-					"Query Service : Fail to invoke a setter method ['"
-							+ setter.getName() + "'. Reason : "
-							+ e.getMessage(), e);
-		} catch (InvocationTargetException e) {
-			throw new RuntimeException(
-					"Query Service : Fail to invoke a setter method ['"
-							+ setter.getName() + "'. Reason : "
-							+ e.getMessage(), e);
+
+		if (setter != null) {
+			setter.invoke(object, new Object[] { value });
+			valueSet = true;
 		}
+
 		if (!valueSet) {
 			// Set the field directly
 			ReflectionHelp.setFieldValue(field, object, value);
 		}
-		// }
 	}
 
-	public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
-		// TODO Auto-generated method stub
+	public T mapRow(ResultSet rs, int rowNum) throws SQLException {
 		return this.mapRow(rs);
 	}
 
+	@SuppressWarnings("unchecked")
 	public Map getColumnInfo() {
 		return new ListOrderedMap();
 	}
@@ -541,7 +560,6 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 	 */
 	// added at 2009.06.18
 	public void setPagination(Pagination paginationVO) {
-		// TODO Auto-generated method stub
 	}
 
 	/**
@@ -568,7 +586,7 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 		// add for Gauce (2008-04-15)
 		int[] columnScales = new int[columnCount];
 
-		Map attributeMap = new HashMap();
+		Map<String, Field> attributeMap = new HashMap<String, Field>();
 		if (this.targetClass != null && !this.targetClass.equals(HashMap.class)) {
 			attributeMap = ReflectionHelp
 					.getAllDeclaredFields(this.targetClass);
@@ -596,15 +614,15 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 							.equals(HashMap.class)) || getMappingInfo() == null)) {
 				// Extract Field. And this field is mapped on a specific column
 				// by using table mapping information.
-				String attributeName = (String) getMappingInfo()
-						.getMappingInfoAsMap().get(columnName.toLowerCase());
+				String attributeName = getMappingInfo().getMappingInfoAsMap()
+						.get(columnName.toLowerCase());
 
 				if (attributeName == null) {
 					attributeName = ColumnUtil.changeColumnName(
 							this.mappingStyle, columnName);
 				}
 
-				Field attribute = (Field) attributeMap.get(attributeName);
+				Field attribute = attributeMap.get(attributeName);
 
 				// In the case of paging process, property name mapped at ROW
 				// NUMBER column does not exist.
@@ -632,7 +650,7 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 			// add for Gauce (2008-04-15)
 			try {
 				columnPrecisions[i] = resultSetMetaData.getPrecision(i + 1);
-			} catch (NumberFormatException e) {
+			} catch (NumberFormatException ex) {
 				// In the case of oracle 8i, when Precision is searched on CLOB
 				// and BLOB type column, NumberFormatException takes place.
 				columnPrecisions[i] = 0;

@@ -16,13 +16,13 @@
 package org.anyframe.query.impl;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import junit.framework.Assert;
 
 import org.anyframe.query.QueryService;
-import org.anyframe.query.QueryServiceException;
+import org.anyframe.query.exception.QueryException;
 import org.anyframe.query.impl.jdbc.OraclePagingJdbcTemplate;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -143,7 +143,7 @@ public class QueryNamespaceTest {
 	 *             throws exception which is from QueryService or
 	 *             AutoConfigBeanDefinitionParser
 	 */
-//	@Test
+	// @Test
 	public void readQueryNamespaceWithAnotherDataSource() throws Exception {
 		ApplicationContext context = new ClassPathXmlApplicationContext(
 				"classpath*:/spring/namespace/context-query-datasource.xml");
@@ -171,7 +171,7 @@ public class QueryNamespaceTest {
 	 *             throws exception which is from QueryService or
 	 *             AutoConfigBeanDefinitionParser
 	 */
-//	@Test
+	// @Test
 	public void readQueryNamespaceWithWrongDBType() throws Exception {
 		ApplicationContext context = new ClassPathXmlApplicationContext(
 				"classpath*:/spring/namespace/context-query-wrong-dbtype.xml");
@@ -184,7 +184,7 @@ public class QueryNamespaceTest {
 		} catch (Exception e) {
 
 			Assert.assertTrue("Fail to set wrong pagingSQLGenerator.",
-					e instanceof QueryServiceException);
+					e instanceof QueryException);
 		}
 	}
 
@@ -198,7 +198,7 @@ public class QueryNamespaceTest {
 	 *             throws exception which is from QueryService or
 	 *             AutoConfigBeanDefinitionParser
 	 */
-//	@Test
+	// @Test
 	public void readQueryNamespaceWithMultiDataSource() throws Exception {
 		ApplicationContext context = new ClassPathXmlApplicationContext(
 				"classpath*:/spring/namespace/context-query-multi-datasource.xml");
@@ -218,8 +218,7 @@ public class QueryNamespaceTest {
 	 * @throws Exception
 	 *             throws exception which is from QueryService
 	 */
-	@SuppressWarnings("unchecked")
-	private void testDynamicQuery(ApplicationContext context) throws Exception {
+	private void testDynamicQuery(ApplicationContext context) {
 		initializeTable(context);
 
 		// 1. set data for test
@@ -228,12 +227,14 @@ public class QueryNamespaceTest {
 		iVal[1] = "sortColumn=NAME";
 
 		// 2. execute query
-		ArrayList rtList = (ArrayList) (queryService.find("findUsers", iVal, 1,
-				2));
+		List<Map<String, Object>> results = queryService.find("findUsers",
+				iVal, 1, 2);
 
 		// 3. assert
-		Assert.assertTrue("Fail to execute dynamic query.", rtList.size() == 2);
-		Map result = (Map) rtList.get(0);
+		Assert
+				.assertTrue("Fail to execute dynamic query.",
+						results.size() == 2);
+		Map<String, Object> result = results.get(0);
 		Assert.assertEquals("Fail to compare result.", "admin", result
 				.get("logonId"));
 	}
@@ -244,7 +245,7 @@ public class QueryNamespaceTest {
 	 * @throws Exception
 	 *             throws exception which is from QueryService
 	 */
-	private void initializeTable(ApplicationContext context) throws Exception {
+	private void initializeTable(ApplicationContext context) {
 		try {
 			queryService.updateBySQL("DROP TABLE TB_USER", new String[] {},
 					new Object[] {});

@@ -15,8 +15,7 @@
  */
 package org.anyframe.query.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -24,38 +23,41 @@ import javax.inject.Inject;
 import junit.framework.Assert;
 
 import org.anyframe.query.QueryService;
-import org.anyframe.query.QueryServiceException;
+import org.anyframe.query.exception.QueryException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-
 /**
  * TestCase Name : QueryServiceTest <br>
  * <br>
- * [Description] : By entering queryId defined at mapping XML file, 
- * data is entered, modified, deleted and researched and its result is verified. <br>
+ * [Description] : By entering queryId defined at mapping XML file, data is
+ * entered, modified, deleted and researched and its result is verified. <br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : By entering queryId defined at mapping XML file, 
- * UPDATE query is executed and its result is verified. </li>
- * <li>#-2 Positive Case : By entering queryId defined at mapping XML file, 
- * DELETE query is executed and its result is verified. </li>
- * <li>#-3 Positive Case : By entering queryId defined at mapping XML file, 
- * SELECT query is executed and its result is verified. 
- * This TestCase verifies Korean entering and research. </li>
+ * <li>#-1 Positive Case : By entering queryId defined at mapping XML file,
+ * UPDATE query is executed and its result is verified.</li>
+ * <li>#-2 Positive Case : By entering queryId defined at mapping XML file,
+ * DELETE query is executed and its result is verified.</li>
+ * <li>#-3 Positive Case : By entering queryId defined at mapping XML file,
+ * SELECT query is executed and its result is verified. This TestCase verifies
+ * Korean entering and research.</li>
  * <li>#-4 Negative Case : By entering queryId not defined at mapping XML file,
- * verified is whether QueryServiceException takes place. </li>
- * <li>#-5 Positive Case : By calling for getQueryMap () method of QueryService, 
- * all query statements loaded by Query Service are researched and verified for research result.</li>
- * <li>#-6 Positive Case : By calling for getStatement() method of QueryService, 
- * query statements serving as specific queryId are researched and verified for research result.</li>
- * <li>#-7 Positive Case : By calling for countQuery() method of QueryService, 
- * all query statement numbers loaded by QueryService are researched and verified for research result.</li>
- * <li>#-8 Positive Case : By calling for getQueryParams()method of QueryService, 
- * input Parameters serving as specific queryId are researched and verified for research result.</li>
+ * verified is whether QueryServiceException takes place.</li>
+ * <li>#-5 Positive Case : By calling for getQueryMap () method of QueryService,
+ * all query statements loaded by Query Service are researched and verified for
+ * research result.</li>
+ * <li>#-6 Positive Case : By calling for getStatement() method of QueryService,
+ * query statements serving as specific queryId are researched and verified for
+ * research result.</li>
+ * <li>#-7 Positive Case : By calling for countQuery() method of QueryService,
+ * all query statement numbers loaded by QueryService are researched and
+ * verified for research result.</li>
+ * <li>#-8 Positive Case : By calling for getQueryParams()method of
+ * QueryService, input Parameters serving as specific queryId are researched and
+ * verified for research result.</li>
  * </ul>
  * 
  * @author SoYon Lim
@@ -63,15 +65,15 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath*:/spring/context-*.xml" })
 public class QueryServiceTest {
-	
+
 	@Inject
 	QueryService queryService;
 
 	/**
-	 * Table TB_CUSTOMER, TB_USER is created for test. 
+	 * Table TB_CUSTOMER, TB_USER is created for test.
 	 */
 	@Before
-	public void onSetUp() throws Exception {
+	public void onSetUp() {
 		System.out.println("Attempting to drop old table");
 		try {
 			queryService.updateBySQL("DROP TABLE TB_CUSTOMER", new String[] {},
@@ -99,14 +101,14 @@ public class QueryServiceTest {
 	}
 
 	/**
-	 * [Flow #-1] Positive Case : By entering queryId defined at mapping XML file, 
-	 * UPDATE query is executed and its result is verified. 
+	 * [Flow #-1] Positive Case : By entering queryId defined at mapping XML
+	 * file, UPDATE query is executed and its result is verified.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testUpdateUsingQueryId() throws Exception {
+	public void testUpdateUsingQueryId() {
 		// 1. set data for test
 		String ssno = "1234567890123";
 		String name = "Anyframe";
@@ -127,14 +129,14 @@ public class QueryServiceTest {
 	}
 
 	/**
-	 * [Flow #-2] Positive Case : By entering queryId defined at mapping XML file, 
-	 * DELETE query is executed and its result is verified. 
+	 * [Flow #-2] Positive Case : By entering queryId defined at mapping XML
+	 * file, DELETE query is executed and its result is verified.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testRemoveUsingQueryId() throws Exception {
+	public void testRemoveUsingQueryId() {
 		// 1. set data for test
 		String ssno = "1234567890123";
 		String name = "Anyframe";
@@ -149,21 +151,22 @@ public class QueryServiceTest {
 
 		// 4. assert
 		Assert.assertEquals("Fail to remove Customer.", 1, result);
-		Collection rtCollection = queryService.find("findCustomer",
+		List<Map<String, String>> results = queryService.find("findCustomer",
 				new Object[] { ssno });
-		Assert.assertEquals("Fail to find customer by SQL.", 0, rtCollection.size());
+
+		Assert.assertEquals("Fail to find customer by SQL.", 0, results.size());
 	}
 
 	/**
-	 * [Flow #-3] Positive Case : By entering queryId defined at mapping XML file, 
-	 * SELCT query is executed and its result is verified. 
-	 * This TestCase is to verify Korean entering and research. 
+	 * [Flow #-3] Positive Case : By entering queryId defined at mapping XML
+	 * file, SELCT query is executed and its result is verified. This TestCase
+	 * is to verify Korean entering and research.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testFindWithKoreanLanguage() throws Exception {
+	public void testFindWithKoreanLanguage() {
 		// 1. set data for insert
 		String ssno = "1234567890123";
 		String name = "테스트";
@@ -173,82 +176,84 @@ public class QueryServiceTest {
 		insertUsingQueryId(ssno, name, address);
 
 		// 3. execute query
-		Collection rtCollection = queryService.find(
+		List<Map<String, String>> results = queryService.find(
 				"dynamicWithKoreanLanguage", new String[] { "key=true" });
 
 		// 4. assert
-		Assert.assertEquals("Fail to find customer by SQL.", 1, rtCollection.size());
+		Assert.assertEquals("Fail to find customer by SQL.", 1, results.size());
 
 		// 5. assert in detail
-		Map map = (Map) rtCollection.iterator().next();
-		Assert.assertEquals("Fail to compare result.", name, (String) map.get("name"));
+		Map<String, String> map = results.iterator().next();
+		Assert.assertEquals("Fail to compare result.", name, map.get("name"));
 
 		// 6. execute another query
-		rtCollection = queryService.find("queryWithKoreanLanguage",
-				new Object[] {});
+		results = queryService.find("queryWithKoreanLanguage", new Object[] {});
 
 		// 7. assert
-		Assert.assertEquals("Fail to find customer by SQL.", 1, rtCollection.size());
+		Assert.assertEquals("Fail to find customer by SQL.", 1, results.size());
 
 		// 8. assert in detail
-		map = (Map) rtCollection.iterator().next();
-		Assert.assertEquals("Fail to compare result.", name, (String) map.get("name"));
+		map = results.iterator().next();
+		Assert.assertEquals("Fail to compare result.", name, map.get("name"));
 
 		// 9. execute query
-		rtCollection = queryService.find("findCustomerWithKorean",
+		results = queryService.find("findCustomerWithKorean",
 				new Object[] { new Object[] { "ssno", "1234567890123" } });
-		
+
 		// 10. assert
-		Assert.assertEquals("Fail to find customer by SQL.", 1, rtCollection.size());
+		Assert.assertEquals("Fail to find customer by SQL.", 1, results.size());
 	}
 
 	/**
-	 * [Flow #-4] Negative Case : By entering queryId not defined at mapping XML file, 
-	 * verified is whether QueryServiceException takes place. 
+	 * [Flow #-4] Negative Case : By entering queryId not defined at mapping XML
+	 * file, verified is whether QueryServiceException takes place.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testUndefinedQueryId() throws Exception {
+	public void testUndefinedQueryId() {
 		try {
 			// 1. execute query
 			queryService.find("undefinedQueryId", new Object[] {});
 			Assert.fail("Fail to recognize undefined query id.");
-		} catch (QueryServiceException e) {
+		} catch (QueryException e) {
 			// 2. assert
-			Assert.assertTrue("Fail to catch QueryServiceException.", e.getMessage()
+			Assert.assertTrue("Fail to catch QueryException.", e.getMessage()
 					.startsWith("Query Service : Fail to find queryId"));
 		}
 	}
 
 	/**
-	 * [Flow #-5] Positive Case : By calling for getQueryMap () method of QueryService, 
-	 * all query statements loaded by Query Service are researched and verified for research result.
+	 * [Flow #-5] Positive Case : By calling for getQueryMap () method of
+	 * QueryService, all query statements loaded by Query Service are researched
+	 * and verified for research result.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testGetQueryMap() throws Exception {
+	public void testGetQueryMap() {
 		// 1. get all queries in all mapping xml files
-		Map queryMap = queryService.getQueryMap();
+		Map<String, String> queryMap = queryService.getQueryMap();
 
 		// 2. assert
-		Assert.assertEquals("Fail to get the size of query map.", 63, queryMap.size());
-		Assert.assertEquals("Fail to get query map.", (String) queryMap
+		Assert.assertEquals("Fail to get the size of query map.", 63, queryMap
+				.size());
+		Assert.assertEquals("Fail to get query map.", queryMap
 				.get("callFunction"), "{? = call FUNC_RETURN_NUM(?)}");
 	}
 
 	/**
-	 * [Flow #-6] Positive Case : By calling for getStatement() method of QueryService, 
-	 * query statements serving as specific queryId are researched and verified for research result. 
+	 * [Flow #-6] Positive Case : By calling for getStatement() method of
+	 * QueryService, query statements serving as specific queryId are researched
+	 * and verified for research result.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testGetStatement() throws Exception {
+	public void testGetStatement() {
 		// 1. get query statement using query id
 		String statement = queryService.getStatement("callFunction");
 		// 2. assert
@@ -257,45 +262,47 @@ public class QueryServiceTest {
 	}
 
 	/**
-	 * [Flow #-7] Positive Case : By calling for countQuery() method of QueryService, 
-	 * all query statement numbers loaded by QueryService are researched 
-	 * and verified for research result.
+	 * [Flow #-7] Positive Case : By calling for countQuery() method of
+	 * QueryService, all query statement numbers loaded by QueryService are
+	 * researched and verified for research result.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testCountQuery() throws Exception {
+	public void testCountQuery() {
 		// 1. get total count of queries and assert
 		Assert.assertEquals("Fail to count total queries.", 63, queryService
 				.countQuery());
 	}
 
 	/**
-	 * [Flow #-8] Positive Case : By calling for getQueryParams()method of QueryService, 
-	 * input Parameters serving as specific queryId are researched 
-	 * and verified for research result. 
+	 * [Flow #-8] Positive Case : By calling for getQueryParams()method of
+	 * QueryService, input Parameters serving as specific queryId are researched
+	 * and verified for research result.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testGetQueryParams() throws Exception {
+	public void testGetQueryParams() {
 		// 1. get query parameters
-		ArrayList params = queryService.getQueryParams("callFunction");
+		List<String[]> params = queryService.getQueryParams("callFunction");
 
 		// 2. assert
 		Assert.assertEquals("Fail to get query parameters.", 2, params.size());
 
 		// 3. assert in detail
-		String[] firstParam = (String[]) params.get(0);
-		Assert.assertEquals("Fail to find query param name.", firstParam[0], "outVal");
-		Assert.assertEquals("Fail to find query param type.", firstParam[1], "NUMERIC");
+		String[] firstParam = params.get(0);
+		Assert.assertEquals("Fail to find query param name.", firstParam[0],
+				"outVal");
+		Assert.assertEquals("Fail to find query param type.", firstParam[1],
+				"NUMERIC");
 	}
 
 	/**
-	 * By using query I.D. defined at mapping XML file, 
-	 * one piece of data is searched and its result is verified.
+	 * By using query I.D. defined at mapping XML file, one piece of data is
+	 * searched and its result is verified.
 	 * 
 	 * @param ssno
 	 * @param name
@@ -303,8 +310,7 @@ public class QueryServiceTest {
 	 * @throws Exception
 	 *             fail to insert data using query id
 	 */
-	private void insertUsingQueryId(String ssno, String name, String address)
-			throws Exception {
+	private void insertUsingQueryId(String ssno, String name, String address) {
 		// 1. execute query
 		int result = queryService.create("insertCustomer", new Object[] { ssno,
 				name, address });
@@ -317,8 +323,8 @@ public class QueryServiceTest {
 	}
 
 	/**
-	 * By using query I.D. defined at mapping XML file, 
-	 * one piece of data is searched and its result is verified. 
+	 * By using query I.D. defined at mapping XML file, one piece of data is
+	 * searched and its result is verified.
 	 * 
 	 * @param ssno
 	 * @param name
@@ -327,19 +333,18 @@ public class QueryServiceTest {
 	 *             fail to find customer using query id
 	 */
 	private void findCustomerUsingQueryId(String ssno, String name,
-			String address) throws Exception {
+			String address) {
 		// 1. execute query
-		Collection rtCollection = queryService.find("findCustomer",
+		List<Map<String, String>> results = queryService.find("findCustomer",
 				new Object[] { ssno });
 
 		// 2. assert
-		Assert.assertEquals("Fail to find customer by SQL.", 1, rtCollection.size());
+		Assert.assertEquals("Fail to find customer by SQL.", 1, results.size());
 
 		// 3. assert in detail
-		Map rtMap = (Map) rtCollection.iterator().next();
-		Assert.assertEquals("Fail to compare result.", address, (String) rtMap
+		Map<String, String> rtMap = results.iterator().next();
+		Assert.assertEquals("Fail to compare result.", address, rtMap
 				.get("address"));
-		Assert.assertEquals("Fail to compare result.", name, (String) rtMap
-				.get("name"));
+		Assert.assertEquals("Fail to compare result.", name, rtMap.get("name"));
 	}
 }

@@ -37,6 +37,8 @@ import java.util.Map;
 
 import oracle.sql.CLOB;
 
+import org.anyframe.exception.InitializationException;
+import org.anyframe.query.exception.QueryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.support.lob.LobCreator;
@@ -44,7 +46,7 @@ import org.springframework.jdbc.support.lob.OracleLobHandler;
 import org.springframework.jdbc.support.nativejdbc.NativeJdbcExtractor;
 import org.springframework.util.FileCopyUtils;
 
-/**
+/** 
  * LobHandler implementation for Oracle databases. Uses proprietary API to
  * create oracle.sql.BLOB and oracle.sql.CLOB instances, as necessary when
  * working with Oracle's JDBC driver. Developed and tested on Oracle 9i.
@@ -69,8 +71,8 @@ import org.springframework.util.FileCopyUtils;
  * singleton if you do not want to depend on the Oracle JAR being in the class
  * path: use "lazy-init=true" to avoid this issue. We changed
  * org.springframework.jdbc.support.lob.OracleLobHandler Class into
- * org.anyframe.query.impl.jdbc.lob.Oracle8iLobHandler Class in Anyframe
- * and jcl to slf4j.
+ * org.anyframe.query.impl.jdbc.lob.Oracle8iLobHandler Class in Anyframe and jcl
+ * to slf4j.
  * <ul>
  * <li>Add some operations for supporting Oracle 8i.</li>
  * </ul>
@@ -79,32 +81,34 @@ import org.springframework.util.FileCopyUtils;
  * @author modified by SoYon Lim
  */
 public class Oracle8iLobHandler extends OracleLobHandler {
-	
-	private static Logger log = LoggerFactory.getLogger(Oracle8iLobHandler.class);
-	
+
+	private static Logger log = LoggerFactory
+			.getLogger(Oracle8iLobHandler.class);
+
 	private static final String CONNECTION_CLASS_NAME = "oracle.jdbc.OracleConnection";
 
 	private static final String BLOB_CLASS_NAME = "oracle.sql.BLOB";
 
 	private static final String CLOB_CLASS_NAME = "oracle.sql.CLOB";
 
-	private final Class connectionClass;
+	private final Class<?> connectionClass;
 
-	private final Class blobClass;
+	private final Class<?> blobClass;
 
-	private final Class clobClass;
+	private final Class<?> clobClass;
 
 	private final Method getCLOBMethod;
 
 	private final Method getBLOBMethod;
 
-	private final Method getCLOBStream;
+//	@SuppressWarnings("unused")
+//	private final Method getCLOBStream;
 
 	private final Method getBLOBStream;
 
-	private final Map durationSessionConstants = new HashMap(2);
+	private final Map<String, Object> durationSessionConstants = new HashMap<String, Object>(2);
 
-	private final Map modeReadWriteConstants = new HashMap(2);
+	private final Map<String, Object> modeReadWriteConstants = new HashMap<String, Object>(2);
 
 	private NativeJdbcExtractor nativeJdbcExtractor;
 
@@ -121,7 +125,7 @@ public class Oracle8iLobHandler extends OracleLobHandler {
 	 */
 	public Oracle8iLobHandler(String resultSetSpyName) {
 		try {
-			Class rsClass = getClass().getClassLoader().loadClass(
+			Class<?> rsClass = getClass().getClassLoader().loadClass(
 					resultSetSpyName);
 			this.connectionClass = getClass().getClassLoader().loadClass(
 					CONNECTION_CLASS_NAME);
@@ -147,12 +151,12 @@ public class Oracle8iLobHandler extends OracleLobHandler {
 						new Class[] { int.class });
 			}
 
-			this.getCLOBStream = clobClass.getMethod(
-					"getCharacterOutputStream", new Class[] {});
+//			this.getCLOBStream = clobClass.getMethod(
+//					"getCharacterOutputStream", new Class[] {});
 			this.getBLOBStream = blobClass.getMethod("getBinaryOutputStream",
 					new Class[] {});
 		} catch (Exception ex) {
-			throw new RuntimeException(
+			throw new InitializationException(
 					"Query Service : Couldn't initialize OracleLobHandler because Oracle driver classes are not available",
 					ex);
 		}
@@ -168,14 +172,14 @@ public class Oracle8iLobHandler extends OracleLobHandler {
 					(OutputStream) (getBLOBStream.invoke(blob, new Object[0])));
 			writer.write(blobValue);
 			writer.close();
-		} catch (IllegalArgumentException e) {
-			log.error(e.getMessage());
-		} catch (IllegalAccessException e) {
-			log.error(e.getMessage());
-		} catch (InvocationTargetException e) {
-			log.error(e.getMessage());
-		} catch (IOException e) {
-			log.error(e.getMessage());
+		} catch (IllegalArgumentException ex) {
+			log.error(ex.getMessage());
+		} catch (IllegalAccessException ex) {
+			log.error(ex.getMessage());
+		} catch (InvocationTargetException ex) {
+			log.error(ex.getMessage());
+		} catch (IOException ex) {
+			log.error(ex.getMessage());
 		}
 	}
 
@@ -191,12 +195,21 @@ public class Oracle8iLobHandler extends OracleLobHandler {
 			pos = clob.length() + 1;
 
 			clob.setString(pos, clobValue);
-		} catch (IllegalArgumentException e) {
-			log.error("Cannot invoke method {} because of illegal argument. Error : {}", new Object[]{ getCLOBMethod.getName(), e.getMessage()});
-		} catch (IllegalAccessException e) {
-			log.error("Cannot invoke method {} because this method is inaccessible. Error : {}", new Object[]{getCLOBMethod.getName(), e.getMessage()});
-		} catch (InvocationTargetException e) {
-			log.error("{} method throws an exception. Error : {}", new Object[]{getCLOBMethod.getName(), e.getMessage()});
+		} catch (IllegalArgumentException ex) {
+			log
+					.error(
+							"Cannot invoke method {} because of illegal argument. Error : {}",
+							new Object[] { getCLOBMethod.getName(),
+									ex.getMessage() });
+		} catch (IllegalAccessException ex) {
+			log
+					.error(
+							"Cannot invoke method {} because this method is inaccessible. Error : {}",
+							new Object[] { getCLOBMethod.getName(),
+									ex.getMessage() });
+		} catch (InvocationTargetException ex) {
+			log.error("{} method throws an exception. Error : {}",
+					new Object[] { getCLOBMethod.getName(), ex.getMessage() });
 		}
 	}
 
@@ -315,7 +328,7 @@ public class Oracle8iLobHandler extends OracleLobHandler {
 	 */
 	protected class OracleLobCreator implements LobCreator {
 
-		private final List createdLobs = new LinkedList();
+		private final List<Object> createdLobs = new LinkedList<Object>();
 
 		public void setBlobAsBytes(PreparedStatement ps, int paramIndex,
 				final byte[] content) throws SQLException {
@@ -330,10 +343,8 @@ public class Oracle8iLobHandler extends OracleLobHandler {
 					}
 				});
 				ps.setBlob(paramIndex, blob);
-
 			} else {
 				ps.setBlob(paramIndex, (Blob) null);
-
 			}
 		}
 
@@ -351,10 +362,8 @@ public class Oracle8iLobHandler extends OracleLobHandler {
 					}
 				});
 				ps.setBlob(paramIndex, blob);
-
 			} else {
 				ps.setBlob(paramIndex, (Blob) null);
-
 			}
 		}
 
@@ -371,10 +380,8 @@ public class Oracle8iLobHandler extends OracleLobHandler {
 					}
 				});
 				ps.setClob(paramIndex, clob);
-
 			} else {
 				ps.setClob(paramIndex, (Clob) null);
-
 			}
 		}
 
@@ -392,10 +399,8 @@ public class Oracle8iLobHandler extends OracleLobHandler {
 					}
 				});
 				ps.setClob(paramIndex, clob);
-
 			} else {
 				ps.setClob(paramIndex, (Clob) null);
-
 			}
 		}
 
@@ -413,10 +418,8 @@ public class Oracle8iLobHandler extends OracleLobHandler {
 					}
 				});
 				ps.setClob(paramIndex, clob);
-
 			} else {
 				ps.setClob(paramIndex, (Clob) null);
-
 			}
 		}
 
@@ -424,7 +427,7 @@ public class Oracle8iLobHandler extends OracleLobHandler {
 		 * Create a LOB instance for the given PreparedStatement, populating it
 		 * via the given callback.
 		 */
-		protected Object createLob(PreparedStatement ps, Class lobClass,
+		protected Object createLob(PreparedStatement ps, Class<?> lobClass,
 				LobCallback callback) throws SQLException {
 			try {
 				Object lob = prepareLob(getOracleConnection(ps), lobClass);
@@ -440,12 +443,12 @@ public class Oracle8iLobHandler extends OracleLobHandler {
 				if (ex.getTargetException() instanceof SQLException) {
 					throw (SQLException) ex.getTargetException();
 				} else {
-					throw new RuntimeException(
+					throw new QueryException(
 							"Query Service : Could not create Oracle LOB", ex
 									.getTargetException());
 				}
 			} catch (Exception ex) {
-				throw new RuntimeException(
+				throw new QueryException(
 						"Query Service : Could not create Oracle LOB", ex);
 			}
 		}
@@ -455,7 +458,7 @@ public class Oracle8iLobHandler extends OracleLobHandler {
 		 * if set.
 		 */
 		protected Connection getOracleConnection(PreparedStatement ps)
-				throws SQLException, ClassNotFoundException {
+				throws SQLException {
 			Connection conToUse = null;
 
 			if (nativeJdbcExtractor != null)
@@ -464,7 +467,7 @@ public class Oracle8iLobHandler extends OracleLobHandler {
 			else
 				conToUse = ps.getConnection();
 			if (!connectionClass.isAssignableFrom(conToUse.getClass())) {
-				throw new RuntimeException(
+				throw new QueryException(
 						"Query Service : OracleLobCreator needs to work on [oracle.jdbc.OracleConnection], not on ["
 								+ conToUse.getClass()
 								+ "] - specify a corresponding NativeJdbcExtractor");
@@ -474,9 +477,14 @@ public class Oracle8iLobHandler extends OracleLobHandler {
 
 		/**
 		 * Create and open an oracle.sql.BLOB/CLOB instance via reflection.
+		 * 
+		 * @throws NoSuchMethodException
+		 * @throws InvocationTargetException
+		 * @throws IllegalAccessException
 		 */
-		protected Object prepareLob(Connection con, Class lobClass)
-				throws Exception {
+		protected Object prepareLob(Connection con, Class<?> lobClass)
+				throws NoSuchMethodException, IllegalAccessException,
+				InvocationTargetException {
 			/*
 			 * BLOB blob = BLOB.createTemporary(con, false,
 			 * BLOB.DURATION_SESSION); blob.open(BLOB.MODE_READWRITE); return
@@ -497,7 +505,7 @@ public class Oracle8iLobHandler extends OracleLobHandler {
 		 */
 		public void close() {
 			try {
-				for (Iterator it = this.createdLobs.iterator(); it.hasNext();) {
+				for (Iterator<Object> it = this.createdLobs.iterator(); it.hasNext();) {
 					/*
 					 * BLOB blob = (BLOB) it.next(); blob.freeTemporary();
 					 */
@@ -511,7 +519,7 @@ public class Oracle8iLobHandler extends OracleLobHandler {
 				log.error("Cannot invoke method. Error : {}", ex.getMessage());
 
 			} catch (Exception ex) {
-				throw new RuntimeException(
+				throw new QueryException(
 						"Query Service : Could not free Oracle LOB", ex);
 			}
 		}

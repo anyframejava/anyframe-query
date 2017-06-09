@@ -22,7 +22,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,9 +31,9 @@ import javax.sql.DataSource;
 
 import org.anyframe.query.QueryInfo;
 import org.anyframe.query.RowMetadataCallbackHandler;
+import org.anyframe.query.SqlLoader;
 import org.anyframe.query.impl.LiveScrollPagination;
 import org.anyframe.query.impl.Pagination;
-import org.anyframe.query.impl.config.loader.SQLLoader;
 import org.anyframe.query.impl.jdbc.generator.DefaultPagingSQLGenerator;
 import org.anyframe.query.impl.jdbc.generator.PagingSQLGenerator;
 import org.anyframe.query.impl.jdbc.lob.Oracle8iLobHandler;
@@ -66,7 +65,7 @@ import org.springframework.util.Assert;
  * @author SoYon Lim
  * @author JongHoon Kim
  */
-public class PagingJdbcTemplate extends JdbcTemplate {
+public class PagingJdbcTemplate extends JdbcTemplate { 
 
 	// 2011.05.11
 	private PagingSQLGenerator paginationSQLGetter;
@@ -151,13 +150,14 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 	}
 
 	// 2009.04.28
+	@SuppressWarnings("unchecked")
 	public List query(String sql, PreparedStatementSetter pss,
 			RowMapper rowMapper, Pagination paginationVO) {
-		if (pss == null)
+		if (pss == null) {
 			return (List) query(new PagingPreparedStatementCreator(sql),
 					new PagingRowMapperResultSetExtractor(rowMapper,
 							paginationVO));
-
+		}
 		return (List) query(new PagingPreparedStatementCreator(sql), pss,
 				new PagingRowMapperResultSetExtractor(rowMapper, paginationVO));
 	}
@@ -182,9 +182,9 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 	 *            Basic information necessary for paging process
 	 * @return Query execution result
 	 */
+	@SuppressWarnings("unchecked")
 	public List queryWithPagination(String sql, Object[] args, int[] argTypes,
-			int queryMaxFetchSize, RowMapper rowMapper, Pagination paginationVO)
-			throws Exception {
+			int queryMaxFetchSize, RowMapper rowMapper, Pagination paginationVO) {
 		if (checkPagingSQLGenerator(paginationSQLGetter))
 			return query(sql, args, argTypes, queryMaxFetchSize, rowMapper,
 					paginationVO);
@@ -208,9 +208,10 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 				queryMaxFetchSize, rowMapper);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void queryWithPagination(String sql, Object[] args, int[] argTypes,
 			int queryMaxFetchSize, RowCallbackHandler rch,
-			Pagination paginationVO) throws Exception {
+			Pagination paginationVO) {
 		if (checkPagingSQLGenerator(paginationSQLGetter)) {
 			query(new PagingPreparedStatementCreator(sql),
 					new PreparedStatementArgTypeSetter(args, argTypes, null),
@@ -255,8 +256,9 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 	 *            Basic information necessary for paging process
 	 * @return Query execution result
 	 */
+	@SuppressWarnings("unchecked")
 	public List queryWithPagination(String sql, RowMapper rowMapper,
-			Pagination paginationVO) throws Exception {
+			Pagination paginationVO) {
 		if (checkPagingSQLGenerator(paginationSQLGetter))
 			return query(sql, null, null, -1, rowMapper, paginationVO);
 		if (paginationVO.isCountRecordSize()) {
@@ -266,8 +268,8 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 		}
 
 		Object[] paginationArgs = paginationSQLGetter.setQueryArgs(
-				new Object[0], paginationVO.getPageIndex(),
-				paginationVO.getPageSize());
+				new Object[0], paginationVO.getPageIndex(), paginationVO
+						.getPageSize());
 		String paginationSql = getPaginationSQL(sql, new Object[0], new int[0],
 				paginationVO);
 
@@ -291,8 +293,9 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 	 *            Basic information necessary for paging process
 	 * @return Query execution result
 	 */
+	@SuppressWarnings("unchecked")
 	public List queryWithPagination(String sql, Object[] args,
-			RowMapper rowMapper, Pagination paginationVO) throws Exception {
+			RowMapper rowMapper, Pagination paginationVO) {
 		if (checkPagingSQLGenerator(paginationSQLGetter))
 			return query(sql, args, null, -1, rowMapper, paginationVO);
 
@@ -311,9 +314,9 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 		return query(paginationSql, paginationArgs, rowMapper);
 	}
 
+	@SuppressWarnings("unchecked")
 	public List queryForListWithPagination(String sql, Object[] args,
-			int[] argTypes, int queryMaxFetchSize, Pagination paginationVO)
-			throws Exception {
+			int[] argTypes, int queryMaxFetchSize, Pagination paginationVO) {
 		return queryWithPagination(sql, args, argTypes, queryMaxFetchSize,
 				getColumnMapRowMapper(), paginationVO);
 	}
@@ -325,12 +328,13 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 	 * @return the number of rows affected by the update
 	 */
 	// 2008.05.08 - add for Handling Lob of Oracle 8i
+	@SuppressWarnings("unchecked")
 	public int update(String sql, Object[] values, LobHandler lobHandler,
 			String lobStatement, String[] lobTypes, Object[] lobKeys,
 			Object[] lobValues) {
 		int updateCount = update(sql, values);
-		LinkedList lobParameters = null;
-		lobParameters = new LinkedList();
+		LinkedList<SqlParameter> lobParameters = null;
+		lobParameters = new LinkedList<SqlParameter>();
 		for (int i = 0; i < lobTypes.length; i++) {
 			int type = SQLTypeTransfer.getSQLType(lobTypes[i].toUpperCase());
 			lobParameters.add(new SqlParameter(type));
@@ -350,6 +354,7 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 	// 2008.07.21 reopen - cf.) need to fix
 	// ResultSetMapperSupport VO byte[] -
 	// not getBytes() --> BLOB
+	@SuppressWarnings("unchecked")
 	public void query(String sql, Object[] args, int[] argTypes,
 			int queryMaxFetchSize, RowCallbackHandler rch) {
 		if (checkPagingSQLGenerator(paginationSQLGetter)) {
@@ -366,13 +371,15 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 	}
 
 	// 2011.05.03 - maxFetchSize
-	public Collection query(String sql, Object[] args, int[] argTypes,
+	@SuppressWarnings("unchecked")
+	public List query(String sql, Object[] args, int[] argTypes,
 			int queryMaxFetchSize) {
 		return query(sql, args, argTypes, queryMaxFetchSize,
 				new ColumnMapRowMapper());
 	}
 
 	// 2011.05.03 - maxFetchSize
+	@SuppressWarnings("unchecked")
 	public List query(String sql, Object[] args, int[] argTypes,
 			int queryMaxFetchSize, RowMapper rowMapper) {
 		return (List) query(sql, args, argTypes,
@@ -383,7 +390,7 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 	/** ************* PROTECTED METHODS ************** */
 
 	protected String getPaginationSQL(String originalSql, Object[] args,
-			int[] argTypes, Pagination context) throws Exception {
+			int[] argTypes, Pagination context) {
 		int pageIndex = context.getPageIndex();
 		int pageSize = context.getPageSize();
 		return paginationSQLGetter.getPaginationSQL(originalSql, args,
@@ -397,14 +404,14 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 
 	// 2009.08.24
 	// added to pass queryInfo object (mapping style info)
-	public Map call(final SQLLoader sqlLoader, CallableStatementCreator csc,
-			List declaredParameters, final QueryInfo queryInfo)
-			throws DataAccessException {
-		final List updateCountParameters = new ArrayList();
-		final List resultSetParameters = new ArrayList();
-		final List callParameters = new ArrayList();
+	public Map<String, Object> call(final SqlLoader sqlLoader,
+			CallableStatementCreator csc, List<SqlParameter> declaredParameters,
+			final QueryInfo queryInfo) throws DataAccessException {
+		final List<SqlParameter> updateCountParameters = new ArrayList<SqlParameter>();
+		final List<SqlParameter> resultSetParameters = new ArrayList<SqlParameter>();
+		final List<SqlParameter> callParameters = new ArrayList<SqlParameter>();
 		for (int i = 0; i < declaredParameters.size(); i++) {
-			SqlParameter parameter = (SqlParameter) declaredParameters.get(i);
+			SqlParameter parameter = declaredParameters.get(i);
 			if (parameter.isResultsParameter()) {
 				if (parameter instanceof SqlReturnResultSet) {
 					resultSetParameters.add(parameter);
@@ -415,28 +422,49 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 				callParameters.add(parameter);
 			}
 		}
-		return (Map) execute(csc, new CallableStatementCallback() {
-			public Object doInCallableStatement(CallableStatement cs)
-					throws SQLException {
-				boolean retVal = cs.execute();
-				int updateCount = cs.getUpdateCount();
-				if (logger.isDebugEnabled()) {
-					logger.debug("CallableStatement.execute() returned '"
-							+ retVal + "'");
-					logger.debug("CallableStatement.getUpdateCount() returned "
-							+ updateCount);
-				}
-				Map returnedResults = createResultsMap();
-				if (retVal || updateCount != -1) {
-					returnedResults.putAll(extractReturnedResults(sqlLoader,
-							cs, updateCountParameters, resultSetParameters,
-							updateCount, queryInfo));
-				}
-				returnedResults.putAll(extractOutputParameters(cs,
-						callParameters));
-				return returnedResults;
-			}
-		});
+		return execute(csc,
+				new CallableStatementCallback<Map<String, Object>>() {
+					public Map<String, Object> doInCallableStatement(
+							CallableStatement cs) throws SQLException {
+						boolean retVal = cs.execute();
+						int updateCount = cs.getUpdateCount();
+						if (logger.isDebugEnabled()) {
+							logger
+									.debug("CallableStatement.execute() returned '"
+											+ retVal + "'");
+							logger
+									.debug("CallableStatement.getUpdateCount() returned "
+											+ updateCount);
+						}
+						Map<String, Object> returnedResults = createResultsMap();
+						if (retVal || updateCount != -1) {
+							returnedResults
+									.putAll(extractReturnedResults(sqlLoader,
+											cs, updateCountParameters,
+											resultSetParameters, updateCount,
+											queryInfo));
+						}
+						returnedResults.putAll(extractOutputParameters(cs,
+								callParameters));
+						return returnedResults;
+					}
+				});
+
+		/*
+		 * return (Map<String, Object>) execute(csc, new
+		 * CallableStatementCallback() { public Object
+		 * doInCallableStatement(CallableStatement cs) throws SQLException {
+		 * boolean retVal = cs.execute(); int updateCount = cs.getUpdateCount();
+		 * if (logger.isDebugEnabled()) {
+		 * logger.debug("CallableStatement.execute() returned '" + retVal +
+		 * "'"); logger.debug("CallableStatement.getUpdateCount() returned " +
+		 * updateCount); } Map<String, Object> returnedResults =
+		 * createResultsMap(); if (retVal || updateCount != -1) {
+		 * returnedResults.putAll(extractReturnedResults(sqlLoader, cs,
+		 * updateCountParameters, resultSetParameters, updateCount, queryInfo));
+		 * } returnedResults.putAll(extractOutputParameters(cs,
+		 * callParameters)); return returnedResults; } });
+		 */
 	}
 
 	// 2009.08.24
@@ -453,13 +481,14 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 	 *            Parameter list of declared resturn resultSet parameters for
 	 *            the stored procedure
 	 * @return Map that contains returned results
+	 * @throws SQLException
 	 */
-	protected Map extractReturnedResults(SQLLoader sqlLoader,
-			CallableStatement cs, List updateCountParameters,
-			List resultSetParameters, int updateCount, QueryInfo queryInfo)
+	protected Map<String, Object> extractReturnedResults(SqlLoader sqlLoader,
+			CallableStatement cs, List<SqlParameter> updateCountParameters,
+			List<SqlParameter> resultSetParameters, int updateCount, QueryInfo queryInfo)
 			throws SQLException {
 
-		Map returnedResults = new HashMap();
+		Map<String, Object> returnedResults = new HashMap<String, Object>();
 		int rsIndex = 0;
 		int updateIndex = 0;
 		boolean moreResults;
@@ -470,8 +499,8 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 							&& resultSetParameters.size() > rsIndex) {
 						SqlReturnResultSet declaredRsParam = (SqlReturnResultSet) resultSetParameters
 								.get(rsIndex);
-						returnedResults.putAll(processResultSet(
-								cs.getResultSet(), declaredRsParam));
+						returnedResults.putAll(processResultSet(cs
+								.getResultSet(), declaredRsParam));
 						rsIndex++;
 					} else {
 						if (!skipUndeclaredResults) {
@@ -480,10 +509,11 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 							SqlReturnResultSet undeclaredRsParam = new SqlReturnResultSet(
 									rsName, new MappingStyleColumnMapRowMapper(
 											sqlLoader, queryInfo));
-							logger.info("Added default SqlReturnResultSet parameter named "
-									+ rsName);
-							returnedResults.putAll(processResultSet(
-									cs.getResultSet(), undeclaredRsParam));
+							logger
+									.info("Added default SqlReturnResultSet parameter named "
+											+ rsName);
+							returnedResults.putAll(processResultSet(cs
+									.getResultSet(), undeclaredRsParam));
 							rsIndex++;
 						}
 					}
@@ -500,8 +530,9 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 						if (!skipUndeclaredResults) {
 							String undeclaredUcName = RETURN_UPDATE_COUNT_PREFIX
 									+ (updateIndex + 1);
-							logger.info("Added default SqlReturnUpdateCount parameter named "
-									+ undeclaredUcName);
+							logger
+									.info("Added default SqlReturnUpdateCount parameter named "
+											+ undeclaredUcName);
 							returnedResults.put(undeclaredUcName, new Integer(
 									updateCount));
 							updateIndex++;
@@ -526,6 +557,7 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 		return (pagingSQLGenerator instanceof DefaultPagingSQLGenerator);
 	}
 
+	@SuppressWarnings("unchecked")
 	private List query(String sql, Object[] args, int[] argTypes,
 			int queryMaxFetchSize, RowMapper rowMapper, Pagination paginationVO) {
 		if (args == null)
@@ -577,13 +609,14 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	class PagingRowMapperResultSetExtractor implements ResultSetExtractor {
 
 		private final RowMapper rowMapper;
 
-		private Pagination paginationVO;
+		private final Pagination paginationVO;
 
-		private int queryMaxFetchSize;
+		private final int queryMaxFetchSize;
 
 		public PagingRowMapperResultSetExtractor(RowMapper rowMapper,
 				Pagination paginationVO) {
@@ -601,7 +634,7 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 			this.queryMaxFetchSize = queryMaxFetchSize;
 		}
 
-		public Object extractData(ResultSet rs) throws SQLException {
+		public List<Object> extractData(ResultSet rs) throws SQLException {
 			int pageIndex = paginationVO.getPageIndex();
 			int pageSize = paginationVO.getPageSize();
 			rs.last();
@@ -617,7 +650,7 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 					rs.absolute((pageIndex - 1) * pageSize);
 				}
 			}
-			List results = new ArrayList();
+			List<Object> results = new ArrayList<Object>();
 			int rowNum = 1;
 
 			if (rowMapper instanceof RowMetadataCallbackHandler
@@ -644,16 +677,14 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 			return results;
 		}
 	}
-
-	/**
-	 * @author Administrator
-	 */
+	
+	@SuppressWarnings("unchecked")
 	private class PagingRowCallbackHandlerResultSetExtractor implements
 			ResultSetExtractor {
 
 		private final RowCallbackHandler rch;
-		private Pagination paginationVO;
-		private int queryMaxFetchSize;
+		private final Pagination paginationVO;
+		private final int queryMaxFetchSize;
 
 		public PagingRowCallbackHandlerResultSetExtractor(
 				RowCallbackHandler rch, Pagination paginationVO,
@@ -726,15 +757,13 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 		}
 	}
 
-	/**
-	 * @author Administrator
-	 */
+	@SuppressWarnings("unchecked")
 	private class NonPagingRowCallbackHandlerResultSetExtractor implements
 			ResultSetExtractor {
 
 		private final RowCallbackHandler rch;
 
-		private int queryMaxFetchSize;
+		private final int queryMaxFetchSize;
 
 		public NonPagingRowCallbackHandlerResultSetExtractor(
 				RowCallbackHandler rch, int queryMaxFetchSize) {
@@ -773,12 +802,13 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 	}
 
 	// 2011.05.03 - maxFetchSize
+	@SuppressWarnings("unchecked")
 	private class NonPagingRowMapperResultSetExtractor implements
 			ResultSetExtractor {
 
 		private final RowMapper rowMapper;
 
-		private int queryMaxFetchSize;
+		private final int queryMaxFetchSize;
 
 		public NonPagingRowMapperResultSetExtractor(RowMapper rowMapper,
 				int queryMaxFetchSize) {
@@ -788,7 +818,7 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 		}
 
 		public Object extractData(ResultSet rs) throws SQLException {
-			List results = new ArrayList();
+			List<Object> results = new ArrayList<Object>();
 			int rowNum = 1;
 
 			if (rowMapper instanceof RowMetadataCallbackHandler
@@ -819,11 +849,12 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 	}
 
 	// 2008.05.08 - add for Handling Lob of Oracle 8i
+	@SuppressWarnings("unchecked")
 	private class Oracle8iResultSetExtractor implements ResultSetExtractor {
 
-		private Oracle8iLobHandler lobHandler;
+		private final Oracle8iLobHandler lobHandler;
 
-		private Object[] lobValues;
+		private final Object[] lobValues;
 
 		public Oracle8iResultSetExtractor(Oracle8iLobHandler lobHandler,
 				Object[] lobValues) {

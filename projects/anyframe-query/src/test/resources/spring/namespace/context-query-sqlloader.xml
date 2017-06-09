@@ -14,7 +14,7 @@
         <property name="password" value="athena"/>
     </bean> 
     
-	<bean name="anotherSqlLoader" class="org.anyframe.query.impl.config.loader.SQLLoader">
+	<bean name="anotherSqlLoader" class="org.anyframe.query.impl.config.loader.MappingXMLLoader">
 		<property name="mappingFiles">
 			<value>
   		    	classpath*:/mappings/testcase-queries-dynamic.xml,

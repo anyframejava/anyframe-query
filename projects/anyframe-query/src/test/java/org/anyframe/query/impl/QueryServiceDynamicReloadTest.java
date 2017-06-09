@@ -18,6 +18,7 @@ package org.anyframe.query.impl;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -66,7 +67,7 @@ public class QueryServiceDynamicReloadTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testDynamicReload() throws Exception {
+	public void testDynamicReload() {
 		// dynamicReload();
 	}
 
@@ -74,11 +75,14 @@ public class QueryServiceDynamicReloadTest {
 	 * By coping pre-defined testcase-queries-update.xml on to
 	 * testcase-queries-dynamicreload.xml file, it is verified whether Dynamic
 	 * Reload is well carried out by QueryService.
+	 * @throws IOException 
+	 * @throws InterruptedException 
 	 * 
 	 * @throws Exception
 	 *             fail to dynamic reload
 	 */
-	private void dynamicReload() throws Exception {
+	@SuppressWarnings("unused")
+	private void dynamicReload() throws IOException, InterruptedException  {
 		// 1. set data
 		File targetFile = new File(
 				"./testdynamicreload/testcase-queries-dynamicreload.xml");
@@ -122,7 +126,7 @@ public class QueryServiceDynamicReloadTest {
 	 *             fail to change file contents.
 	 */
 	private void changeFileContent(File source, File destination)
-			throws Exception {
+			throws IOException {
 		InputStream in = null;
 		OutputStream out = null;
 

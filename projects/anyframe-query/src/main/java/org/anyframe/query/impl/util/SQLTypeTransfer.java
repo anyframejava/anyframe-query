@@ -19,6 +19,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.anyframe.query.QueryService;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
@@ -30,15 +31,15 @@ import org.springframework.jdbc.core.SqlParameter;
  * @author JongHoon Kim
  */
 public class SQLTypeTransfer {
-	private static HashMap sqltypenames = new HashMap();
+	private static Map<Integer, String> sqltypenames = new HashMap<Integer, String>();
 
-	private static HashMap sqltypes = new HashMap();
+	private static Map<String, Integer> sqltypes = new HashMap<String, Integer>();
 
-	private static HashMap userdefinedtypes = new HashMap();
+	private static Map<String, Integer> userdefinedtypes = new HashMap<String, Integer>();
 
-	private static HashMap javatypes = new HashMap();
+	private static Map<Object, Integer> javatypes = new HashMap<Object, Integer>();
 
-	public static int UNDEFINED = -1;
+	public final static int UNDEFINED = -1; 
 
 	private SQLTypeTransfer() {
 		super();
@@ -64,7 +65,7 @@ public class SQLTypeTransfer {
 		javatypes.put(Short.class, new Integer(Types.SMALLINT));
 		javatypes.put(Integer.class, new Integer(Types.INTEGER));
 		javatypes.put(Float.class, new Integer(Types.REAL));
-		javatypes.put(java.util.Date.class, new Integer(Types.DATE));
+		javatypes.put(java.util.Date.class, new Integer(Types.TIMESTAMP));
 		javatypes.put(Byte.class, new Integer(Types.TINYINT));
 		javatypes.put(Boolean.class, new Integer(Types.BIT));
 
@@ -153,7 +154,7 @@ public class SQLTypeTransfer {
 
 		if (sqltypes.containsKey(typeName)) {
 			try {
-				retValue = ((Integer) (sqltypes.get(typeName))).intValue();
+				retValue = sqltypes.get(typeName).intValue();
 			} catch (Exception e) {
 				QueryService.LOGGER
 						.error(
@@ -166,12 +167,12 @@ public class SQLTypeTransfer {
 
 	}
 
-	public static int getSQLType(final Class clazz) {
+	public static int getSQLType(final Class<?> clazz) {
 		int retValue = UNDEFINED;
 
 		if (javatypes.containsKey(clazz)) {
 			try {
-				retValue = ((Integer) (javatypes.get(clazz))).intValue();
+				retValue = javatypes.get(clazz).intValue();
 			} catch (Exception e) {
 				QueryService.LOGGER.error(
 						"Query Service : Not supported java type. [{}] {}",
@@ -182,9 +183,10 @@ public class SQLTypeTransfer {
 		return retValue;
 	}
 
-	public static List getSqlParameterList(String[] paramTypeNames,
-			String[] paramBindingTypes, String[] paramBindingNames) {
-		ArrayList list = new ArrayList();
+	public static List<SqlParameter> getSqlParameterList(
+			String[] paramTypeNames, String[] paramBindingTypes,
+			String[] paramBindingNames) {
+		List<SqlParameter> list = new ArrayList<SqlParameter>();
 		for (int i = 0; i < paramTypeNames.length; i++) {
 
 			int type = SQLTypeTransfer.getSQLType(paramTypeNames[i]
@@ -236,7 +238,7 @@ public class SQLTypeTransfer {
 
 		if (sqltypenames.containsKey(new Integer(type))) {
 			try {
-				retValue = (String) sqltypenames.get(new Integer(type));
+				retValue = sqltypenames.get(new Integer(type));
 			} catch (Exception e) {
 				QueryService.LOGGER.error(
 						"Query Service : Not supported sql type. [{}] {}",

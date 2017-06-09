@@ -23,10 +23,11 @@ import java.util.Map;
 import org.anyframe.query.MappingInfo;
 import org.springframework.jdbc.support.lob.LobHandler;
 
-public class DefaultReflectionResultSetMapper extends ReflectionResultSetMapper {
+public class DefaultReflectionResultSetMapper<T> extends ReflectionResultSetMapper<T> {
 
-	public DefaultReflectionResultSetMapper(Class targetClass,
-			MappingInfo mappingInfo, Map nullchecks, LobHandler lobHandler) {
+	public DefaultReflectionResultSetMapper(Class<T> targetClass,
+			MappingInfo mappingInfo, Map<String, String> nullchecks,
+			LobHandler lobHandler) {
 		super(targetClass, mappingInfo, nullchecks, lobHandler);
 	}
 
@@ -39,11 +40,12 @@ public class DefaultReflectionResultSetMapper extends ReflectionResultSetMapper 
 	 *            One Row out of search result
 	 * @return target class instance including search result
 	 */
-	public Object mapRow(ResultSet resultSet) throws SQLException {
+	@SuppressWarnings("unchecked")
+	public T mapRow(ResultSet resultSet) throws SQLException {
 		Object object = null;
-		Iterator targetClassIterator = targetClasses.iterator();
+		Iterator<Class<T>> targetClassIterator = targetClasses.iterator();
 		while (targetClassIterator.hasNext() && object == null) {
-			Class targetClass = (Class) targetClassIterator.next();
+			Class<T> targetClass = targetClassIterator.next();
 
 			ResultSetMappingConfiguration mappingConfiguration;
 			// Mapping information extraction of specific
@@ -51,11 +53,11 @@ public class DefaultReflectionResultSetMapper extends ReflectionResultSetMapper 
 
 			if (queryId != null
 					&& sqlLoader.getQueryResultMappings().containsKey(queryId)) {
-				mappingConfiguration = (ResultSetMappingConfiguration) sqlLoader
-						.getQueryResultMappings().get(queryId);
+				mappingConfiguration = sqlLoader.getQueryResultMappings().get(
+						queryId);
 			} else {
-				mappingConfiguration = getConfig(targetClass,
-						resultSet.getMetaData());
+				mappingConfiguration = getConfig(targetClass, resultSet
+						.getMetaData());
 				if (queryId != null)
 					sqlLoader.getQueryResultMappings().put(queryId,
 							mappingConfiguration);
@@ -63,6 +65,6 @@ public class DefaultReflectionResultSetMapper extends ReflectionResultSetMapper 
 			object = super.toObject(resultSet, targetClass,
 					mappingConfiguration);
 		}
-		return object;
+		return (T)object;
 	}
 }

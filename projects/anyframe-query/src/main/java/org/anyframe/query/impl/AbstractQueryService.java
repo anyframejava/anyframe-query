@@ -18,12 +18,15 @@ package org.anyframe.query.impl;
 import java.io.File;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.anyframe.exception.FieldAccessException;
+import org.anyframe.exception.InitializationException;
 import org.anyframe.query.QueryService;
-import org.anyframe.query.QueryServiceException;
-import org.anyframe.query.impl.config.loader.SQLLoader;
+import org.anyframe.query.SqlLoader;
+import org.anyframe.query.exception.QueryIdNotFoundException;
 import org.anyframe.util.StringUtil;
 import org.apache.velocity.app.Velocity;
 import org.springframework.context.ApplicationContext;
@@ -40,7 +43,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 public abstract class AbstractQueryService implements ApplicationContextAware,
 		ResourceLoaderAware {
 
-	protected SQLLoader sqlRepository = null;
+	protected SqlLoader sqlRepository = null;
 	protected String propsFilename;
 	protected ResourceLoader resourceLoader = null;
 
@@ -51,7 +54,7 @@ public abstract class AbstractQueryService implements ApplicationContextAware,
 	/**
 	 * @return the sqlRepository
 	 */
-	public SQLLoader getSqlRepository() {
+	public SqlLoader getSqlRepository() {
 		return sqlRepository;
 	}
 
@@ -59,7 +62,7 @@ public abstract class AbstractQueryService implements ApplicationContextAware,
 	 * @param sqlRepository
 	 *            the sqlRepository to set
 	 */
-	public void setSqlRepository(SQLLoader sqlRepository) {
+	public void setSqlRepository(SqlLoader sqlRepository) {
 		this.sqlRepository = sqlRepository;
 	}
 
@@ -74,11 +77,10 @@ public abstract class AbstractQueryService implements ApplicationContextAware,
 		this.resourceLoader = resourceLoader;
 	}
 
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		try {
 			// In the case where velocityPropsFilename property is not defined,
 			// Velocity Log file is not created.
-
 			if (StringUtil.isEmpty(propsFilename)) {
 				Velocity.addProperty("runtime.log.logsystem.class",
 						"org.apache.velocity.runtime.log.NullLogSystem");
@@ -93,7 +95,8 @@ public abstract class AbstractQueryService implements ApplicationContextAware,
 							.getAbsolutePath());
 					Velocity.init();
 				} else
-					throw new Exception("Velocity log file doesn't exists.");
+					throw new InitializationException(
+							"Velocity log file doesn't exists.");
 			}
 		} catch (Exception e) {
 			QueryService.LOGGER
@@ -101,25 +104,25 @@ public abstract class AbstractQueryService implements ApplicationContextAware,
 							"Query Service : Fail to initialize Velocity.\n Reason = [{}]",
 							e.getMessage(), e);
 
-			throw new Exception("Query Service : Fail to initialize Velocity.",
-					e);
+			throw new InitializationException(
+					"Query Service : Fail to initialize Velocity.", e);
 		}
 	}
 
-	protected String getRunnableSQL(String sql, SqlParameterSource searchParams)
-			throws QueryServiceException {
+	protected String getRunnableSQL(String sql, SqlParameterSource searchParams) {
 		StringBuffer tempStatement = new StringBuffer(sql);
-		SortedMap replacementPositions = findTextReplacements(tempStatement);
+		SortedMap<Integer, String> replacementPositions = findTextReplacements(tempStatement);
 
-		Iterator properties = replacementPositions.entrySet().iterator();
+		Iterator<Entry<Integer, String>> properties = replacementPositions
+				.entrySet().iterator();
 		int valueLengths = 0;
 		while (properties.hasNext()) {
-			Map.Entry entry = (Map.Entry) properties.next();
-			Integer pos = (Integer) entry.getKey();
-			String key = (String) entry.getValue();
-			Object replaceValue = (String) searchParams.getValue(key);
+			Map.Entry<Integer, String> entry = properties.next();
+			Integer pos = entry.getKey();
+			String key = entry.getValue();
+			Object replaceValue = searchParams.getValue(key);
 			if (replaceValue == null) {
-				throw new QueryServiceException(
+				throw new FieldAccessException(
 						"Query Service : Text replacement [" + entry.getValue()
 								+ "] has not been set.");
 			}
@@ -130,8 +133,8 @@ public abstract class AbstractQueryService implements ApplicationContextAware,
 		return tempStatement.toString();
 	}
 
-	protected SortedMap findTextReplacements(StringBuffer sql) {
-		TreeMap textReplacements = new TreeMap();
+	protected SortedMap<Integer, String> findTextReplacements(StringBuffer sql) {
+		TreeMap<Integer, String> textReplacements = new TreeMap<Integer, String>();
 		int startPos = 0;
 		while ((startPos = sql.indexOf("{{", startPos)) > -1) {
 			int endPos = sql.indexOf("}}", startPos);
@@ -147,12 +150,10 @@ public abstract class AbstractQueryService implements ApplicationContextAware,
 				.indexOf("#end") > -1);
 	}
 
-	protected void containesQueryId(String queryId)
-			throws QueryServiceException {
+	protected void containesQueryId(String queryId) {
 		if (!getSqlRepository().hasQuery(queryId))
-			throw new QueryServiceException(
+			throw new QueryIdNotFoundException(
 					"Query Service : Fail to find queryId [" + queryId
-							+ "] in mapping xml files.");
+							+ "] in query mappings.");
 	}
-
 }

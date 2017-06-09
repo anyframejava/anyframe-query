@@ -15,8 +15,8 @@
  */
 package org.anyframe.query.impl;
 
-import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -80,7 +80,7 @@ public class QueryServiceResultMappingTest {
 	 * Table TB_RESERVATION is created for test.
 	 */
 	@Before
-	public void onSetUp() throws Exception {
+	public void onSetUp() {
 		System.out.println("Attempting to drop old table");
 		try {
 			queryService.updateBySQL("DROP TABLE TB_CODE_GROUP",
@@ -140,17 +140,19 @@ public class QueryServiceResultMappingTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testResultMappingWithTableMapping() throws Exception {
-		Collection rtList = queryService.find("findWithTableMapping",
+	public void testResultMappingWithTableMapping() {
+		// Collection rtList = queryService.find("findWithTableMapping",
+		// new Object[] {});
+		List<CodeVO> results = queryService.find("findWithTableMapping",
 				new Object[] {});
 
 		Assert.assertEquals(
 				"Fail to find code list using table mapping definition.", 2,
-				rtList.size());
+				results.size());
 
-		Iterator rtItr = rtList.iterator();
+		Iterator<CodeVO> rtItr = results.iterator();
 		while (rtItr.hasNext()) {
-			CodeVO codeVO = (CodeVO) rtItr.next();
+			CodeVO codeVO = rtItr.next();
 			Assert.assertTrue("Fail to assert in detail.", (codeVO.getCodeId()
 					.equals("0000") || codeVO.getCodeId().equals("0001")));
 		}
@@ -166,18 +168,18 @@ public class QueryServiceResultMappingTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testResultMappingWithLocalResultMapping() throws Exception {
-		Collection rtList = queryService.find("findWithLocalResultMapping",
-				new Object[] { "CTGR" });
+	public void testResultMappingWithLocalResultMapping() {
+		List<LocalResultMappingVO> results = queryService.find(
+				"findWithLocalResultMapping", new Object[] { "CTGR" });
 
 		Assert
 				.assertEquals(
 						"Fail to find code list using local result mapping definition.",
-						1, rtList.size());
+						1, results.size());
 
-		Iterator rtItr = rtList.iterator();
+		Iterator<LocalResultMappingVO> rtItr = results.iterator();
 		while (rtItr.hasNext()) {
-			LocalResultMappingVO codeVO = (LocalResultMappingVO) rtItr.next();
+			LocalResultMappingVO codeVO = rtItr.next();
 			Assert.assertTrue("Fail to assert in detail.", codeVO.getCodeID()
 					.equals("0000"));
 			Assert.assertTrue("Fail to assert in detail.", codeVO
@@ -199,17 +201,17 @@ public class QueryServiceResultMappingTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testResultMappingWithOnlyResultClass() throws Exception {
-		Collection rtList = queryService.find("findWithOnlyResultClass",
+	public void testResultMappingWithOnlyResultClass() {
+		List<GroupCodeVO> results = queryService.find("findWithOnlyResultClass",
 				new Object[] {});
 
 		Assert.assertEquals(
 				"Fail to find code list using only result class definition.",
-				2, rtList.size());
+				2, results.size());
 
-		Iterator rtItr = rtList.iterator();
+		Iterator<GroupCodeVO> rtItr = results.iterator();
 		while (rtItr.hasNext()) {
-			GroupCodeVO codeVO = (GroupCodeVO) rtItr.next();
+			GroupCodeVO codeVO = rtItr.next();
 			Assert.assertTrue("Fail to assert in detail.", (codeVO.getGroupId()
 					.equals("CTGR") || codeVO.getGroupId().equals("CMMN")));
 		}
@@ -228,17 +230,17 @@ public class QueryServiceResultMappingTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testResultMappingWithHashMapCamelCased() throws Exception {
-		Collection rtList = queryService.find("findWithHashMapAndCamelCased",
-				new Object[] {});
+	public void testResultMappingWithHashMapCamelCased() {
+		List<Map<String, Object>> results = queryService.find(
+				"findWithHashMapAndCamelCased", new Object[] {});
 
 		Assert.assertEquals(
 				"Fail to find code list without no result mapping definition.",
-				2, rtList.size());
+				2, results.size());
 
-		Iterator rtItr = rtList.iterator();
+		Iterator<Map<String, Object>> rtItr = results.iterator();
 		while (rtItr.hasNext()) {
-			Map result = (Map) rtItr.next();
+			Map<String, Object> result = rtItr.next();
 			Assert.assertTrue("Fail to assert in detail.", (result
 					.get("codeId").equals("0000") || result.get("codeId")
 					.equals("0001")));
@@ -257,17 +259,17 @@ public class QueryServiceResultMappingTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testResultMappingWithHashMap() throws Exception {
-		Collection rtList = queryService.find(
+	public void testResultMappingWithHashMap() {
+		List<Map<String, Object>> results = queryService.find(
 				"findWithHashMapAndNonCamelCased", new Object[] {});
 
 		Assert.assertEquals(
 				"Fail to find code list without no result mapping definition.",
-				2, rtList.size());
+				2, results.size());
 
-		Iterator rtItr = rtList.iterator();
+		Iterator<Map<String, Object>> rtItr = results.iterator();
 		while (rtItr.hasNext()) {
-			Map result = (Map) rtItr.next();
+			Map<String, Object> result = rtItr.next();
 			Assert.assertTrue("Fail to assert in detail.", (result.get(
 					"code_id").equals("0000") || result.get("code_id").equals(
 					"0001")));
@@ -284,18 +286,18 @@ public class QueryServiceResultMappingTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testResultMappingWithCompositeResultMapping() throws Exception {
-		Collection rtList = queryService.find("findWithCompositeResultMapping",
-				new Object[] { "CTGR" });
+	public void testResultMappingWithCompositeResultMapping() {
+		List<LocalResultMappingVO> results = queryService.find(
+				"findWithCompositeResultMapping", new Object[] { "CTGR" });
 
 		Assert
 				.assertEquals(
 						"Fail to find code list using local result mapping definition.",
-						1, rtList.size());
+						1, results.size());
 
-		Iterator rtItr = rtList.iterator();
+		Iterator<LocalResultMappingVO> rtItr = results.iterator();
 		while (rtItr.hasNext()) {
-			LocalResultMappingVO codeVO = (LocalResultMappingVO) rtItr.next();
+			LocalResultMappingVO codeVO = rtItr.next();
 
 			Assert.assertTrue("Fail to assert in detail.", codeVO
 					.getCodeDescription().equals("Electronics"));

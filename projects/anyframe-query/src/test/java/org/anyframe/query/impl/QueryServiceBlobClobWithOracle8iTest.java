@@ -15,8 +15,9 @@
  */
 package org.anyframe.query.impl;
 
-import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -49,7 +50,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath*:/spring/context-*.xml" })
 public class QueryServiceBlobClobWithOracle8iTest {
-	
+
 	@Inject
 	QueryService queryService;
 
@@ -57,7 +58,7 @@ public class QueryServiceBlobClobWithOracle8iTest {
 	 * Table TB_BINARY is created for test.
 	 */
 	@Before
-	public void init() throws Exception {
+	public void init() {
 		System.out.println("Attempting to drop old table");
 		try {
 			queryService.updateBySQL("DROP TABLE TB_BINARY", new String[] {},
@@ -80,7 +81,7 @@ public class QueryServiceBlobClobWithOracle8iTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testOracle8iBlobClob() throws Exception {
+	public void testOracle8iBlobClob() {
 		// oracle8iBlobClob();
 	}
 
@@ -90,7 +91,8 @@ public class QueryServiceBlobClobWithOracle8iTest {
 	 * 
 	 * @throws Exception
 	 */
-	private void oracle8iBlobClob() throws Exception {
+	@SuppressWarnings("unused")
+	private void oracle8iBlobClob() {
 		init();
 		// 1. execute query
 		int result = queryService.create("insertBlobClobWithOra8i",
@@ -100,12 +102,12 @@ public class QueryServiceBlobClobWithOracle8iTest {
 		Assert.assertEquals("Fail to insert ClobBlob.", 1, result);
 
 		// 2. assert
-		Collection rtCollection = queryService.find("findBlobClobWithOra8i",
-				new Object[] { new Integer(7) });
+		List<Map<String, Object>> results = queryService.find(
+				"findBlobClobWithOra8i", new Object[] { new Integer(7) });
 
-		Assert.assertEquals("Fail to find ClobBlob.", 1, rtCollection.size());
+		Assert.assertEquals("Fail to find ClobBlob.", 1, results.size());
 
-		Iterator rtIterator = rtCollection.iterator();
+		Iterator<Map<String, Object>> rtIterator = results.iterator();
 
 		// 3. assert in detail
 		while (rtIterator.hasNext()) {
@@ -115,8 +117,8 @@ public class QueryServiceBlobClobWithOracle8iTest {
 					.get("myclob"));
 			Assert.assertEquals("Fail to compare result.", 201, ((byte[]) map
 					.get("myblob")).length);
-			Assert.assertEquals("Fail to compare result.", tempString, new String(
-					(byte[]) map.get("myblob")));
+			Assert.assertEquals("Fail to compare result.", tempString,
+					new String((byte[]) map.get("myblob")));
 		}
 	}
 

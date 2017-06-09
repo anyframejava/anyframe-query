@@ -18,8 +18,8 @@ package org.anyframe.query.impl;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -61,7 +61,7 @@ public class QueryServiceLongVarCharTest {
 	 * Table TB_LONG_VARCHAR is created for test.
 	 */
 	@Before
-	public void onSetUp() throws Exception {
+	public void onSetUp() {
 		try {
 			Connection conn = dataSource.getConnection();
 			try {
@@ -92,23 +92,23 @@ public class QueryServiceLongVarCharTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testLognVarchar() throws Exception {
+	public void testLognVarchar() {
 		// 1. execute insert query
 		queryService.create("insertLongVarchar", new Object[] { new Integer(5),
 				val1, val2 });
 
 		// 2. execute select query
-		Collection rtCollection = queryService.find("findLongVarchar",
+		List<Map<String, Object>> results = queryService.find("findLongVarchar",
 				new Object[] { new Integer(5) });
 
 		// 3. assert
 		Assert.assertEquals("Fail to execute query with longvarchar type.", 1,
-				rtCollection.size());
+				results.size());
 
 		// 4. assert in detail
-		Iterator rtItr = rtCollection.iterator();
+		Iterator<Map<String, Object>> rtItr = results.iterator();
 		while (rtItr.hasNext()) {
-			Map binary = (Map) rtItr.next();
+			Map<String, Object> binary = rtItr.next();
 			Assert.assertEquals("Fail to check a varchar value.", val1, binary
 					.get("myvarchar"));
 			Assert.assertEquals("Fail to check a longvarchar value.", val2,

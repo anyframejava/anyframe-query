@@ -20,8 +20,8 @@ import javax.inject.Inject;
 import junit.framework.Assert;
 
 import org.anyframe.query.QueryService;
-import org.anyframe.query.QueryServiceException;
-import org.anyframe.query.impl.util.InternalDataAccessException;
+import org.anyframe.query.exception.InternalDataAccessException;
+import org.anyframe.query.exception.QueryException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,7 +61,7 @@ public class QueryServiceDDLTest {
 	 * Index IDX_CUSTOMER is created for test.
 	 */
 	@Before
-    public void onSetUp() throws Exception {
+    public void onSetUp() {
         try {
             queryService.remove("dropTable", new Object[] {});
         } catch (Exception e) {
@@ -87,7 +87,7 @@ public class QueryServiceDDLTest {
      *         QueryService
      */
 	@Test
-    public void testCreateTable() throws Exception {
+    public void testCreateTable() {
         // 1. execute query
         queryService.create("createTable", new Object[] {});
 
@@ -95,7 +95,7 @@ public class QueryServiceDDLTest {
         try {
             queryService.create("createTable", new Object[] {});
             Assert.fail("Fail to create table.");
-        } catch (QueryServiceException e) {
+        } catch (QueryException e) {
             // 3. assert
         	Assert.assertTrue("Fail to find cause.",
                 e.getCause() instanceof InternalDataAccessException);
@@ -117,7 +117,7 @@ public class QueryServiceDDLTest {
      *         QueryService
      */
 	@Test
-    public void testDropTable() throws Exception {
+    public void testDropTable() {
         // 1. create table
         testCreateTable();
 
@@ -127,7 +127,7 @@ public class QueryServiceDDLTest {
         // 3. execute same query
         try {
             queryService.remove("dropTable", new Object[] {});
-        } catch (QueryServiceException e) {
+        } catch (QueryException e) {
             // 4. assert
         	Assert.assertTrue("Fail to find cause.",
                 e.getCause() instanceof InternalDataAccessException);
@@ -146,7 +146,7 @@ public class QueryServiceDDLTest {
      *         QueryService
      */
 	@Test
-    public void testCreateIndex() throws Exception {
+    public void testCreateIndex() {
         // 1. execute query
         int result = queryService.create("createIndex", new Object[] {});
         // 정상적으로 실행된 경우 0을 리턴함.

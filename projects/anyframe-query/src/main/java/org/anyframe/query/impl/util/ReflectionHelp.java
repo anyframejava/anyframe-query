@@ -22,7 +22,7 @@ import java.util.Map;
 
 /**
  * This class either extracts Filed information defined at a specific target
- * class or creates instance of relevant class. 
+ * class or creates instance of relevant class.
  * 
  * @author SoYon Lim
  * @author JongHoon Kim
@@ -41,20 +41,21 @@ public class ReflectionHelp {
 	 *            The class to examine.
 	 * @return Array of fields.
 	 */
-	public static Map getAllDeclaredFields(Class target){
-		Map fieldMap = new HashMap();
-		
+	public static Map<String, Field> getAllDeclaredFields(Class<?> target) {
+		Map<String, Field> fieldMap = new HashMap<String, Field>();
+
 		if (target.getSuperclass() != null) {
-			Map superFieldMap = getAllDeclaredFields(target.getSuperclass());
+			Map<String, Field> superFieldMap = getAllDeclaredFields(target
+					.getSuperclass());
 			fieldMap.putAll(superFieldMap);
-		}		
-		
+		}
+
 		Field[] currentFields = target.getDeclaredFields();
 		AccessibleObject.setAccessible(currentFields, true);
-		for(int i=0; i<currentFields.length; i++){
+		for (int i = 0; i < currentFields.length; i++) {
 			fieldMap.put(currentFields[i].getName(), currentFields[i]);
 		}
-		
+
 		return fieldMap;
 	}
 
@@ -67,16 +68,12 @@ public class ReflectionHelp {
 	 *            The specific object that contains the field.
 	 * @param value
 	 *            The value that will be applied to the field.
+	 * @throws IllegalAccessException
 	 */
-	public static void setFieldValue(Field field, Object obj, Object value) {
-		try {
-			if (value != null)
-				field.set(obj, value);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException("Query Service : Cannot set "
-					+ field.getName() + " = (" + value + ") Reason : "
-					+ e.getMessage());
-		}
+	public static void setFieldValue(Field field, Object obj, Object value)
+			throws IllegalAccessException {
+		if (value != null)
+			field.set(obj, value);
 	}
 
 	/**
@@ -87,17 +84,11 @@ public class ReflectionHelp {
 	 * @param bean
 	 *            The specific object to examine.
 	 * @return The value of the field.
+	 * @throws IllegalAccessException
 	 */
-	public static Object getFieldValue(Field field, Object bean) {
-		try {
-			return field.get(bean);
-		} catch (IllegalArgumentException e) {
-			throw new RuntimeException("Query Service : Cannot get "
-					+ field.getName() + ", Reason : " + e.getMessage());
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException("Query Service : Cannot get "
-					+ field.getName() + ", Reason : " + e.getMessage());
-		}
+	public static Object getFieldValue(Field field, Object bean)
+			throws IllegalAccessException {
+		return field.get(bean);
 	}
 
 	/**
@@ -106,17 +97,11 @@ public class ReflectionHelp {
 	 * @param createClass
 	 *            The Class to create an object from.
 	 * @return A newly created object of the Class.
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
 	 */
-	public static Object newInstance(Class createClass) {
-		try {
-			return createClass.newInstance();
-		} catch (InstantiationException e) {
-			throw new RuntimeException("Query Service : Cannot create "
-					+ createClass.getName() + ", Reason : " + e.getMessage());
-
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException("Query Service : Cannot create "
-					+ createClass.getName() + ", Reason : " + e.getMessage());
-		}
+	public static Object newInstance(Class<?> createClass)
+			throws InstantiationException, IllegalAccessException {
+		return createClass.newInstance();
 	}
 }

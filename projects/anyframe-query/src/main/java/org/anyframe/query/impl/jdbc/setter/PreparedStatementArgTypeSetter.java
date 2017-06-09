@@ -35,7 +35,7 @@ import org.springframework.jdbc.support.lob.LobHandler;
  * org.anyframe.query.impl.jdbc.setter.PreparedStatementArgTypeSetter in
  * Anyframe.
  * <ul>
- * <li>We changed some logic for processing LOB data.</li>
+ * <li>We changed some logic for processing LOB data.</li> 
  * </ul>
  * 
  * @author Juergen Hoeller
@@ -49,7 +49,7 @@ public class PreparedStatementArgTypeSetter implements PreparedStatementSetter,
 
 	private final int[] argTypes;
 
-	private LobHandler lobHandler;
+	private final LobHandler lobHandler;
 
 	/**
 	 * Create a new ArgTypePreparedStatementSetter for the given arguments.
@@ -88,7 +88,7 @@ public class PreparedStatementArgTypeSetter implements PreparedStatementSetter,
 	}
 
 	/**
-	 * Each input parameter value is set at PreparedStatement. 
+	 * Each input parameter value is set at PreparedStatement.
 	 */
 	public void setValues(PreparedStatement ps) throws SQLException {
 		int argIndx = 1;
@@ -101,10 +101,10 @@ public class PreparedStatementArgTypeSetter implements PreparedStatementSetter,
 			} else {
 				for (int i = 0; i < this.args.length; i++) {
 					Object arg = this.args[i];
-					if (arg instanceof Collection
+					if (arg instanceof Collection<?>
 							&& this.argTypes[i] != Types.ARRAY) {
-						Collection entries = (Collection) arg;
-						for (Iterator it = entries.iterator(); it.hasNext();) {
+						Collection<?> entries = (Collection<?>) arg;
+						for (Iterator<?> it = entries.iterator(); it.hasNext();) {
 							Object entry = it.next();
 							StatementCreatorUtils.setParameterValue(ps,
 									argIndx++, this.argTypes[i], null, entry);

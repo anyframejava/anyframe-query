@@ -15,15 +15,14 @@
  */
 package org.anyframe.query.impl.config;
 
-import java.io.IOException;
-
 import org.anyframe.query.QueryService;
 import org.springframework.core.io.ClassPathResource;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 
 /**
- * This is an entity resolver class for handling mapping xml files (based on dtd, xsd).
+ * This is an entity resolver class for handling mapping xml files (based on
+ * dtd, xsd).
  * 
  * @author SoYon Lim
  */
@@ -36,8 +35,7 @@ public class QuerySchemaResolver implements EntityResolver {
 
 	private static final String DTD_EXTENSION = "dtd";
 
-	public InputSource resolveEntity(String publicId, String systemId)
-			throws IOException {
+	public InputSource resolveEntity(String publicId, String systemId) {
 		if (systemId != null) {
 			try {
 				int lastPathSeparator = systemId.lastIndexOf("/");

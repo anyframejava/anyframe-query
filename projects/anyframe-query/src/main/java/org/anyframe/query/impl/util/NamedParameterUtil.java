@@ -64,8 +64,8 @@ public abstract class NamedParameterUtil {
 	public static ParsedSql parseSqlStatement(String sql) {
 		Assert.notNull(sql, "SQL must not be null");
 
-		List parameters = new ArrayList();
-		Map namedParameters = new HashMap();
+		List<String> parameters = new ArrayList<String>();
+		Map<String, String> namedParameters = new HashMap<String, String>();
 		ParsedSql parsedSql = new ParsedSql(sql);
 
 		char[] statement = sql.toCharArray();
@@ -79,7 +79,7 @@ public abstract class NamedParameterUtil {
 		int i = 0;
 		while (i < statement.length) {
 			char c = statement[i];
-			//Commnents handling start
+			// Commnents handling start
 			char nextC = new Character(' ').charValue();
 			if (i < statement.length - 1)
 				nextC = statement[i + 1];
@@ -145,8 +145,8 @@ public abstract class NamedParameterUtil {
 			i++;
 		}
 		parsedSql.setNewSql(newSql.toString());
-		parsedSql.setParameterNames((String[]) parameters
-				.toArray(new String[parameters.size()]));
+		parsedSql.setParameterNames(parameters.toArray(new String[parameters
+				.size()]));
 		parsedSql.setNamedParameterCount(namedParameterCount);
 		parsedSql.setUnnamedParameterCount(unnamedParameterCount);
 		parsedSql.setTotalParameterCount(totalParameterCount);
@@ -207,6 +207,7 @@ public abstract class NamedParameterUtil {
 	 *            the source for named parameters
 	 * @return the SQL statement with substituted parameters
 	 */
+	@SuppressWarnings("unchecked")
 	public static String substituteNamedParameters(String sql,
 			SqlParameterSource paramSource) {
 		Assert.notNull(sql, "SQL must not be null");
@@ -371,7 +372,7 @@ public abstract class NamedParameterUtil {
 	 * @param paramMap
 	 *            the Map of parameters
 	 */
-	public static Object[] buildValueArray(String sql, Map paramMap) {
+	public static Object[] buildValueArray(String sql, Map<String, ?> paramMap) {
 		ParsedSql parsedSql = parseSqlStatement(sql);
 		return buildValueArray(parsedSql, new MapSqlParameterSource(paramMap));
 	}

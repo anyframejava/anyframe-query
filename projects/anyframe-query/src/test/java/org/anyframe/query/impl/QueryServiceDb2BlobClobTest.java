@@ -42,9 +42,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath*:/spring/lobhandler/db2/context-*.xml" })
 public class QueryServiceDb2BlobClobTest {
+	
 	@Inject
 	@Named("queryService")
 	private QueryService queryService = null;
+	
+	@SuppressWarnings("unused")
 	@Inject
 	@Named("dataSource")
 	private DataSource dataSource = null;
@@ -53,7 +56,7 @@ public class QueryServiceDb2BlobClobTest {
 	 * Table TB_BINARY_TEST is created for test.
 	 */
 	@Before
-	public void onSetUp() throws Exception {
+	public void onSetUp() {
 		/*
 		System.out.println("Attempting to drop old table");
 		try {
@@ -66,7 +69,6 @@ public class QueryServiceDb2BlobClobTest {
 		String db2Create = "CREATE TABLE TB_BINARY_TEST (bin_id NUMERIC(5) NOT NULL, myblob BLOB(2M), myclob CLOB(2M), PRIMARY KEY(bin_id))";
 		queryService.updateBySQL(db2Create, new String[] {}, new Object[] {});
 		*/
-
 	}
 
 	/**
@@ -77,7 +79,7 @@ public class QueryServiceDb2BlobClobTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testFindClobBlob() throws Exception {
+	public void testFindClobBlob() {
 		/*
 		// 1. set data for insert
 		insertClobBlob();
@@ -105,7 +107,7 @@ public class QueryServiceDb2BlobClobTest {
 	 *             throws exception which is from QueryService
 	 */
 	@Test
-	public void testFindClobBlobWithResultClass() throws Exception {
+	public void testFindClobBlobWithResultClass() {
 		/*
 		// 1. set data for insert
 		insertClobBlob();
@@ -132,7 +134,8 @@ public class QueryServiceDb2BlobClobTest {
 	 * @throws Exception
 	 *             throws exception which is from QueryService
 	 */
-	private void insertClobBlob() throws Exception {
+	@SuppressWarnings("unused")
+	private void insertClobBlob() {
 		// 1. execute query
 		queryService.create("insertBlobClob", new Object[] { new Integer(5),
 				"12345".getBytes(), val });

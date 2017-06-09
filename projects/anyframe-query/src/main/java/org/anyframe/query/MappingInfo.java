@@ -19,7 +19,7 @@ import java.util.Map;
 
 /**
  * This is a class for the role of saving the mapping info of the defined table
- * inside the query mapping XML file.
+ * inside the table mappings.
  * 
  * @author SoYon Lim
  * @author JongHoon Kim
@@ -97,8 +97,7 @@ public interface MappingInfo {
 
 	// 2009.03.17 - start
 	/**
-	 * Transmits composite column names among defined local mappings in mapping
-	 * xml file.
+	 * Transmits composite column names among defined local mappings in query mappings.
 	 * 
 	 * @return composite column names
 	 */
@@ -106,7 +105,7 @@ public interface MappingInfo {
 
 	/**
 	 * Transmits composite attributes related to another transfer object through
-	 * defined local mappings in mapping xml file.
+	 * defined local mappings in query mappings.
 	 * 
 	 * @return composite attributes
 	 */
