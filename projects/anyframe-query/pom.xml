@@ -9,12 +9,12 @@
 	<parent>
 		<groupId>org.anyframe</groupId>
 		<artifactId>anyframe-plugin-parent</artifactId>
-		<version>5.3.0</version>
+		<version>5.3.1-SNAPSHOT</version>
 	</parent>
 	
 	<groupId>org.anyframe</groupId>
 	<artifactId>anyframe-query</artifactId>
-	<version>1.6.1.patch.20150813</version>
+	<version>1.6.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<dependencies>	   
@@ -93,7 +93,7 @@
 		<dependency>
 			<groupId>org.anyframe</groupId>
 			<artifactId>anyframe-core</artifactId>
-			<version>1.6.0</version>
+			<version>1.6.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.velocity</groupId>

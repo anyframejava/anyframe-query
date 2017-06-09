@@ -40,6 +40,10 @@ public class DefaultDynamicSqlParameterSource extends MapSqlParameterSource impl
 		super(properties);
 	}
 
+	public boolean hasValue(String paramName) {
+		return this.getValue(paramName)!=null;
+	}
+	
 	/**
 	 * Input parameter(paramName) property value is extracted from Map or
 	 * relevant object. In the case where there is no extracted return value,
