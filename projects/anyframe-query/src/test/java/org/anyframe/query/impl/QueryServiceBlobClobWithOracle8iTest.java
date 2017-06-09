@@ -22,16 +22,18 @@ import org.anyframe.query.QueryService;
 import org.apache.commons.collections.map.ListOrderedMap;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
-
 /**
  * TestCase Name : QueryServiceBlobClobWithOracle8iTest <br>
  * <br>
- * [Description] : Spring에서 제공하는 OracleLobHandler는 Oracle 9i 이상만 지원한다. 따라서 이
- * 클래스에서는 Anyframe에서 제공하는 AnyframeOracle8iLobHandler를 사용하여 Oracle8i 환경에서 BLOB,
- * CLOB 유형의 데이터를 처리한다. 테스트 수행 전 해당 프로젝트의 클래스 패스에 Oracle8i용 JDBC Driver를 셋팅해야 한다.<br>
+ * [Description] : OracleLoHandler provided by Spring only supports Version
+ * Oracle 9i and above. Therefore, this class processes BLOB, CLOB type data at
+ * Oracle8i environment by using AnyframeOracle8iLobHandler provided by
+ * Anyframe. JDBC Driver for Oracle8i should be set at relevant project’s
+ * classpath. <br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : BLOB, CLOB 유형의 데이터를 입력한 후 해당 데이터를 조회하여 결과값을 검증한다.</li>
+ * <li>#-1 Positive Case : After entering BLOB, CLOB type data, relevant data is
+ * searched and its result value is verified.</li>
  * </ul>
  * 
  * @author SoYon Lim
@@ -45,7 +47,7 @@ public class QueryServiceBlobClobWithOracle8iTest extends
 	}
 
 	/**
-	 * 테스트를 위해 return문의 주석을 해제한다.
+	 * Annotation of return statement for test is undone.
 	 */
 	protected String[] getConfigLocations() {
 		setAutowireMode(AbstractDependencyInjectionSpringContextTests.AUTOWIRE_BY_NAME);
@@ -56,7 +58,7 @@ public class QueryServiceBlobClobWithOracle8iTest extends
 	}
 
 	/**
-	 * 테스트를 위해 테이블 TB_BINARY를 생성한다.
+	 * Table TB_BINARY is created for test.
 	 */
 	public void init() throws Exception {
 		System.out.println("Attempting to drop old table");
@@ -72,8 +74,10 @@ public class QueryServiceBlobClobWithOracle8iTest extends
 	}
 
 	/**
-	 * [Flow #-1] Positive Case : BLOB, CLOB 유형의 데이터를 입력한 후 해당 데이터를 조회하여 결과값을
-	 * 검증한다. 테스트 수행을 위해서는 주석을 해제함으로써, private 메소드인 oracle8iBlobClob()를 실행시켜야 한다.
+	 * [Flow #-1] Positive Case : After entering BLOB and CLOB type data,
+	 * relevant data is searched and its result value is verified. By undoing
+	 * annotation for test, oracle8iBlobClob(, private method should be
+	 * executed.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -83,7 +87,8 @@ public class QueryServiceBlobClobWithOracle8iTest extends
 	}
 
 	/**
-	 * BLOB, CLOB 유형의 데이터를 입력한 후 해당 데이터를 조회하여 결과값을 검증한다.
+	 * After entering BLOB and CLOB type data, relevant data is searched and its
+	 * result value is verified.
 	 * 
 	 * @throws Exception
 	 */
@@ -118,5 +123,5 @@ public class QueryServiceBlobClobWithOracle8iTest extends
 	}
 
 	// test data
-	private String tempString = "1무궁화꽃이피었습니다무궁화꽃이피었습니다무궁화꽃이피었습니다무궁화꽃이피었습니다무궁화꽃이피었습니다무궁화꽃이피었습니다무궁화꽃이피었습니다무궁화꽃이피었습니다무궁화꽃이피었습니다무궁화꽃이피었습니다";
+	private String tempString = "1The rose of Sharon is in blossom. The rose of Sharon is in blossom. The rose of Sharon is in blossom. The rose of Sharon is in blossom. The rose of Sharon is in blossom. The rose of Sharon is in blossom. The rose of Sharon is in blossom. The rose of Sharon is in blossom. The rose of Sharon is in blossom. The rose of Sharon is in blossom.";
 }

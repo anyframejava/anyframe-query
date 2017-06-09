@@ -36,20 +36,19 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.SQLExceptionTranslator;
 import org.springframework.jdbc.support.lob.LobHandler;
 
-
 /**
  * @author Soyon Lim
  */
 public class PagingNamedParamJdbcTemplate extends NamedParameterJdbcTemplate {
-	
+
 	protected int maxFetchSize = -1;
-	
+
 	private PagingJdbcTemplate pagingJdbcTemplate = null;
-	
+
 	public PagingJdbcTemplate getPagingJdbcTemplate() {
 		return pagingJdbcTemplate;
 	}
-	
+
 	public int getMaxFetchSize() {
 		return maxFetchSize;
 	}
@@ -58,7 +57,7 @@ public class PagingNamedParamJdbcTemplate extends NamedParameterJdbcTemplate {
 		this.maxFetchSize = maxFetchSize;
 	}
 
-	// 2009.04.28 
+	// 2009.04.28
 	public List query(String sql, Map data, RowMapper rowMapper,
 			Pagination paginationVO) throws Exception {
 
@@ -66,26 +65,27 @@ public class PagingNamedParamJdbcTemplate extends NamedParameterJdbcTemplate {
 				data);
 		SqlParameterSetter sqlParameterSetter = setSqlParameter(sql,
 				mapSqlParameterSource, data);
-		return pagingJdbcTemplate.queryWithPagination(sqlParameterSetter
-				.getSubstitutedSql(), sqlParameterSetter.getArgs(),
-				sqlParameterSetter.getArgTypes(), -1, rowMapper, paginationVO);
+		return pagingJdbcTemplate.queryWithPagination(
+				sqlParameterSetter.getSubstitutedSql(),
+				sqlParameterSetter.getArgs(), sqlParameterSetter.getArgTypes(),
+				-1, rowMapper, paginationVO);
 	}
 
 	// 2011.05.11
-	// datasource를 설정파일에 두번 세팅 하는 문제 수정
-	// MaxFetchSize 세팅
+	// Resolving the issue of twice setting datasource at setup file
+	// MaxFetchSize 세팅 setting
 	public PagingNamedParamJdbcTemplate(PagingJdbcTemplate jdbcTemplate) {
 		super(jdbcTemplate.getDataSource());
 		setMaxFetchSize(jdbcTemplate.getMaxFetchSize());
 		pagingJdbcTemplate = jdbcTemplate;
 	}
-	
-	public PagingNamedParamJdbcTemplate(PagingJdbcTemplate jdbcTemplate, DataSource dataSouce) {
+
+	public PagingNamedParamJdbcTemplate(PagingJdbcTemplate jdbcTemplate,
+			DataSource dataSouce) {
 		super(dataSouce);
 		setMaxFetchSize(jdbcTemplate.getMaxFetchSize());
 		pagingJdbcTemplate = jdbcTemplate;
 	}
-	
 
 	public void setExceptionTranslator(
 			SQLExceptionTranslator exceptionTranslator) {
@@ -94,19 +94,22 @@ public class PagingNamedParamJdbcTemplate extends NamedParameterJdbcTemplate {
 				.setExceptionTranslator(exceptionTranslator);
 	}
 
-	public void query(String sql, int queryMaxFetchSize, SqlParameterSource sqlParameterSource,
-			RowCallbackHandler rch, Pagination paginationVO) throws Exception {
+	public void query(String sql, int queryMaxFetchSize,
+			SqlParameterSource sqlParameterSource, RowCallbackHandler rch,
+			Pagination paginationVO) throws Exception {
 
 		SqlParameterSetter sqlParameterSetter = setSqlParameter(sql,
 				sqlParameterSource);
 		if (isPaging(paginationVO)) {
-			pagingJdbcTemplate.queryWithPagination(sqlParameterSetter
-					.getSubstitutedSql(), sqlParameterSetter.getArgs(),
-					sqlParameterSetter.getArgTypes(), queryMaxFetchSize, rch, paginationVO);
+			pagingJdbcTemplate.queryWithPagination(
+					sqlParameterSetter.getSubstitutedSql(),
+					sqlParameterSetter.getArgs(),
+					sqlParameterSetter.getArgTypes(), queryMaxFetchSize, rch,
+					paginationVO);
 		} else {
 			pagingJdbcTemplate.query(sqlParameterSetter.getSubstitutedSql(),
-					sqlParameterSetter.getArgs(), sqlParameterSetter
-							.getArgTypes(), queryMaxFetchSize, rch);
+					sqlParameterSetter.getArgs(),
+					sqlParameterSetter.getArgTypes(), queryMaxFetchSize, rch);
 		}
 	}
 
@@ -120,11 +123,14 @@ public class PagingNamedParamJdbcTemplate extends NamedParameterJdbcTemplate {
 						sqlParameterSetter.getArgs(), sqlParameterSetter
 								.getArgTypes(), lobHandler));
 	}
+
 	/*
 	 * 2009.10.23
 	 */
-	public Object execute(CallableStatementCreator callableStatementCreator, CallableStatementCallback callableStatementCallback){
-		return pagingJdbcTemplate.execute(callableStatementCreator, callableStatementCallback);
+	public Object execute(CallableStatementCreator callableStatementCreator,
+			CallableStatementCallback callableStatementCallback) {
+		return pagingJdbcTemplate.execute(callableStatementCreator,
+				callableStatementCallback);
 	}
 
 	protected boolean isPaging(Pagination paginationVO) {
@@ -157,7 +163,7 @@ public class PagingNamedParamJdbcTemplate extends NamedParameterJdbcTemplate {
 
 		return new SqlParameterSetter(substitutedSql, args, argTypes);
 	}
-	
+
 	private class SqlParameterSetter {
 
 		private Object[] args;

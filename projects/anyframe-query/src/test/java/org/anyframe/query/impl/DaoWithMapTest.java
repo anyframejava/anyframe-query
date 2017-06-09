@@ -27,17 +27,19 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 /**
  * TestCase Name : DaoWithMapTest <br>
  * <br>
- * [Description] : QueryService에서 제공하는 AbstractDao 클래스를
- * 테스트하기 위한 테스트 코드로, 입출력 인자가 Map 유형일 경우 INSERT, UPDATE,
- * DELETE, SELECT 쿼리문을 실행하고 결과값을 검증한다.<br>
+ * [Description] : This TestCase is to test AbstractDao class provided by
+ * QueryService. In the case where input/output factor belongs to Map type,
+ * query statements on INSERT, UPDATE AND SELECT are executed and their result
+ * values are verified. <br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : QueryService에서 제공하는
- * AbstractDao를 상속받아 구현한 UserDaoWithMap 클래스에 제공하는 메소드를
- * 호출하고, 결과값을 검증한다. UserDaoWithMap 클래스에서는 INSERT,
- * UPDATE, DELETE 수행시 Map 형태의 입력값을 전달하며 SELECT 수행 결과를
- * Map에 담아 전달하고 있다.</li>
+ * <li>#-1 Positive Case : Called for is method provided into implemented
+ * UserDaoWithMap class inheriting AbstractDao which is offered by QueryService
+ * and its result value is verified. In the case of execution of INSERT, UPDATE
+ * AND DELETE, input value is delivered in the form of Map and SELECT execution
+ * result is delivered as part of Map at UserDaoWithMap class.</li>
  * </ul>
+ * 
  * @author SoYon Lim
  */
 public class DaoWithMapTest extends
@@ -63,9 +65,9 @@ public class DaoWithMapTest extends
             "classpath:spring/abstractdao/context-query-sqlloader.xml" };
     }
 
-    /**
-     * 테스트를 위해 테이블 USERS를 생성한다.
-     */
+	/**
+	 * Table USERS are created for test.
+	 */
     public void onSetUp() throws Exception {
         // Try to drop the table. It may not
         // exist and throw an exception.
@@ -83,16 +85,17 @@ public class DaoWithMapTest extends
                 new String[] {}, new Object[] {});
     }
 
-    /**
-     * [Flow #-1] Positive Case : QueryService에서 제공하는
-     * AbstractDao를 상속받아 구현한 UserDaoWithMap 클래스에 제공하는
-     * 메소드를 호출하고, 결과값을 검증한다. UserDaoWithMap 클래스에서는
-     * INSERT, UPDATE, DELETE 수행시 Map 형태의 입력값을 전달하며
-     * SELECT 수행 결과를 Map에 담아 전달하고 있다.
-     * @throws Exception
-     *         throws exception which is from
-     *         QueryService
-     */
+	/**
+	 * [Flow #-1] Positive Case : Called for is method provided into implemented
+	 * UserDaoWithMap class inheriting AbstractDao which is offered by
+	 * QueryService and its result value is verified. In the case of execution
+	 * of INSERT, UPDATE AND DELETE, input value is delivered in the form of Map
+	 * and SELECT execution result is delivered as part of Map at UserDaoWithMap
+	 * class.
+	 * 
+	 * @throws Exception
+	 *             throws exception which is from QueryService
+	 */
     public void testUserDaoWithMap() throws Exception {
         // 1. insert a new user
         Map usersMap1 = new HashMap();

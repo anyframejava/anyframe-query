@@ -26,22 +26,19 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 /**
  * TestCase Name : QueryServiceReservationTest <br>
  * <br>
- * [Description] : 별도 쿼리문 정의없이 객체의 입력만으로 데이터의 입력, 수정,
- * 삭제, 조회하고 결과를 검증한다.<br>
+ * [Description] : Without additional definition of  query statement, data is entered, modified, 
+ * deleted and searched with only object entering and then its result is verified.<br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : QueryService의 create() 메소드를
- * 호출함으로써, 별도의 쿼리문 정의없이 객체를 이용하여 신규 데이터를 입력한다.
- * QueryService는 테이블 매핑 정보를 기반으로 INSERT 쿼리문을 생성하여
- * 실행시킨다.</li>
- * <li>#-2 Positive Case : QueryService의 update() 메소드를
- * 호출함으로써, 별도의 쿼리문 정의없이 객체를 이용하여 특정 데이터를 수정한다.
- * QueryService는 테이블 매핑 정보를 기반으로 UPDATE 쿼리문을 생성하여
- * 실행시킨다.</li>
- * <li>#-3 Positive Case : QueryService의 remove() 메소드를
- * 호출함으로써, 별도의 쿼리문 정의없이 객체를 이용하여 특정 데이터를 삭제한다.
- * QueryService는 테이블 매핑 정보를 기반으로 DELETE 쿼리문을 생성하여
- * 실행시킨다.</li>
+ * <li>#-1 Positive Case : By calling for create() method of QueryService, 
+ * without additional definition of query statement, new data is entered with object.
+ * QueryService creates and implements INSERT query statement based on table mapping information.</li>
+ * <li>#-2 Positive Case : By calling for update() method of QueryService, 
+ * without additional definition of query statement, new data is modified with object.
+ * QueryService creates and implements UPDATE query statement based on table mapping information.</li>
+ * <li>#-3 Positive Case : By calling for remove() method of QueryService, 
+ * without additional definition of query statement, new data is deleted with object.
+ * QueryService creates and implements UPDATE query statement based on table mapping information.</li>
  * </ul>
  * @author SoYon Lim
  */
@@ -59,7 +56,7 @@ public class QueryServiceReservationTest extends
     }
 
     /**
-     * 테스트를 위해 테이블 TB_RESERVATION를 생성한다.
+     * Table TB_RESERVATION is created for test.
      */
     public void onSetUp() throws Exception {
         System.out.println("Attempting to drop old table");
@@ -79,10 +76,9 @@ public class QueryServiceReservationTest extends
     }
 
     /**
-     * [Flow #-1] Positive Case : QueryService의
-     * create() 메소드를 호출함으로써, 별도의 쿼리문 정의없이 객체를 이용하여 신규
-     * 데이터를 입력한다. QueryService는 테이블 매핑 정보를 기반으로 INSERT
-     * 쿼리문을 생성하여 실행시킨다.
+     * [Flow #-1] Positive Case : By calling for create() method of QueryService, 
+     * without additional definition of query statement, new data is entered with object. 
+     * QueryService creates and implements INSERT query statement based on table mapping information.
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -107,10 +103,9 @@ public class QueryServiceReservationTest extends
     }
 
     /**
-     * [Flow #-2] Positive Case : QueryService의
-     * update() 메소드를 호출함으로써, 별도의 쿼리문 정의없이 객체를 이용하여 특정
-     * 데이터를 수정한다. QueryService는 테이블 매핑 정보를 기반으로 UPDATE
-     * 쿼리문을 생성하여 실행시킨다.
+     * [Flow #-2] Positive Case : By calling for update() method of QueryService, 
+     * without additional definition of query statement, new data is modified with object. 
+     * QueryService creates and implements UPDATE query statement based on table mapping information. 
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -130,10 +125,9 @@ public class QueryServiceReservationTest extends
     }
 
     /**
-     * [Flow #-3] Positive Case : QueryService의
-     * remove() 메소드를 호출함으로써, 별도의 쿼리문 정의없이 객체를 이용하여 특정
-     * 데이터를 삭제한다. QueryService는 테이블 매핑 정보를 기반으로 DELETE
-     * 쿼리문을 생성하여 실행시킨다.
+     * [Flow #-3] Positive Case : By calling for remove() method of QueryService, 
+     * without additional definition of query statement, new data is deleted with object. 
+     * QueryService creates and implements UPDATE query statement based on table mapping information.
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -153,10 +147,11 @@ public class QueryServiceReservationTest extends
     }
 
     /**
-     * 별도의 쿼리문 정의없이 객체를 이용하여 단건의 데이터를 조회하고 결과를 검증한다.
+     * Without additional definition of query statement, 
+     * one piece of data is searched and its result is verified.
      * @param reserveId
      * @param reserveSsno
-     * @return 조회 결과 Reservation 객체
+     * @return Search result Reservation object
      * @throws Exception
      *         fail to find reservation
      */
@@ -183,12 +178,12 @@ public class QueryServiceReservationTest extends
     }
 
     /**
-     * 별도의 쿼리문 정의없이 객체를 이용하여 신규 데이터를 입력한다.
+     * Without additional definition of query statement, new data is entered with object.
      * @param reserveId
      * @param reserveSsno
      * @param reserveNm
      * @param reserveDate
-     * @return 신규 입력한 데이터를 포함한 Reservation 객체
+     * @return Reservation object including newly entered data
      * @throws Exception
      *         fail to insert reservation
      */

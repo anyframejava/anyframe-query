@@ -449,7 +449,7 @@ public int[] setQueryArgTypes(int[] originalArgTypes) {
 		<para>
 			However, OracleLobHandler provided by Spring can only be used in Oracle 9i onwards, 
 			so org.anyframe.query.impl.jdbc.lob.Oracle8iLobHandler is additionally provided for Oracle 8i users. 
-			OracleLobHandler or AnyframeOracle8iLobHandler need the following properties.
+			OracleLobHandler or Oracle8iLobHandler need the following properties.
 		</para>
 
       	<informaltable>
@@ -765,10 +765,10 @@ public int[] setQueryArgTypes(int[] originalArgTypes) {
 								</listitem>	
 								<listitem>
 									<para>oracle : OraclePagingSQLGenerator</para>
-								</listitem>	
+								</listitem>
 								<listitem>
 									<para>default : DefaultPagingSQLGenerator</para>
-								</listitem>																																												
+								</listitem>																																				
 							</itemizedlist>
 							<para>
 								In the case proper PagingSQLGenerator is not found, it is set as DefaultPagingSQLGenerator. 

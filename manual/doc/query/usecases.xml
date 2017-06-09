@@ -1564,9 +1564,9 @@ public void deleteLOB() throws Exception{
           		<para>
           			Spring에서 제공하는 Oracle LobHandler는 9i 이상에서만 적용 가능하므로, Oracle 8i 기반에서 LOB 유형의 데이터를 
           			다루기 위해서는 Query 서비스 속성 정의시에 Anyframe에서 제공하는 LobHandler를 셋팅해 주어야 한다. 다음은 Query 
-          			서비스를 정의한 context-query.xml 파일의 일부로, Oracle 8i용으로 제공된 AnyframeOracle8iLobHandler를 정의한 
+          			서비스를 정의한 context-query.xml 파일의 일부로, Oracle 8i용으로 제공된 Oracle8iLobHandler를 정의한 
           			부분이다. 
-          			<programlisting language="xml"><![CDATA[<bean id="lobHandler" class="org.anyframe.query.impl.jdbc.lob.AnyframeOracle8iLobHandler"
+          			<programlisting language="xml"><![CDATA[<bean id="lobHandler" class="org.anyframe.query.impl.jdbc.lob.Oracle8iLobHandler"
         lazy-init="true">
     <constructor-arg value="net.sf.log4jdbc.ResultSetSpy"/>
     <property name="nativeJdbcExtractor" ref="nativeJdbcExtractor"/>
@@ -1834,7 +1834,7 @@ public void findCategory(String categoryNo, String categoryName)
 
 		<para>
 			일반적으로 Dao(Data Access Object) 클래스에서는 Query 서비스를 활용하여 데이터 접근 로직을 처리한다. 
-			Query 서비스에서는 이러한 Dao 클래스를 간편하게 개발할 수 있도록 하기 위해 anyfram.core.query.dao.AbstractDao 클래스를 
+			Query 서비스에서는 이러한 Dao 클래스를 간편하게 개발할 수 있도록 하기 위해 org.anyfram.query.dao.AbstractDao 클래스를 
 			제공하고 있으며 다음과 같은 특징을 지닌다.
 		</para>
 

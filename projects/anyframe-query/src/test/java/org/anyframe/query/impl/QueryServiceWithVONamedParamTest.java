@@ -26,20 +26,23 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
  * TestCase Name : QueryServiceWithVONamedParamTest
  * <br>
  * <br>
- * [Description] : 특정 쿼리의 인자값을 전달할 때, named parameter
- * 형태로 transfer object를 전달하여 해당 쿼리를 실행하고 결과를 검증한다.<br>
+ * [Description] : When a specific query’s factor value is delivered, 
+ * transfer object is delivered in the form of named parameter 
+ * and relevant query is implemented and its result is verified. <br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : QueryService에서 제공하는
- * update() 메소드 호출시 특정 쿼리의 인자값을 전달할 때, named parameter
- * 형태로 transfer object를 전달한다. QueryService에서는 전달받은 객체의
- * getter를 호출하여 UPDATE 쿼리의 인자값을 셋팅하고 실행한다. 이 테스트케이스에서는
- * 해당 쿼리 실행이 정상적인지 검증한다.</li>
- * <li>#-2 Positive Case : QueryService에서 제공하는
- * remove() 메소드 호출시 특정 쿼리의 인자값을 전달할 때, named parameter
- * 형태로 transfer object를 전달한다. QueryService에서는 전달받은 객체의
- * getter를 호출하여 DELETE 쿼리의 인자값을 셋팅하고 실행한다. 이 테스트케이스에서는
- * 해당 쿼리 실행이 정상적인지 검증한다.</li>
+ * <li>#-1 Positive Case : In the case of calling for update() method provided by QueryService, 
+ * when a specific query’s factor value is delivered, 
+ * transfer object is delivered in the form of named parameter. 
+ * By calling for getter of delivered object, factor value of UPDATE query is set and executed. 
+ * This TestCase verifies whether relevant query implementation is successful. 
+</li>
+ * <li>#-2 Positive Case : In the case of calling for remove() method provided by QueryService, 
+ * when a specific query’s factor value is delivered, 
+ * transfer object is delivered in the form of named parameter. 
+ * By calling for getter of delivered object, factor value of DELETE query is set and executed. 
+ * This TestCase verifies whether relevant query implementation is successful. 
+</li>
  * </ul>
  * @author SoYon Lim
  */
@@ -56,7 +59,7 @@ public class QueryServiceWithVONamedParamTest extends
     }
 
     /**
-     * 테스트를 위해 테이블 TB_EXT_CATEGORY를 생성하고 초기 데이터를 입력한다.
+     * Table TB_EXT_CATEGORY is created for test and initial data is entered. 
      */
     public void onSetUp() throws Exception {
         try {
@@ -82,12 +85,12 @@ public class QueryServiceWithVONamedParamTest extends
     }
 
     /**
-     * [Flow #-1] Positive Case : QueryService에서 제공하는
-     * update() 메소드 호출시 특정 쿼리의 인자값을 전달할 때, named
-     * parameter 형태로 transfer object를 전달한다.
-     * QueryService에서는 전달받은 객체의 getter를 호출하여 UPDATE 쿼리의
-     * 인자값을 셋팅하고 실행한다. 이 테스트케이스에서는 해당 쿼리 실행이 정상적인지
-     * 검증한다.
+     * [Flow #-1] Positive Case : In the case of calling for remove() method provided by QueryService, 
+     * when a specific query’s factor value is delivered, 
+     * transfer object is delivered in the form of named parameter. 
+     * By calling for getter of delivered object, factor value of DELETE query is set and executed. 
+     * This TestCase verifies whether relevant query implementation is successful. 
+     * 
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -111,12 +114,11 @@ public class QueryServiceWithVONamedParamTest extends
     }
 
     /**
-     * [Flow #-2] Positive Case : QueryService에서 제공하는
-     * remove() 메소드 호출시 특정 쿼리의 인자값을 전달할 때, named
-     * parameter 형태로 transfer object를 전달한다.
-     * QueryService에서는 전달받은 객체의 getter를 호출하여 DELETE 쿼리의
-     * 인자값을 셋팅하고 실행한다. 이 테스트케이스에서는 해당 쿼리 실행이 정상적인지
-     * 검증한다.
+     * [Flow #-2] Positive Case : In the case of calling for remove() method provided by QueryService, 
+     * when a specific query’s factor value is delivered, 
+     * transfer object is delivered in the form of named parameter. 
+     * By calling for getter of delivered object, factor value of DELETE query is set and executed. 
+     * This TestCase verifies whether relevant query implementation is successful. 
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -143,8 +145,9 @@ public class QueryServiceWithVONamedParamTest extends
     }
 
     /**
-     * 매핑 XML 파일에 정의된 query id를 이용하여 테스트를 위한 단건의 데이터를
-     * 입력하고 결과를 검증한다.
+     * By using query I.D. defined at mapping XML file, 
+     * one piece of data for test is searched and its result is verified.
+     *  
      * @return
      * @throws Exception
      */
@@ -168,8 +171,9 @@ public class QueryServiceWithVONamedParamTest extends
     }
 
     /**
-     * 매핑 XML 파일에 정의된 query id를 이용하여 단건의 데이터를 조회하고 결과를
-     * 검증한다.
+     * By using query I.D. defined at mapping XML file, 
+     * one piece of data is searched and its result is verified. 
+     * 
      * @param categoryNo
      * @param categoryName
      * @throws Exception
@@ -198,7 +202,8 @@ public class QueryServiceWithVONamedParamTest extends
     }
 
     /**
-     * 테스트 수행을 위한 CategoryVO를 생성하여 전달한다.
+     * CategoryVO for running a test is created and delivered. 
+     * 
      * @return CategoryVO
      */
     private CategoryVO makeCategoryVO() {

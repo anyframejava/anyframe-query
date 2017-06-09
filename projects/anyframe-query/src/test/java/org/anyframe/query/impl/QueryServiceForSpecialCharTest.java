@@ -21,17 +21,17 @@ import java.util.Map;
 import org.anyframe.query.QueryService;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
-
 /**
  * TestCase Name : QueryServiceForSpecialCharTest <br>
  * <br>
- * [Description] : 특수 문자를 포함하고 있는 쿼리문을 실행하고 수행 결과를
- * 검증한다.<br>
+ * [Description] : Query statement including special character is executed and
+ * its execution result is verified. <br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : QueryService의 findBySQL()
- * 메소드를 호출하여 특수 문자를 포함하고 있는 쿼리문을 실행시켜 보고 결과값을 검증한다.</li>
+ * <li>#-1 Positive Case : Query statement including special character is
+ * executed by calling for method and its result value is verified.</li>
  * </ul>
+ * 
  * @author SoYon Lim
  */
 public class QueryServiceForSpecialCharTest extends
@@ -48,9 +48,9 @@ public class QueryServiceForSpecialCharTest extends
         return new String[] {"classpath*:/spring/context-*.xml" };
     }
 
-    /**
-     * 테스트를 위해 테이블 TB_USER를 생성하고 초기 데이터를 입력한다.
-     */
+	/**
+	 * Table TB_USER is created for test and initial data is entered.
+	 */
     public void onSetUp() throws Exception {
         try {
             queryService.updateBySQL("DROP TABLE TB_USER", new String[] {},
@@ -71,10 +71,11 @@ public class QueryServiceForSpecialCharTest extends
             new String[] {}, new Object[] {});
     }
 
-    /**
-     * [Flow #-1] Positive Case : QueryService의
-     * findBySQL() 메소드를 호출하여 특수 문자를 포함하고 있는 쿼리문을 실행시켜
-     * 보고 결과값을 검증한다.
+	/**
+	 * [Flow #-1] Positive Case : By calling for findBySQL()method of
+	 * QueryService, query statement including special character is executed and
+	 * its result value is verified.
+	 * 
      * @throws Exception
      *         throws exception which is from
      *         QueryService

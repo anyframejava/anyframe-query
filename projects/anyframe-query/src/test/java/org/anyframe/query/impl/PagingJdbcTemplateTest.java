@@ -29,25 +29,37 @@ import org.springframework.util.LinkedCaseInsensitiveMap;
 /**
  * TestCase Name : PagingJdbcTemplateTest <br>
  * <br>
- * [Description] : PagingJdbcTemplate을 이용하여 특정 쿼리의 조회 결과에 대해 페이징 처리가 성공적으로
- * 이루어지는지 검증한다.<br>
+ * [Description] : By using PagingJdbcTemplate, paging on search result of a
+ * specific query is successfully handled. <br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : PagingSQLGenerator를 셋팅하지 않고, 페이지 번호와 한 페이지에 보여야 할 결과
- * 데이터의 개수를 정의한 PaginationVO 객체를 인자로 전달하여, 검색 조건이 필요한 쿼리문에 대해 페이징 처리가 제대로 수행되었는지
- * 확인한다. 또한 해당 쿼리문을 실행하였을 경우 전체 조회 건수가 몇 개인지 검증한다. 이 경우에는 전체 데이터가 조회된 이후에
- * Result으로 부터 cursor를 이동하여 페이징 처리를 수행하게 된다.</li>
- * <li>#-2 Positive Case : OraclePagingSQLGenerator를 셋팅하고, 페이지 번호와 한 페이지에 보여야 할
- * 결과 데이터의 개수를 정의한 PaginationVO 객체를 인자로 전달하여, 검색 조건이 필요한 쿼리문에 대해 페이징 처리가 제대로
- * 수행되었는지 확인한다. 또한 해당 쿼리문을 실행하였을 경우 전체 조회 건수가 몇 개인지 검증한다. 이 경우에는 페이징 처리를 위해
- * OraclePagingSQLGenerator를 통해 조합된 쿼리문을 통해 페이징 처리를 수행하게 된다.</li>
- * <li>#-3 Positive Case : PagingSQLGenerator를 셋팅하지 않고, 페이지 번호와 한 페이지에 보여야 할 결과
- * 데이터의 개수를 정의한 PaginationVO 객체를 인자로 전달하여, 검색 조건이 필요하지 않은 쿼리문에 대해 페이징 처리가 제대로
- * 수행되었는지 확인한다. 또한 해당 쿼리문을 실행하였을 경우 전체 조회 건수가 몇 개인지 검증한다. 이 경우에는 전체 데이터가 조회된 이후에
- * Result으로 부터 cursor를 이동하여 페이징 처리를 수행하게 된다.</li>
- * <li>#-4 Negative Case : 특정 쿼리문에 대해 검색 조건의 값을 NULL로 전달하였을 경우
- * NullPointerException이 발생하는지 검증한다. 조건 값 셋팅이 불필요한 쿼리문에 대해서는 조건값을 new Object[]{}
- * 형태로 전달해주어야 한다.</li>
+ * <li>#-1 Positive Case :PaginationVO Objects defines the number of result data
+ * which should be shown within one page along with page number without setting
+ * PagingSQLGenerator. By transferring PaginatioVO object into parameter, it is
+ * checked whether paging process is conducted properly regarding query
+ * statement in need of search condition. Also, in the case of executing
+ * relevant query statement, it is verified whether how many a total of search
+ * numbers are. In this case, paging is handled by moving cursor from Result
+ * after the whole data is searched.</li>
+ * <li>#-2 Positive Case : PaginationVO Objects defines the number of result
+ * data which should be shown within one page along with page number without
+ * setting PagingSQLGenerator. By transferring PaginatioVO object into
+ * parameter, it is checked whether paging process is done properly regarding
+ * query statement in no need of search condition. Also, in the case where
+ * relevant query statement is executed, the total searched number is verified.
+ * In this case, for paging process, combined query statement conducts paging
+ * process via OraclePagingSQLGenerator.</li>
+ * <li>#-3 Positive Case : PaginationVO Objects defines the number of result
+ * data which should be shown within one page along with page number without
+ * setting PagingSQLGenerator. By transferring PaginatioVO object into
+ * parameter, it is checked whether paging process is done properly regarding
+ * query statement in no need of search condition. Also, in the case where
+ * relevant query statement is executed, the total searched number is verified.
+ * In this case, after the whole data is searched, cursor is moved from Result
+ * and then paging process is conducted.</li>
+ * <li>#-4 Negative Case : In the case where search condition value on a
+ * specific query statement is delivered as NULL, it is verified whether
+ * NullPointerException takes place.</li>
  * </ul>
  * 
  * @author SoYon Lim
@@ -72,7 +84,7 @@ public class PagingJdbcTemplateTest extends
 	}
 
 	/**
-	 * 테스트를 위해 초기 데이터 입력 및 테이블 TB_CUSTOMER를 생성한다.
+	 * Initial data is entered and table TB_CUSTOMER is created for test.
 	 */
 	public void onSetUp() throws Exception {
 		try {
@@ -95,10 +107,14 @@ public class PagingJdbcTemplateTest extends
 	}
 
 	/**
-	 * [Flow #-1] Positive Case : PagingSQLGenerator를 셋팅하지 않고, 페이지 번호와 한 페이지에
-	 * 보여야 할 결과 데이터의 개수를 정의한 PaginationVO 객체를 인자로 전달하여, 검색 조건이 필요한 쿼리문에 대해 페이징
-	 * 처리가 제대로 수행되었는지 확인한다. 또한 해당 쿼리문을 실행하였을 경우 전체 조회 건수가 몇 개인지 검증한다. 이 경우에는 전체
-	 * 데이터가 조회된 이후에 Result으로 부터 cursor를 이동하여 페이징 처리를 수행하게 된다.
+	 * [Flow #-1] Positive Case : By delivering PagintionVO object setting
+	 * OraclePagingSQLGenerator and defining the number of data shown at one
+	 * page with page number to parameter, it is checked whether paging process
+	 * on query statement requiring search condition is properly handled. Also,
+	 * in the case where relevant query statement is implemented, the number of
+	 * a total search cases is verified. In this case, paging is handled via
+	 * combined query statement by OraclePagingSQLGenerator for the sake of
+	 * paging process.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from PagingJdbcTemplate
@@ -133,10 +149,14 @@ public class PagingJdbcTemplateTest extends
 	}
 
 	/**
-	 * [Flow #-2] Positive Case : OraclePagingSQLGenerator를 셋팅하고, 페이지 번호와 한 페이지에
-	 * 보여야 할 결과 데이터의 개수를 정의한 PaginationVO 객체를 인자로 전달하여, 검색 조건이 필요한 쿼리문에 대해 페이징
-	 * 처리가 제대로 수행되었는지 확인한다. 또한 해당 쿼리문을 실행하였을 경우 전체 조회 건수가 몇 개인지 검증한다. 이 경우에는 페이징
-	 * 처리를 위해 OraclePagingSQLGenerator를 통해 조합된 쿼리문을 통해 페이징 처리를 수행하게 된다.
+	 * [Flow #-2] Positive Case : By delivering PagintionVO object setting
+	 * OraclePagingSQLGenerator and defining the number of data shown at one
+	 * page with page number to parameter, it is checked whether paging process
+	 * on query statement requiring search condition is properly handled. Also,
+	 * in the case where relevant query statement is implemented, the number of
+	 * a total search cases is verified. In this case, paging is handled via
+	 * combined query statement by OraclePagingSQLGenerator for the sake of
+	 * paging process.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from PagingJdbcTemplate
@@ -173,10 +193,13 @@ public class PagingJdbcTemplateTest extends
 	}
 
 	/**
-	 * [Flow #-3] Positive Case : PagingSQLGenerator를 셋팅하지 않고, 페이지 번호와 한 페이지에
-	 * 보여야 할 결과 데이터의 개수를 정의한 PaginationVO 객체를 인자로 전달하여, 검색 조건이 필요하지 않은 쿼리문에 대해
-	 * 페이징 처리가 제대로 수행되었는지 확인한다. 또한 해당 쿼리문을 실행하였을 경우 전체 조회 건수가 몇 개인지 검증한다. 이 경우에는
-	 * 전체 데이터가 조회된 이후에 Result으로 부터 cursor를 이동하여 페이징 처리를 수행하게 된다.
+	 * [Flow #-3] Positive Case : By delivering PagintionVO object without
+	 * setting OraclePagingSQLGenerator and defining the number of data shown at
+	 * one page with page number to parameter, it is checked whether paging
+	 * process on query statement not necessarily requiring search condition is
+	 * properly handled. Also, in the case where relevant query statement is
+	 * implemented, the number of a total search cases is verified. In this
+	 * case, paging is handled by moving cursor from Result.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from PagingJdbcTemplate
@@ -212,9 +235,11 @@ public class PagingJdbcTemplateTest extends
 	}
 
 	/**
-	 * [Flow #-4] Negative Case : 특정 쿼리문에 대해 검색 조건의 값을 NULL로 전달하였을 경우
-	 * NullPointerException이 발생하는지 검증한다. 조건 값 셋팅이 불필요한 쿼리문에 대해서는 조건값을 new
-	 * Object[]{} 형태로 전달해주어야 한다.
+	 * [Flow #-4] Negative Case : In the case where research condition value on
+	 * a specific query statement is delivered as NULL, verified is whether
+	 * NullPointerException takes place. In the case of query statement which
+	 * does not require condition value setting, condition value should be
+	 * transferred in format of new Object[]{}.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from PagingJdbcTemplate
@@ -243,14 +268,15 @@ public class PagingJdbcTemplateTest extends
 	}
 
 	/**
-	 * QueryService의 createBySQL() 메소드 호출을 통해 신규 사용자 정보를 추가한다.
+	 * New user information is added by calling for QueryService’s
+	 * createBySQL().
 	 * 
 	 * @param ssno
-	 *            주민번호
+	 *            resident registration number 
 	 * @param name
-	 *            이름
+	 *            name
 	 * @param address
-	 *            주소
+	 *            address
 	 * @throws Exception
 	 *             throws exception which is from QueryService
 	 */

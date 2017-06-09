@@ -18,8 +18,8 @@ package org.anyframe.query.impl.jdbc.setter;
 import org.apache.velocity.context.Context;
 
 /**
- * Dynamic SQL일 경우, 쿼리문에 대체되어야 할 변수와 변수값을 저장한 SqlParameterSource를 관리하는 Context
- * 객체이다.
+ * In the case of Dynamic SQL, Context object manages SqlParameterSource saving
+ * parameter to be replaced at query statement and parameter value.
  * 
  * @author SoYon Lim
  * @author JongHoon Kim

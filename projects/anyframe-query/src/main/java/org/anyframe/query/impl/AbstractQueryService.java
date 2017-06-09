@@ -77,8 +77,9 @@ public abstract class AbstractQueryService implements ApplicationContextAware,
 
 	public void afterPropertiesSet() throws Exception {
 		try {
-			// velocityPropsFilename 속성이 정의되어 있지 않은
-			// 경우에는 Velocity Log 파일 생성하지 않음.
+			//In the case where velocityPropsFilename property is not defined,
+			//Velocity Log file is not created.
+			
 			if (StringUtil.isEmpty(propsFilename)) {
 				Velocity.addProperty("runtime.log.logsystem.class",
 						"org.apache.velocity.runtime.log.NullLogSystem");

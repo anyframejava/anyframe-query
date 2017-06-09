@@ -49,11 +49,12 @@ public class CallbackResultSetMapper extends DefaultReflectionResultSetMapper {
 
 	/**
 	 * 2008.8.21 CamelCase Option Addition <br/>
-	 * 조회 결과를 저장할 클래스가 Map 유형인 경우 Map에 조회 결과값을 저장하고 그렇지 않은 경우 특정 객체에 조회 결과값을
-	 * 저장하여 전달한다.
+	 * In the case where class to save search result is Map type, search result
+	 * is saved. Otherwise, search return value is saved and transferred into a
+	 * specific object.
 	 * 
 	 * @param resultSet
-	 *            조회 결과 중 하나의 Row
+	 *            One Row out of search result
 	 * @param rowNum
 	 *            Current Row Number
 	 */
@@ -64,54 +65,56 @@ public class CallbackResultSetMapper extends DefaultReflectionResultSetMapper {
 		}
 		return this.mapRow(resultSet);
 	}
-	
+
 	public Object mapRow(ResultSet resultSet) throws SQLException {
 		// 2009.01.15 - custom resultset mapper
 		if (Map.class.isAssignableFrom(targetClass)) {
 			return generateMap(resultSet);
 		} else {
-			// ReflectionResultSetMapper의 mapRow 호출을 통해
-			// 처리
+			// Handling by calling for mapRow of ReflectionResultSetMapper
 			return super.mapRow(resultSet);
 		}
 	}
 
 	/**
-	 * 조회 결과값을 Map에 저장하여 전달한다. 이때 키값은 칼럼명으로 한다.
+	 * Search return value is saved and transferred into Map. In this case, key
+	 * value is expressed in column name.
 	 * 
 	 * @param resultSet
-	 *            조회 결과
-	 * @return 조회 결과를 저장한 Map
+	 *            Search result
+	 * @return Map saving @return search result
 	 */
 	public Object generateMap(ResultSet resultSet) throws SQLException {
-		// QueryService 내부적으로 정의한 Extractor를 사용하는 경우에는
-		// processMetaData()가 처음에 한
-		// 번 호출됨. 그렇지 않은 경우(Spring에서 기본 제공하는 Extractor를
-		// 사용할 경우)에는
-		// ResultSetMetaData 정보를 읽어주는 로직이 필요함.
+		// In the case using Extractor defined internally within QueryService,
+		// processMetaData() is called for once in the beginning.
+		// Otherwise, (In the case where Extractor provided at Spring as
+		// default),
+		// logic to read ResultSetMetaData is needed.
+
 		if (!initialized)
 			makeMeta(resultSet);
 		Map mapOfColValues = createColumnMap(mappingConfiguration
 				.getColumnCount());
 		for (int i = 1; i <= mappingConfiguration.getColumnCount(); i++) {
 			String key = mappingConfiguration.getColumnKeys()[i - 1];
-			Object obj = getValue(resultSet, mappingConfiguration
-					.getColumnTypes()[i - 1], mappingConfiguration
-					.getColumnNames()[i - 1], i);
+			Object obj = getValue(resultSet,
+					mappingConfiguration.getColumnTypes()[i - 1],
+					mappingConfiguration.getColumnNames()[i - 1], i);
 			mapOfColValues.put(key, obj);
 		}
 		return mapOfColValues;
 	}
 
 	/**
-	 * 칼럼 정보를 Map에 담아 전달한다.
+	 * Column information is saved in Map and transferred.
 	 * 
-	 * @return 칼럼 정보를 저장한 Map
+	 * @return Map saving column information
 	 */
 	public Map getColumnInfo() {
 		ListOrderedMap colInfo = new ListOrderedMap();
 		for (int i = 0; i < mappingConfiguration.getColumnCount(); i++)
-			colInfo.put(mappingConfiguration.getColumnKeys()[i],
+			colInfo.put(
+					mappingConfiguration.getColumnKeys()[i],
 					SQLTypeTransfer.getSQLTypeName(mappingConfiguration
 							.getColumnTypes()[i])
 							+ ":"
@@ -136,15 +139,18 @@ public class CallbackResultSetMapper extends DefaultReflectionResultSetMapper {
 	}
 
 	/**
-	 * CallbackResultSetMapper 에서 특정 클래스의 Field명과 테이블의 칼럼명을 매핑하기 위해 내부적으로 사용할
-	 * NameMatcher 클래스
+	 * NameMatcher class used internally to map Field name of a specific class
+	 * and column name of table at CallbackResultSetMapper
 	 */
 	class InternalNameMatcher extends AbstractNameMatcher {
 
 		/**
-		 * 테이블 매핑 정보가 있는 경우 매핑 정보를 기반으로 입력된 Column명에 해당하는 Field명이 있는지 체크한다. 테이블
-		 * 매핑 정보가 없는 경우에는 Column명을 CamelCase로 바꾼 후 해당 Field명과 일치하는지 체크한다. 대소문자
-		 * 구분함.
+		 * In the case where there is table mapping information, Field name
+		 * serving as Column name entered based on mapping information is
+		 * checked. In the case where there is no table mapping information,
+		 * Column name is changed into CalmelCase and the match between
+		 * CamelCase and relevant Field name is checked. Capital letter and
+		 * small letter are differently recognized.
 		 */
 		public boolean isMatching(String attributeName, String columnName,
 				String parentAttributeName) {
@@ -155,18 +161,18 @@ public class CallbackResultSetMapper extends DefaultReflectionResultSetMapper {
 			if (getMappingInfo() != null) {
 				mappedAttribute = (String) getMappingInfo()
 						.getMappingInfoAsMap().get(columnName.toLowerCase());
-				
+
 				if (!StringUtil.isEmpty(mappedAttribute))
 					return mappedAttribute.equals(attributeName);
 
-				// 해당하는 칼럼에 매핑된 속성 정보가 존재하지 않고
-				// parentAttributeName이 존재하는 경우 즉,
-				// Result Class 내에 정의된 속성들 중 Primitive
-				// Type이 아닌 속성이 가진 하위 속성들에 대한 매핑 정보를
-				// 검토함.
+				// In the case where parentAttributeName exists
+				// without property information mapped within relevant
+				// column, namely, mapping information on lower properties
+				// excluding Primitive type among properties defined within
+				// Result Class is reviewed.
 				if (parentAttributeName != null) {
-					// 매핑 XML 정의를 기반으로 columns와
-					// attributes는 순서대로 매핑됨
+					// Based on mapping XML definition, Columns and attributes
+					// are mapped according to their order.
 					String[] columns = (String[]) getMappingInfo()
 							.getCompositeColumnNames().get(parentAttributeName);
 					String[] attributes = (String[]) getMappingInfo()
@@ -180,14 +186,14 @@ public class CallbackResultSetMapper extends DefaultReflectionResultSetMapper {
 					}
 				}
 			}
-			// 2009.05.28 위 과정을 통해서 mappedAttribute를 찾지 못했다면
-			// mappingStyle 속성에 따라 해당 칼럼명을 변경
+			// If mappedAttribute is not found via above process,
+			// relevant column name is changed according to mappingStyle.
 
 			mappedAttribute = ColumnUtil.changeColumnName(mappingStyle,
 					columnName);
 
-			// 위 과정을 통해서 mappedAttribute를 찾지 못했다면 매핑 정보
-			// 없음으로 처리함.
+			// If mappedAttribute is not found via above process,
+			// it is handled as no mapping information.
 			return mappedAttribute.equals(attributeName);
 			// 2009.03.17 - end
 		}
@@ -201,18 +207,18 @@ public class CallbackResultSetMapper extends DefaultReflectionResultSetMapper {
 			if (getMappingInfo() != null) {
 				mappedAttribute = (String) getMappingInfo()
 						.getMappingInfoAsMap().get(columnName.toLowerCase());
-				
-				if (!StringUtil.isEmpty(mappedAttribute))
-					return (Field)attributeMap.get(mappedAttribute);
 
-				// 해당하는 칼럼에 매핑된 속성 정보가 존재하지 않고
-				// parentAttributeName이 존재하는 경우 즉,
-				// Result Class 내에 정의된 속성들 중 Primitive
-				// Type이 아닌 속성이 가진 하위 속성들에 대한 매핑 정보를
-				// 검토함.
+				if (!StringUtil.isEmpty(mappedAttribute))
+					return (Field) attributeMap.get(mappedAttribute);
+
+				// In the case where parentAttributeName exists without
+				// property information mapped within relevant column, namely,
+				// mapping information on lower properties excluding Primitive
+				// type among properties defined within Result Class is
+				// reviewed.
 				if (parentAttributeName != null) {
-					// 매핑 XML 정의를 기반으로 columns와
-					// attributes는 순서대로 매핑됨
+					// Based on mapping XML definition, Columns and attributes
+					// are mapped according to their order.
 					String[] columns = (String[]) getMappingInfo()
 							.getCompositeColumnNames().get(parentAttributeName);
 					String[] attributes = (String[]) getMappingInfo()
@@ -221,20 +227,21 @@ public class CallbackResultSetMapper extends DefaultReflectionResultSetMapper {
 					for (int i = 0; i < columns.length; i++) {
 						if (columnName.equals(columns[i])) {
 							mappedAttribute = attributes[i];
-							return (Field)attributeMap.get(mappedAttribute);
+							return (Field) attributeMap.get(mappedAttribute);
 						}
 					}
 				}
 			}
-			// 2009.05.28 위 과정을 통해서 mappedAttribute를 찾지 못했다면
-			// mappingStyle 속성에 따라 해당 칼럼명을 변경
+			// 2009.05.28 If mappedAttribute is not found via above process,
+			// relevant column name is changed according to mappingStype
+			// property.
 
 			mappedAttribute = ColumnUtil.changeColumnName(mappingStyle,
 					columnName);
 
-			// 위 과정을 통해서 mappedAttribute를 찾지 못했다면 매핑 정보
-			// 없음으로 처리함.
-			return (Field)attributeMap.get(mappedAttribute);
+			// If mappedAttribute is not found via above process, it is handled
+			// as no mapping information.
+			return (Field) attributeMap.get(mappedAttribute);
 		}
 
 		public void setFieldPrefix(String fieldPrefix) {

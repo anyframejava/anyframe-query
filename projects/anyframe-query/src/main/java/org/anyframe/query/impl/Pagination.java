@@ -18,8 +18,8 @@ package org.anyframe.query.impl;
 import org.anyframe.query.QueryService;
 
 /**
- * 입력된 쿼리문에 대해 페이징 처리하기 위해 필요한 Pagination 정보를 저장하는 클래스이다.
- * 
+ * This class is to save Pagination information necessary for paging handling on entered
+ * query statement.
  * @author SoYon Lim
  * @author JongHoon Kim
  */

@@ -55,7 +55,7 @@ public class NameConverter extends AbstractNameMatcher {
 	 *      java.lang.String)
 	 */
 	// 2009.03.17 - start
-	// NameMatcher API 변경 사항 적용
+	// NameMatcher API midifications are applied. 
 	public boolean isMatching(String fieldName, String columnName,
 			String parentFieldName) {
 		// 2009.03.17 - end

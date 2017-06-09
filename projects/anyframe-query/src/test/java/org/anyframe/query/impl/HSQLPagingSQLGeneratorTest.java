@@ -22,21 +22,23 @@ import junit.framework.TestCase;
 /**
  * TestCase Name : HSQLPagingSQLGeneratorTest <br>
  * <br>
- * [Description] : HSQLPagingSQLGenerator를 이용하여 특정 쿼리문에
- * 대해 페이징 처리된 쿼리문을 검증해본다.<br>
+ * [Description] : Paging processed query statements on a specific query
+ * statement are verified with HSQLPagingSQLGenerator. <br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : DBMS 유형이 HSQLDB일 경우
- * HSQLPagingSQLGenerator를 이용하여 특정 쿼리문에 대해 페이징 처리된 쿼리문을
- * 검증한다.</li>
+ * <li>#-1 Positive Case : In the case where DBMS type is HSQLDB, Paging
+ * processed query statements on a specific query statement are verified with
+ * HSQLPagingSQLGenerator</li>
  * </ul>
+ * 
  * @author SoYon Lim
  */
 public class HSQLPagingSQLGeneratorTest extends TestCase {
-    /**
-     * [Flow #-1] Positive Case : DBMS 유형이 HSQLDB일 경우
-     * HSQLPagingSQLGenerator를 이용하여 특정 쿼리문에 대해 페이징 처리된
-     * 쿼리문을 검증한다.
+	/**
+	 * [Flow #-1] Positive Case : In the case where DBMS type is HSQLDB, Paging
+	 * processed query statements on a specific query statement are verified
+	 * with HSQLPagingSQLGenerator
+	 * 
      * @throws Exception
      *         throws exception which is from
      *         HSQLPagingSQLGenerator

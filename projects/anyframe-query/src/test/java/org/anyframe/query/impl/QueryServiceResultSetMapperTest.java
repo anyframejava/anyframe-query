@@ -28,29 +28,34 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 /**
  * TestCase Name : QueryServiceResultSetMapperTest <br>
  * <br>
- * [Description] : findXXX() 메소드를 호출하여 조회 결과를 사용자가 정의한
- * Custom ResultSetMapper를 통해 매핑하게 하고, 검증한다. (<result>
- * 내의 mapper 속성값으로 IResultSetMapper를 구현한 클래스를 지정한 경우,
- * 사용자가 정의한 Mapper의 mapRow() 메소드를 호출하여 결과값을 매핑하게 된다.
- * QueryService를 통해 일반 VO 유형의 클래스에 결과값을 자동 매핑하게 하는 경우
- * Reflection API 호출로 인해 성능 저하가 발생할 수 있다. 따라서,
- * QueryService에서는 이러한 단점을 보완하기 위해 사용자가 직접 해당하는
- * ResultSetMapper를 구현하여 적용할 수 있도록 하고 있다.)<br>
+ * [Description] : By calling for findXXX()method, research result is mapped 
+ * and verified through Custom ResultSetMapper defined by user.  
+ * (In the case of selecting class implementing IResultSetMapper 
+ * with property value within <result>, Mapper’s mapRow() method is called for 
+ * and its result value is mapped.
+ * In the case of automatically mapping result value into ordinary VO type class via QueryService, 
+ * Reflection API call can lead to weakened performance. 
+ * Therefore, QueryService allows users by themselves to implement 
+ * and apply ResultSetMapper in order to make up for this shortcoming.)<br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : QueryService의 find() 메소드를
- * 호출하여 매핑 XML에 정의된 쿼리문을 실행시키고, 매핑 XML에 정의된
- * IResultSestMapper 유형의 Mapper를 이용하여, 결과값을 매핑하도록 한다.
+ * <li>#-1 Positive Case : QBy calling for find() method of QueryService, 
+ * query statement defined at mapping XML is implemented 
+ * and by using IResultSestMapper type Mapper defined at mapping XML, 
+ * the result value is mapped.
  * </li>
- * <li>#-2 Positive Case : pageIndex, 매핑 XML 파일 내의 해당
- * 쿼리에 대한 result length 정보와 함께 QueryService의 find()
- * 메소드를 호출하여 매핑 XML에 정의된 쿼리문을 실행시키고, 매핑 XML에 정의된
- * IResultSestMapper 유형의 Mapper를 이용하여, 결과값을 매핑하도록 한다.
- * 페이징 처리 여부를 점검한다.</li>
- * <li>#-3 Positive Case : pageIndex, pageSize 정보와 함께
- * QueryService의 findWithRowCount() 메소드를 호출하여 매핑 XML에
- * 정의된 쿼리문을 실행시키고, 매핑 XML에 정의된 IResultSestMapper 유형의
- * Mapper를 이용하여, 결과값을 매핑하도록 한다. 페이징 처리 여부를 점검한다.</li>
+ * <li>#-2 Positive Case : By calling for find() method of QueryService along with pageIndex 
+ * and result length information on relevant query within mapping XML file, 
+ * query statement defined at mapping XML is implemented 
+ * and by using IResultSestMapper type Mapper defined at mapping XML, 
+ * the result value is mapped. Checked is whether paging is processed. 
+ * </li>
+ * <li>#-3 Positive Case : By calling for findWithRowCount() method of QueryService 
+ * along with pageIndex and result length information on relevant query within mapping XML file,
+ * query statement defined at mapping XML is implemented 
+ * and by using IResultSestMapper type Mapper defined at mapping XML, 
+ * the result value is mapped. Checked is whether paging is processed. 
+ * </li>
  * </ul>
  */
 public class QueryServiceResultSetMapperTest extends
@@ -66,7 +71,7 @@ public class QueryServiceResultSetMapperTest extends
     }
 
     /**
-     * 테스트를 위해 테이블 TB_CUSTOMER를 생성하고 초기 데이터를 추가한다.
+     * Table TB_CUSTOMER is created for test and initial data is added. 
      */
     public void onSetUp() throws Exception {
         System.out.println("Attempting to drop old table");
@@ -94,16 +99,16 @@ public class QueryServiceResultSetMapperTest extends
     }
 
     /**
-     * [Flow #-1] Positive Case : QueryService의 find()
-     * 메소드를 호출하여 매핑 XML에 정의된 쿼리문을 실행시키고, 매핑 XML에 정의된
-     * IResultSestMapper 유형의 Mapper를 이용하여, 결과값을 매핑하도록
-     * 한다. (<result> 내의 mapper 속성값으로 IResultSetMapper를
-     * 구현한 클래스를 지정한 경우, 사용자가 정의한 Mapper의 mapRow() 메소드를
-     * 호출하여 결과값을 매핑하게 된다. QueryService를 통해 일반 VO 유형의
-     * 클래스에 결과값을 자동 매핑하게 하는 경우 Reflection API 호출로 인해 성능
-     * 저하가 발생할 수 있다. 따라서, QueryService에서는 이러한 단점을 보완하기
-     * 위해 사용자가 직접 해당하는 ResultSetMapper를 구현하여 적용할 수 있도록
-     * 하고 있다.)
+     * [Flow #-1] Positive Case : By calling for find() method of QueryService, 
+     * query statement defined at mapping XML is implemented 
+     * and by using IResultSestMapper type Mapper defined at mapping XML, 
+     * the result value is mapped.  
+     * (In the case of selecting class implementing IResultSetMapper with property value within <result>, 
+     * Mapper’s mapRow() method is called for and its result value is mapped.
+     * In the case of automatically mapping result value into ordinary VO type class via QueryService, 
+     * Reflection API call can lead to weakened performance. 
+     * Therefore, QueryService allows users by themselves to implement 
+     * and apply ResultSetMapper in order to make up for this shortcoming.)
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -127,17 +132,17 @@ public class QueryServiceResultSetMapperTest extends
     }
 
     /**
-     * [Flow #-2] Positive Case : pageIndex, 매핑 XML 파일
-     * 내의 해당 쿼리에 대한 result length 정보와 함께 QueryService의
-     * find() 메소드를 호출하여 매핑 XML에 정의된 쿼리문을 실행시키고, 매핑 XML에
-     * 정의된 IResultSestMapper 유형의 Mapper를 이용하여, 결과값을
-     * 매핑하도록 한다. 페이징 처리 여부를 점검한다. (<result> 내의 mapper
-     * 속성값으로 IResultSetMapper를 구현한 클래스를 지정한 경우, 사용자가
-     * 정의한 Mapper의 mapRow() 메소드를 호출하여 결과값을 매핑하게 된다.
-     * QueryService를 통해 일반 VO 유형의 클래스에 결과값을 자동 매핑하게 하는
-     * 경우 Reflection API 호출로 인해 성능 저하가 발생할 수 있다. 따라서,
-     * QueryService에서는 이러한 단점을 보완하기 위해 사용자가 직접 해당하는
-     * ResultSetMapper를 구현하여 적용할 수 있도록 하고 있다.)
+     * [Flow #-2] Positive Case : By calling for find) method of QueryService along with pageIndex 
+     * and result length information on relevant query within mapping XML file, 
+     * query statement defined at mapping XML is implemented 
+     * and by using IResultSestMapper type Mapper defined at mapping XML,
+     * the result value is mapped. Checked is whether paging is processed. 
+     * (In the case of selecting class implementing IResultSetMapper with property value within <result>, 
+     * Mapper’s mapRow() method is called for and its result value is mapped.
+     * In the case of automatically mapping result value into ordinary VO type class via QueryService, 
+     * Reflection API call can lead to weakened performance. Therefore, 
+     * QueryService allows users by themselves to implement 
+     * and apply ResultSetMapper in order to make up for this shortcoming.)
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -161,17 +166,17 @@ public class QueryServiceResultSetMapperTest extends
     }
 
     /**
-     * [Flow #-3] Positive Case : pageIndex, pageSize
-     * 정보와 함께 QueryService의 findWithRowCount() 메소드를
-     * 호출하여 매핑 XML에 정의된 쿼리문을 실행시키고, 매핑 XML에 정의된
-     * IResultSestMapper 유형의 Mapper를 이용하여, 결과값을 매핑하도록
-     * 한다. 페이징 처리 여부를 점검한다. (<result> 내의 mapper 속성값으로
-     * IResultSetMapper를 구현한 클래스를 지정한 경우, 사용자가 정의한
-     * Mapper의 mapRow() 메소드를 호출하여 결과값을 매핑하게 된다.
-     * QueryService를 통해 일반 VO 유형의 클래스에 결과값을 자동 매핑하게 하는
-     * 경우 Reflection API 호출로 인해 성능 저하가 발생할 수 있다. 따라서,
-     * QueryService에서는 이러한 단점을 보완하기 위해 사용자가 직접 해당하는
-     * ResultSetMapper를 구현하여 적용할 수 있도록 하고 있다.)
+     * [Flow #-3] Positive Case : By calling for findWithRowCount() method of QueryService 
+     * along with pageIndex and result length information on relevant query within mapping XML file, 
+     * query statement defined at mapping XML is implemented 
+     * and by using IResultSestMapper type Mapper defined at mapping XML, 
+     * the result value is mapped. Checked is whether paging is processed. 
+     * (In the case of selecting class implementing IResultSetMapper with property value within <result>, 
+     * Mapper’s mapRow() method is called for and its result value is mapped.
+     * In the case of automatically mapping result value into ordinary VO type class via QueryService, 
+     * Reflection API call can lead to weakened performance. 
+     * Therefore, QueryService allows users by themselves to implement 
+     * and apply ResultSetMapper in order to make up for this shortcoming.) 
      * @throws Exception
      *         throws exception which is from
      *         QueryService

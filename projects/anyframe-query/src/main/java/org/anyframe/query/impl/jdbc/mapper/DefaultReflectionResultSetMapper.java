@@ -8,7 +8,6 @@ import java.util.Map;
 import org.anyframe.query.MappingInfo;
 import org.springframework.jdbc.support.lob.LobHandler;
 
-
 public class DefaultReflectionResultSetMapper extends ReflectionResultSetMapper {
 
 	public DefaultReflectionResultSetMapper(Class targetClass,
@@ -17,12 +16,13 @@ public class DefaultReflectionResultSetMapper extends ReflectionResultSetMapper 
 	}
 
 	/**
-	 * 한번 매핑 처리된 쿼리문은 SQLLoader의 queryResultMapping에 의해 관리되도록 한다. 조회된 각 Row를
-	 * 구성하는 Column의 값들을 추출하여 target class의 인스턴스에 담아 전달한다.
+	 * Once mapped query statement should be managed by queryResultMapping of
+	 * SQLLoader. By extracting Column value consisting of searched each Row, it
+	 * is in the format of class instance and transferred.
 	 * 
 	 * @param resultSet
-	 *            조회 결과 중 하나의 Row
-	 * @return 조회 결과를 담은 target class의 인스턴스
+	 *            One Row out of search result
+	 * @return target class instance including search result
 	 */
 	public Object mapRow(ResultSet resultSet) throws SQLException {
 		Object object = null;
@@ -31,19 +31,22 @@ public class DefaultReflectionResultSetMapper extends ReflectionResultSetMapper 
 			Class targetClass = (Class) targetClassIterator.next();
 
 			ResultSetMappingConfiguration mappingConfiguration;
-			// 특정 클래스와 테이블의 매핑 정보 추출
+			// Mapping information extraction of specific
+			// class and table
+
 			if (queryId != null
 					&& sqlLoader.getQueryResultMappings().containsKey(queryId)) {
 				mappingConfiguration = (ResultSetMappingConfiguration) sqlLoader
 						.getQueryResultMappings().get(queryId);
 			} else {
-				mappingConfiguration = getConfig(targetClass, resultSet
-						.getMetaData());
+				mappingConfiguration = getConfig(targetClass,
+						resultSet.getMetaData());
 				if (queryId != null)
 					sqlLoader.getQueryResultMappings().put(queryId,
 							mappingConfiguration);
 			}
-			object = super.toObject(resultSet, targetClass, mappingConfiguration);
+			object = super.toObject(resultSet, targetClass,
+					mappingConfiguration);
 		}
 		return object;
 	}

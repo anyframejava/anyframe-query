@@ -9,7 +9,7 @@
     </description>
 
 	<property name="book.name" value="query" />
-	<property name="version" value="1.1.1"/>	
+	<property name="version" value="1.1.2"/>	
 	<!--
 	  - set dbf installer folder and sample project folder
 	 -->

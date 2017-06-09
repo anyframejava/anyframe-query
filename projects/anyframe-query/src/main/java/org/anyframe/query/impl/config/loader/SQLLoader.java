@@ -166,7 +166,8 @@ public class SQLLoader implements ResourceLoaderAware, InitializingBean,
 				}
 
 				// 2009.03.17 - start
-				// IMappingInfo에 추가된 오퍼레이션 추가 구현
+				//Operation added to IMappingInfo is implemented. 
+				
 				public Map<String, String[]> getCompositeColumnNames() {
 					return null;
 				}

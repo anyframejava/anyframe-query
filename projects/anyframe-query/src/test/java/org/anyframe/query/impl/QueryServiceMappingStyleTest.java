@@ -22,29 +22,38 @@ import java.util.Map;
 import org.anyframe.query.QueryService;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
-
 /**
  * TestCase Name : QueryServiceMappingStyleTest <br>
  * <br>
- * [Description] : QueryService에서 제공하는 다양한 질의 결과 매핑 유형 ('camel', 'lower',
- * 'upper', 'none')에 대해 테스트하고 검증한다.<br>
+ * [Description] : Tested and verified are mapping types such as 'camel',
+ * 'lower', 'upper' and 'none' of various query execution results provided by
+ * QueryService. <br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : 매핑 XML 파일 내에 정의된 쿼리문에 대해 mappingStyle이 'camel'인 경우
- * Map에 조회 결과가 담길때 key 정보가 camel-cased되는지 체크한다.</li>
- * <li>#-2 Positive Case : 매핑 XML 파일 내에 정의된 쿼리문에 대해 mappingStyle이 'upper'인 경우
- * Map에 조회 결과가 담길때 key 정보가 upper-cased되는지 체크한다.</li>
- * <li>#-3 Positive Case : 매핑 XML 파일 내에 정의된 쿼리문에 대해 mappingStyle이 'lower'인 경우
- * Map에 조회 결과가 담길때 key 정보가 lower-cased되는지 체크한다.</li>
- * <li>#-4 Positive Case : 매핑 XML 파일 내에 정의된 쿼리문에 대해 mappingStyle이 'none'인 경우
- * Map에 조회 결과가 담길때 key 정보가 DBMS에서 리턴해주는 칼럼명 그대로 처리되는지 체크한다.</li>
- * <li>#-5 Positive Case : 매핑 XML 파일 내에 정의된 쿼리문에 대해 mappingStyle이 정의되어 있지 않고,
- * isCamelCase가 true인 경우 Map에 조회 결과가 담길때 key 정보가 camel-cased되는지 체크한다.</li>
- * <li>#-6 Positive Case : 매핑 XML 파일 내에 정의된 쿼리문에 대해 mappingStyle이 정의되어 있지 않고,
- * isCamelCase가 false인 경우 Map에 조회 결과가 담길때 key 정보가 lower-cased되는지 체크한다.</li>
+ * <li>#-1 Positive Case : In the case where mapping style is ‘camel’ regarding
+ * query statement defined within mapping XML file, when search result is stored
+ * in Map, checked is whether key information is camel-cased.</li>
+ * <li>#-2 Positive Case : In the case where mapping style is ‘upper’ regarding
+ * query statement defined within mapping XML file, when search result is stored
+ * in Map, checked is whether key information is upper-cased.</li>
+ * <li>#-3 Positive Case : In the case where mapping style is ‘lower’ regarding
+ * query statement defined within mapping XML file, when search result is stored
+ * in Map, checked is whether key information is lower-cased.</li>
+ * <li>#-4 Positive Case : In the case where mapping style is ‘none’ regarding
+ * query statement defined within mapping XML file, when search result is stored
+ * in Map, checked is whether key information is processed as the column name
+ * witch returns from DBMS implies.</li>
+ * <li>#-5 Positive Case : In the case where mappingStyle is not defined
+ * regarding query statement defined within mapping XML file and isCamelCase is
+ * true, when search result is stored in Map, checked is whether key information
+ * is camel-cased.</li>
+ * <li>#-6 Positive Case : In the case where mappingStyle is not defined
+ * regarding query statement defined within mapping XML file and isCamelCase is
+ * false, when search result is stored in Map, checked is whether key
+ * information is lower-cased.</li>
  * </ul>
  * 
- * @author SoYon Lim 
+ * @author SoYon Lim
  */
 public class QueryServiceMappingStyleTest extends
 		AbstractDependencyInjectionSpringContextTests {
@@ -60,7 +69,7 @@ public class QueryServiceMappingStyleTest extends
 	}
 
 	/**
-	 * 테스트를 위해 테이블 TB_CUSTOMER를 생성한다.
+	 * Table TB_CUSTOMER is created for test.
 	 */
 	public void onSetUp() throws Exception {
 		try {
@@ -102,8 +111,10 @@ public class QueryServiceMappingStyleTest extends
 	}
 
 	/**
-	 * [Flow #-1] Positive Case : 매핑 XML 파일 내에 정의된 쿼리문에 대해 mappingStyle이
-	 * 'camel'인 경우 Map에 조회 결과가 담길때 key 정보가 camel-cased되는지 체크한다.
+	 * [Flow #-1] Positive Case : In the case where mappingStyple is ‘camel’
+	 * regarding query statement defined within mapping XML file, when search
+	 * result in stored in Map, checked is whether key information is
+	 * camel-cased.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -116,8 +127,10 @@ public class QueryServiceMappingStyleTest extends
 	}
 
 	/**
-	 * [Flow #-2] Positive Case : 매핑 XML 파일 내에 정의된 쿼리문에 대해 mappingStyle이
-	 * 'upper'인 경우 Map에 조회 결과가 담길때 key 정보가 upper-cased되는지 체크한다.
+	 * [Flow #-2] Positive Case : In the case where mappingStyple is ‘upper’
+	 * regarding query statement defined within mapping XML file, when search
+	 * result in stored in Map, checked is whether key information is
+	 * upper-cased.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -130,8 +143,10 @@ public class QueryServiceMappingStyleTest extends
 	}
 
 	/**
-	 * [Flow #-3] Positive Case : 매핑 XML 파일 내에 정의된 쿼리문에 대해 mappingStyle이
-	 * 'lower'인 경우 Map에 조회 결과가 담길때 key 정보가 lower-cased되는지 체크한다.
+	 * [Flow #-3] Positive Case : In the case where mappingStyple is ‘lower’
+	 * regarding query statement defined within mapping XML file, when search
+	 * result in stored in Map, checked is whether key information is
+	 * upper-cased.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -144,8 +159,10 @@ public class QueryServiceMappingStyleTest extends
 	}
 
 	/**
-	 * [Flow #-4] Positive Case : 매핑 XML 파일 내에 정의된 쿼리문에 대해 mappingStyle이 'none'인
-	 * 경우 Map에 조회 결과가 담길때 key 정보가 DBMS에서 리턴해주는 칼럼명 그대로 처리되는지 체크한다.
+	 * [Flow #-4] Positive Case : In the case where mapping style is ‘none’
+	 * regarding query statement defined within mapping XML file, when search
+	 * result is stored in Map, checked is whether key information is processed
+	 * as the column name witch returns from DBMS implies.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -158,8 +175,10 @@ public class QueryServiceMappingStyleTest extends
 	}
 
 	/**
-	 * [Flow #-5] Positive Case : 매핑 XML 파일 내에 정의된 쿼리문에 대해 mappingStyle이 정의되어 있지
-	 * 않고, isCamelCase가 true인 경우 Map에 조회 결과가 담길때 key 정보가 camel-cased되는지 체크한다.
+	 * [Flow #-5] Positive Case : In the case where mappingStyle is not defined
+	 * regarding query statement defined within mapping XML file and isCamelCase
+	 * is true, when search result is stored in Map, checked is whether key
+	 * information is camel-cased.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -172,8 +191,10 @@ public class QueryServiceMappingStyleTest extends
 	}
 
 	/**
-	 * [Flow #-6] Positive Case : 매핑 XML 파일 내에 정의된 쿼리문에 대해 mappingStyle이 정의되어 있지
-	 * 않고, isCamelCase가 false인 경우 Map에 조회 결과가 담길때 key 정보가 lower-cased되는지 체크한다.
+	 * [Flow #-6] Positive Case : In the case where mappingStyle is not defined
+	 * regarding query statement defined within mapping XML file and isCamelCase
+	 * is false, when search result is stored in Map, checked is whether key
+	 * information is lower-cased.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -186,7 +207,7 @@ public class QueryServiceMappingStyleTest extends
 	}
 
 	/**
-	 * 조회된 결과값을 확인한다.
+	 * Checked is searched result value. 
 	 */
 	private void assertFindCustomer(Collection rtCollection, String ssnoKey,
 			String nameKey, String addressKey) throws Exception {

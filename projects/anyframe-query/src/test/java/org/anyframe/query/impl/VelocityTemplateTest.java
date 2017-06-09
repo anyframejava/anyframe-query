@@ -25,19 +25,21 @@ import org.apache.velocity.app.Velocity;
 /**
  * TestCase Name : VelocityTemplateTest <br>
  * <br>
- * [Description] : Velocity.evaluate() 메소드를 호출하고 결과를
- * 검증한다.<br>
+ * [Description] : Velocity.evaluate() method is called for and its result is verified. <br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : Dynamic Query문을 정의하고
- * Velocity.evaluate() 메소드를 호출하여 변경된 Query문을 검증한다.</li>
+ * <li>#-1 Positive Case : Dynamic Query statement is defined 
+ * and by calling for Velocity.evaluate()method, 
+ * modified Query statement is verified. </li>
  * </ul>
  * @author SoYon Lim
  */
 public class VelocityTemplateTest extends TestCase {
     /**
-     * [Flow #-1] Positive Case : Dynamic Query문을 정의하고
-     * Velocity.evaluate() 메소드를 호출하여 변경된 Query문을 검증한다.
+     * [Flow #-1] Positive Case : Dynamic Query statement is defined 
+     * and by calling for Velocity.evaluate()method, 
+     * modified Query statement is verified. 
+     * 
      * @throws Exception
      *         throws exception which is from Velocity
      */

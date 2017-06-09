@@ -23,15 +23,15 @@ import java.util.Set;
 import org.anyframe.query.QueryService;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
-
 /**
  * TestCase Name : QueryServiceConcurrentTest <br>
  * <br>
- * [Description] : Thread를 이용하여 동시에 QueryService 메소드를 실행하고 그 결과값을 검증한다.<br>
+ * [Description] : Thread is used and QueryService method is executed
+ * simultaneously. And its result value is verified.<br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : QueryService의 findWithRowCount() 메소드를 통해 쿼리문을 실행시키고
- * 결과값을 검증한다.</li>
+ * <li>#-1 Positive Case : Query statement is executed through
+ * findWithRowCount() of QueryService and its result value is verified.</li>
  */
 public class QueryServiceConcurrentTest extends
 		AbstractDependencyInjectionSpringContextTests {
@@ -47,7 +47,7 @@ public class QueryServiceConcurrentTest extends
 	}
 
 	/**
-	 * 테스트를 위해 테이블 TB_RESERVATION를 생성한다.
+	 * Table TB_RESERVATION is created for test.
 	 */
 	public void onSetUp() throws Exception {
 		System.out.println("Attempting to drop old table");
@@ -74,8 +74,8 @@ public class QueryServiceConcurrentTest extends
 	}
 
 	/**
-	 * [Flow #-1] Positive Case : QueryService의 findWithRowCount() 메소드를 통해 쿼리문을
-	 * 실행시키고 결과값을 검증한다.
+	 * [Flow #-1] Positive Case : Query statement is executed through
+	 * findWithRowCount() of QueryService and its result value is verified.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService

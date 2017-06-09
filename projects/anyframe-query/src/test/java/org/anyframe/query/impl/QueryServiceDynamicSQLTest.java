@@ -24,48 +24,46 @@ import org.anyframe.query.QueryService;
 import org.anyframe.query.QueryServiceException;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
-
 /**
  * TestCase Name : QueryServiceDynamicSQLTest <br>
  * <br>
- * [Description] : 매핑 XML 파일에 정의된 Dynamic Query를 실행하고
- * 수행 결과를 검증한다.<br>
+ * [Description] : Dynamic Query defined in mapping XML file is executed and
+ * execution result is verified. <br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : QueryService의 find() 메소드를
- * 호출하여, Named Parameter를 정의하고 있는 Dynamic Query를 실행시켜
- * 보고 결과값을 검증한다. Named Parameter의 값은 'parameter=value'
- * 형태로 전달한다.</li>
- * <li>#-2 Negative Case : QueryService의 find() 메소드를
- * 호출하여, Named Parameter를 정의하고 있는 Dynamic Query를 실행시켜
- * 보고 결과값을 검증한다. </li>
- * <li>#-3 Positive Case : QueryService의 find() 메소드를
- * 호출하여, Text Replacements {{...}}를 포함하고 있는 Dynamic
- * Query를 실행시켜 보고 결과값을 검증한다.</li>
- * <li>#-4 Negative Case : QueryService의 find() 메소드를
- * 호출하여, Text Replacements {{...}}를 포함하고 있는 Dynamic
- * Query를 실행시켜 보고 결과값을 검증한다.</li>
- * <li>#-5 Positive Case : QueryService의 find() 메소드를
- * 호출하여, if 문을 포함하고 있는 Dynamic Query를 실행시켜 보고 결과값을
- * 검증한다.</li>
- * <li>#-6 Positive Case : QueryService의
- * findWithRowCount() 메소드를 호출하여, Text Replacements
- * {{...}}를 포함하고 있는 Dynamic Query를 실행시켜 보고 Dynamic
- * Query에 대해서도 페이징 처리가 성공적으로 수행되는지 결과값을 검증한다.</li>
- * <li>#-7 Positive Case : QueryService의 find() 메소드를
- * 호출하여, foreach 문을 포함하고 있는 Dynamic Query를 실행시켜 보고 결과값을
- * 검증한다. foreach 구문의 실행 회수는 $velocityCount를 이용하고 있다.</li>
- * <li>#-8 Positive Case : QueryService의 find() 메소드를
- * 호출하여, Named Parameter를 정의하고 있는 Dynamic Query를 실행시켜
- * 보고 결과값을 검증한다. Named Parameter의 값은 'parameter=value'
- * 형태로 전달한다. 단, 정의된 쿼리문은 block comments를 포함하고 있고, block
- * comments 내에는 ":" 또는 "&"가 포함되어 있다.</li>
- * <li>#-9 Positive Case : QueryService의 find() 메소드를
- * 호출하여, Named Parameter를 정의하고 있는 Dynamic Query를 실행시켜
- * 보고 결과값을 검증한다. Named Parameter의 값은 'parameter=value'
- * 형태로 전달한다. 단, 정의된 쿼리문은 block comments를 포함하고 있고, line
- * comments 내에는 ":" 또는 "&"가 포함되어 있다.</li>
+ * <li>#-1 Positive Case : By calling for find() method of QueryService, Dynamic
+ * Query defining Named Parameter is executed and its result value is verified.
+ * Named Parameter Value is delivered in the form of ‘parameter=value”.</li>
+ * <li>#-2 Negative Case : By calling for find() method of Q ueryService,
+ * Dynamic Query defining Named Parameter is executed and its result value is
+ * verified.</li>
+ * <li>#-3 Positive Case : By calling for find() method of Q ueryService,
+ * Dynamic Query including Text Replacements{{...}} is executed and its result
+ * value is verified.</li>
+ * <li>#-4 Negative Case : By calling for find() method of Q ueryService,
+ * Dynamic Query including Text Replacements{{...}} is executed and its result
+ * value is verified.</li>
+ * <li>#-5 Positive Case : QBy calling for find() method of Q ueryService,
+ * Dynamic Query including IF statement is executed and its result value is
+ * verified.</li>
+ * <li>#-6 Positive Case : By calling findWithRowCount()method of QueryService,
+ * Dynamic Query including Text Replacements{{...}} is executed and result Value
+ * is verified to see whether paging process on Dynamic Query is successful.</li>
+ * <li>#-7 Positive Case : By calling find()method of QueryService, Dynamic
+ * Query including doreach statement is executed and result Value is verified.
+ * The execution number of foreach statement uses $velocityCount.</li>
+ * <li>#-8 Positive Case : By calling find()method of QueryService, Dynamic
+ * Query defining Named Parameter is executed and result Value is verified. The
+ * number of Named Parameter is delivered in the form of 'parameter=value'.
+ * However, defined query statement includes block comments and block comments
+ * includes “:” or “&”.</li>
+ * <li>#-9 Positive Case : By calling find()method of QueryService, Dynamic
+ * Query defining Named Parameter is executed and result Value is verified. The
+ * number of Named Parameter is delivered in the form of 'parameter=value'.
+ * However, defined query statement includes block comments and line comments
+ * includes “:” or “&”.</li>
  * </ul>
+ * 
  * @author SoYon Lim
  */
 public class QueryServiceDynamicSQLTest extends
@@ -81,9 +79,9 @@ public class QueryServiceDynamicSQLTest extends
         return new String[] {"classpath*:/spring/context-*.xml" };
     }
 
-    /**
-     * 테스트를 위해 테이블 TB_USER를 생성하고 초기 데이터를 입력한다.
-     */
+	/**
+	 * Table TB_USER is created for test and initial data is added.
+	 */
     public void onSetUp() throws Exception {
         try {
             queryService.updateBySQL("DROP TABLE TB_USER", new String[] {},
@@ -104,11 +102,12 @@ public class QueryServiceDynamicSQLTest extends
             new String[] {}, new Object[] {});
     }
 
-    /**
-     * [Flow #-1] Positive Case : QueryService의 find()
-     * 메소드를 호출하여, Named Parameter를 정의하고 있는 Dynamic
-     * Query를 실행시켜 보고 결과값을 검증한다. Named Parameter의 값은
-     * 'parameter=value' 형태로 전달한다.
+	/**
+	 * [Flow #-1] Positive Case : By calling for find() method of QueryService,
+	 * Dynamic Query defining Named Parameter is executed and its result value
+	 * is verified. Named Parameter value is delivered in the form of
+	 * ‘parameter=value’.
+	 * 
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -132,13 +131,13 @@ public class QueryServiceDynamicSQLTest extends
         }
     }
 
-    /**
-     * [Flow #-2] Negative Case : QueryService의 find()
-     * 메소드를 호출하여, Named Parameter를 정의하고 있는 Dynamic
-     * Query를 실행시켜 보고 결과값을 검증한다. queryId가
-     * 'findLogonIdByRangeWithError'인 쿼리는 lowID와
-     * highID라는 Named Parameter를 포함하고 있으나 이 테스트케이스에서는
-     * NamedParameter의 값을 제대로 전달하지 않고 있다.
+	/**
+	 * [Flow #-2] Negative Case : By calling for find() method of QueryService,
+	 * Dynamic Query defining Named Parameter is executed and its result value
+	 * is verified. Query whose I.D. is 'findLogonIdByRangeWithError' including
+	 * Named Parameters called ParalowID and highID. However, this TestCase does
+	 * not properly deliver NamedParameter value.
+	 * 
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -162,10 +161,11 @@ public class QueryServiceDynamicSQLTest extends
         }
     }
 
-    /**
-     * [Flow #-3] Positive Case : QueryService의 find()
-     * 메소드를 호출하여, Text Replacements {{...}}를 포함하고 있는
-     * Dynamic Query를 실행시켜 보고 결과값을 검증한다.
+	/**
+	 * [Flow #-3] Positive Case : By calling for find()method of QueryService,
+	 * Dynamic Query including Text Replacements {{...}} is executed and its
+	 * result value is verified.
+	 * 
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -185,13 +185,13 @@ public class QueryServiceDynamicSQLTest extends
         assertEquals("Fail to compare result.", "admin", result.get("logonId"));
     }
 
-    /**
-     * [Flow #-4] Negative Case : QueryService의 find()
-     * 메소드를 호출하여, Text Replacements {{...}}를 포함하고 있는
-     * Dynamic Query를 실행시켜 보고 결과값을 검증한다. queryId가
-     * 'findUsers'인 쿼리는 Text Replacements 대상인
-     * {{schema}}와 {{sortColumn}}를 포함하고 있으나 이 테스트케이스에서는
-     * Text Replacements 대상의 값을 제대로 전달하지 않고 있다.
+	/**
+	 * [Flow #-4] Negative Case : By calling for find()method of QueryService,
+	 * Dynamic Query including Text Replacements {{...}} is executed and its
+	 * result value is verified. Query whose I.D. is ‘findUsers’ includes
+	 * {{schema}}and {{sortColumn}} for Text Replacements. However, this
+	 * TestCase does not properly deliver value for Text Replacements.
+	 * 
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -210,10 +210,11 @@ public class QueryServiceDynamicSQLTest extends
         }
     }
 
-    /**
-     * [Flow #-5] Positive Case : QueryService의 find()
-     * 메소드를 호출하여, if 문을 포함하고 있는 Dynamic Query를 실행시켜 보고
-     * 결과값을 검증한다.
+	/**
+	 * [Flow #-5] Positive Case : By calling for find() method of Q ueryService,
+	 * Dynamic Query including IF statement is executed and its result value is
+	 * verified.
+	 * 
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -234,11 +235,12 @@ public class QueryServiceDynamicSQLTest extends
         assertEquals("Fail to compare result.", "test", result.get("logonId"));
     }
 
-    /**
-     * [Flow #-6] Positive Case : QueryService의
-     * findWithRowCount() 메소드를 호출하여, Text Replacements
-     * {{...}}를 포함하고 있는 Dynamic Query를 실행시켜 보고 Dynamic
-     * Query에 대해서도 페이징 처리가 성공적으로 수행되는지 결과값을 검증한다.
+	/**
+	 * [Flow #-6] Positive Case : By calling findWithRowCount()method of
+	 * QueryService, Dynamic Query including Text Replacements{{...}} is
+	 * executed and result Value is verified to see whether paging process on
+	 * Dynamic Query is successful.
+	 * 
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -268,11 +270,11 @@ public class QueryServiceDynamicSQLTest extends
         assertEquals("Fail to compare result.", "test", result.get("logonId"));
     }
 
-    /**
-     * [Flow #-7] Positive Case : QueryService의 find()
-     * 메소드를 호출하여, foreach 문을 포함하고 있는 Dynamic Query를
-     * 실행시켜 보고 결과값을 검증한다. foreach 구문의 실행 회수는
-     * $velocityCount를 이용하고 있다.
+	/**
+	 * [Flow #-7] Positive Case : By calling find()method of QueryService,
+	 * Dynamic Query including foreach statement is executed and result Value is
+	 * verified. The execution number of foreach statements uses $velocityCount.
+	 * 
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -294,13 +296,13 @@ public class QueryServiceDynamicSQLTest extends
         assertEquals("Fail to compare result.", "admin", result.get("logonId"));
     }
 
-    /**
-     * [Flow #-8] Positive Case : QueryService의 find()
-     * 메소드를 호출하여, Named Parameter를 정의하고 있는 Dynamic
-     * Query를 실행시켜 보고 결과값을 검증한다. Named Parameter의 값은
-     * 'parameter=value' 형태로 전달한다. 단, 정의된 쿼리문은 block
-     * comments를 포함하고 있고, block comments 내에는 ":" 또는
-     * "&"가 포함되어 있다.
+	/**
+	 * [Flow #-8] Positive Case : By calling find()method of QueryService,
+	 * Dynamic Query defining Named Parameter is executed and result Value is
+	 * verified. The number of Named Parameter is delivered in the form of
+	 * 'parameter=value'. However, defined query statement includes block
+	 * comments and block comments includes “:” or “&”.
+	 * 
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -326,13 +328,13 @@ public class QueryServiceDynamicSQLTest extends
         }
     }
 
-    /**
-     * [Flow #-9] Positive Case : QueryService의 find()
-     * 메소드를 호출하여, Named Parameter를 정의하고 있는 Dynamic
-     * Query를 실행시켜 보고 결과값을 검증한다. Named Parameter의 값은
-     * 'parameter=value' 형태로 전달한다. 단, 정의된 쿼리문은 block
-     * comments를 포함하고 있고, line comments 내에는 ":" 또는 "&"가
-     * 포함되어 있다.
+	/**
+	 * [Flow #-9] Positive Case : By calling find()method of QueryService,
+	 * Dynamic Query defining Named Parameter is executed and result Value is
+	 * verified. The number of Named Parameter is delivered in the form of
+	 * 'parameter=value'. However, defined query statement includes block
+	 * comments and line comments includes “:” or “&”.
+	 * 
      * @throws Exception
      *         throws exception which is from
      *         QueryService

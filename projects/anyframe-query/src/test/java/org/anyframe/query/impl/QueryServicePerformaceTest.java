@@ -20,7 +20,7 @@ public class QueryServicePerformaceTest extends
     }
 
     /**
-     * 테스트를 위해 테이블 TB_EXT_CATEGORY를 생성하고 초기 데이터를 입력한다.
+     * Table TB_EXT_CATEGORY is created for test and initial data is entered. 
      */
     public void onSetUp() throws Exception {
         try {

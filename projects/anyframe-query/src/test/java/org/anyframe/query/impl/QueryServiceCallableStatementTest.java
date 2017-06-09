@@ -33,29 +33,29 @@ import org.anyframe.util.DateUtil;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
 /**
- * TestCase Name : QueryServiceCallableStatementTest
+ * TestCase Name : QueryServiceCallableStatementTest <br>
  * <br>
- * <br>
- * [Description] : CallableStatement를 실행시키고 결과값을 검증한다.<br>
+ * [Description] : CallableStatement is executed and its result value is
+ * verified. <br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : QueryService의 execute()
- * 메소드를 통해 DBMS에 정의된 Function FUNC_RETURN_NUM를 호출하는
- * 쿼리문을 실행시키고 결과값을 검증한다.</li>
- * <li>#-2 Positive Case : QueryService의 execute()
- * 메소드를 통해 DBMS에 정의된 Procedure PROC_TOCHAR_SYSDATE를
- * 호출하는 쿼리문을 실행시키고 결과값을 검증한다.</li>
- * <li>#-3 Positive Case : QueryService의 execute()
- * 메소드를 통해 DBMS에 정의된 Package
- * PKG_REFCURSOR_TEST.PROC_RECORD_SET를 호출하는 쿼리문을 실행시키고
- * 결과값을 검증한다.</li>
- * <li>#-4 Positive Case : 일반 JDBC를 이용하여 DBMS에 정의된
- * Package PKG_REFCURSOR_TEST.PROC_RECORD_SET를 호출하는
- * 쿼리문을 실행시키고 결과값을 검증한다.</li>
- * <li>#-5 Positive Case : QueryService의
- * executeBySQL() 메소드를 통해 DBMS에 정의된 Function
- * FUNC_RETURN_NUM를 호출하는 쿼리문을 직접 전달하여 실행시키고 결과값을 검증한다.</li>
+ * <li>#-1 Positive Case : By calling for Function FUNC_RETURN_NUM defined in
+ * DBMS via execute()method, query statement is executed and its result value is
+ * verified.</li>
+ * <li>#-2 Positive Case : By calling for Procedure PROC_TOCHAR_SYSDATE defined
+ * in DBMS via execute()method, query statement is executed and its result value
+ * is verified.</li>
+ * <li>#-3 Positive Case : By calling for Package
+ * PKG_REFCURSOR_TEST.PROC_RECORD_SET defined in DBMS via execute()method, query
+ * statement is executed and its result value is verified.</li>
+ * <li>#-4 Positive Case : By calling for Package
+ * PKG_REFCURSOR_TEST.PROC_RECORD_SET defined in DBMS via execute()method, query
+ * statement is executed and its result value is verified.</li>
+ * <li>#-5 Positive Case : By calling for Function FUNC_RETURN_NUM defined in
+ * DBMS via executeBySQL()method, query statement is executed and its result
+ * value is verified.</li>
  * </ul>
+ * 
  * @author SoYon Lim
  */
 public class QueryServiceCallableStatementTest extends
@@ -78,11 +78,10 @@ public class QueryServiceCallableStatementTest extends
         return new String[] {"classpath*:/spring/context-*.xml" };
     }
 
-    /**
-     * 테스트를 위해 Function FUNC_RETURN_NUM, Procedure
-     * PROC_TOCHAR_SYSDATE, PACKAGE PKG_REFCURSOR_TEST를
-     * 생성한다.
-     */
+	/**
+	 * Created are Function FUNC_RETURN_NUM, Procedure PROC_TOCHAR_SYSDATE,
+	 * PACKAGE PKG_REFCURSOR_TESTs for test.
+	 */
     public void onSetUp() throws Exception {
         System.out.println("Attempting to drop old table");
 
@@ -171,11 +170,12 @@ public class QueryServiceCallableStatementTest extends
             new Object[] {});
     }
 
-    /**
-     * [Flow #-1] Positive Case : QueryService의
-     * execute() 메소드를 통해 DBMS에 정의된 Function
-     * FUNC_RETURN_NUM를 호출하는 쿼리문을 실행시키고 결과값을 검증한다. 실행되는
-     * 쿼리문은 다음과 같다. {? = call FUNC_RETURN_NUM(?)}
+	/**
+	 * [Flow #-1] Positive Case : By calling for FUNC_RETURN_NUM defined in DBMS
+	 * via execute()method, query statement is executed and its result value is
+	 * verified. Executed query statement is as follows. {? = call
+	 * FUNC_RETURN_NUM(?)}
+	 * 
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -197,12 +197,12 @@ public class QueryServiceCallableStatementTest extends
         assertTrue("Fail to execute function.", rtVal.intValue() == 1);
     }
 
-    /**
-     * [Flow #-2] Positive Case : QueryService의
-     * execute() 메소드를 통해 DBMS에 정의된 Procedure
-     * PROC_TOCHAR_SYSDATE를 호출하는 쿼리문을 실행시키고 결과값을 검증한다.
-     * 실행되는 쿼리문은 다음과 같다. {call PROC_TOCHAR_SYSDATE
-     * (?,?)}
+	/**
+	 * [Flow #-2] Positive Case : By calling for Procedure PROC_TOCHAR_SYSDATE
+	 * defined in DBMS via execute()method, query statement is executed and its
+	 * result value is verified. Executed query statement is as follows. {call
+	 * PROC_TOCHAR_SYSDATE (?,?)}
+	 * 
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -224,12 +224,13 @@ public class QueryServiceCallableStatementTest extends
         assertEquals("20081111", results.get("outVal"));
     }
 
-    /**
-     * [Flow #-3] Positive Case : QueryService의
-     * execute() 메소드를 통해 DBMS에 정의된 Package
-     * PKG_REFCURSOR_TEST.PROC_RECORD_SET를 호출하는 쿼리문을
-     * 실행시키고 결과값을 검증한다. 실행되는 쿼리문은 다음과 같다. {call
-     * PKG_REFCURSOR_TEST.PROC_RECORD_SET(?, ?)}
+	/**
+	 * [Flow #-3] Positive Case : By calling for Package
+	 * PKG_REFCURSOR_TEST.PROC_RECORD_SET defined in DBMS via execute()method,
+	 * query statement is executed and its result value is verified. Executed
+	 * query statement is as follows. {call
+	 * PKG_REFCURSOR_TEST.PROC_RECORD_SET(?, ?)}
+	 * 
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -291,11 +292,13 @@ public class QueryServiceCallableStatementTest extends
         }
     }
 
-    /**
-     * [Flow #-4] Positive Case : 일반 JDBC를 이용하여 DBMS에
-     * 정의된 Package PKG_REFCURSOR_TEST.PROC_RECORD_SET를
-     * 호출하는 쿼리문을 실행시키고 결과값을 검증한다. 실행되는 쿼리문은 다음과 같다.
-     * {call PKG_REFCURSOR_TEST.PROC_RECORD_SET(?, ?)}
+	/**
+	 * [Flow #-4] Positive Case : By calling for Package
+	 * PKG_REFCURSOR_TEST.PROC_RECORD_SET defined in DBMS via ordinary JDBC,
+	 * query statement is executed and its result value is verified. Executed
+	 * query statement is as follows. {call
+	 * PKG_REFCURSOR_TEST.PROC_RECORD_SET(?, ?)}
+	 * 
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -343,11 +346,11 @@ public class QueryServiceCallableStatementTest extends
         }
     }
 
-    /**
-     * [Flow #-5] Positive Case : QueryService의
-     * executeBySQL() 메소드를 통해 DBMS에 정의된 Function
-     * FUNC_RETURN_NUM를 호출하는 쿼리문을 직접 전달하여 실행시키고 결과값을
-     * 검증한다.
+	/**
+	 * [Flow #-5] Positive Case : By calling for Function FUNC_RETURN_NUM
+	 * defined in DBMS via executeBySQL() method , query statement is executed
+	 * and its result value is verified. Executed query statement is as follows. 
+	 * 
      * @throws Exception
      *         throws exception which is from
      *         QueryService

@@ -32,6 +32,7 @@ import org.springframework.jdbc.core.ParameterDisposer;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.jdbc.support.nativejdbc.NativeJdbcExtractor;
+import org.springframework.util.ReflectionUtils;
 
 /**
  * extend from PagingJdbcTemplate for batchUpdate based of Oracle.
@@ -96,6 +97,8 @@ public class OraclePagingJdbcTemplate extends PagingJdbcTemplate {
 					try {
 						Method setExecuteBatchMethod = cs.getClass().getMethod(
 								"setExecuteBatch", new Class[] { int.class });
+						// 2011.08.29 - for ojdbc6 - makeAccessible
+						ReflectionUtils.makeAccessible(setExecuteBatchMethod);
 						setExecuteBatchMethod.invoke(cs,
 								new Object[] { new Integer(batchSize) });
 					} catch (Exception e) {
@@ -150,8 +153,7 @@ public class OraclePagingJdbcTemplate extends PagingJdbcTemplate {
 					int batchSize = pss.getBatchSize();
 
 					if (JdbcUtils.supportsBatchUpdates(ps.getConnection())) {
-
-						// DataSource 구현체에 맞게 Native PreparedStatement 추출
+						//Native PreparedStatement extraction accordin go DataSource implementation
 						if (nativeJdbcExtractor != null) {
 							ps = nativeJdbcExtractor
 									.getNativePreparedStatement(ps);
@@ -164,6 +166,8 @@ public class OraclePagingJdbcTemplate extends PagingJdbcTemplate {
 							Method setExecuteBatchMethod = ps.getClass()
 									.getMethod("setExecuteBatch",
 											new Class[] { int.class });
+							// 2011.08.29 - for ojdbc6 - makeAccessible
+							ReflectionUtils.makeAccessible(setExecuteBatchMethod);
 							setExecuteBatchMethod.invoke(ps,
 									new Object[] { new Integer(batchSize) });
 						} catch (Exception e) {

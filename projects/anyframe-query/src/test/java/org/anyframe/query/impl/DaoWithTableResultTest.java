@@ -26,19 +26,23 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 /**
  * TestCase Name : DaoWithResultTest <br>
  * <br>
- * [Description] : QueryService에서 제공하는 AbstractDao 클래스를
- * 테스트하기 위한 테스트 코드로, 입출력 인자가 VO 유형일 경우 INSERT, UPDATE,
- * DELETE, SELECT 쿼리문을 실행하고 결과값을 검증한다. 단 출력값의 유형은 매핑
- * XML에 정의된 <table/> 매핑 정보를 기반으로 한다.<br>
+ * [Description] : This TestCase is to test AbstractDao class provided by
+ * QueryService. In the case where input/output factor belongs to VO type, query
+ * statements on INSERT, UPDATE, DELETE and SELECT are executed and the result
+ * value is verified. However, the output value type should be based on
+ * <table/>
+ * information defined at mapping XML. <br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : QueryService에서 제공하는
- * AbstractDao를 상속받아 구현한 UserDaoWithResultClass 클래스에
- * 제공하는 메소드를 호출하고, 결과값을 검증한다. UserDaoWithResultClass
- * 클래스에서는 INSERT, UPDATE, DELETE 수행시 Map 형태의 입력값을 전달하며
- * SELECT 수행 결과를 <table/>에 정의된 매핑 정보를 기반으로 셋팅하여 전달하고
- * 있다.</li>
+ * <li>#-1 Positive Case : Called for is method provided into implemented
+ * UserDaoWithResultClass class inheriting AbstractDao which is offered by
+ * QueryService and its result value is verified. In the case of execution of
+ * INSERT, UPDATE and DELETE, input value is delivered in the form of Map and
+ * SELECT execution result is set based on mapping information defined at
+ * <table/>
+ * and delivered at UserDaoWithResultClass class.</li>
  * </ul>
+ * 
  * @author SoYon Lim
  */
 public class DaoWithTableResultTest extends
@@ -65,9 +69,9 @@ public class DaoWithTableResultTest extends
             "classpath:spring/abstractdao/context-query-sqlloader-tableresult.xml" };
     }
 
-    /**
-     * 테스트를 위해 테이블 USERS를 생성한다.
-     */
+	/**
+	 * Table USERS are created for test.
+	 */
     public void onSetUp() throws Exception {
         // Try to drop the table. It may not
         // exist and throw an exception.
@@ -85,17 +89,19 @@ public class DaoWithTableResultTest extends
                 new String[] {}, new Object[] {});
     }
 
-    /**
-     * [Flow #-1] Positive Case : QueryService에서 제공하는
-     * AbstractDao를 상속받아 구현한 UserDaoWithResultClass
-     * 클래스에 제공하는 메소드를 호출하고, 결과값을 검증한다.
-     * UserDaoWithResultClass 클래스에서는 INSERT, UPDATE,
-     * DELETE 수행시 Map 형태의 입력값을 전달하며 SELECT 수행 결과를
-     * <table/>에 정의된 매핑 정보를 기반으로 셋팅하여 전달하고 있다.
-     * @throws Exception
-     *         throws exception which is from
-     *         QueryService
-     */
+	/**
+	 * [Flow #-1] Positive Case : Called for is method provided into implemented
+	 * UserDaoWithResultClass class inheriting AbstractDao which is offered by
+	 * QueryService and its result value is verified. In the case of execution
+	 * of INSERT, UPDATE and DELETE, input value is delivered in the form of Map
+	 * and SELECT execution result is set based on mapping information defined
+	 * at
+	 * <table/>
+	 * and delivered at UserDaoWithResultClass class.
+	 * 
+	 * @throws Exception
+	 *             throws exception which is from QueryService
+	 */
     public void testUserDaoWithTableResult() throws Exception {
         // 1. insert a new user
         UsersVO usersVO1 = new UsersVO();

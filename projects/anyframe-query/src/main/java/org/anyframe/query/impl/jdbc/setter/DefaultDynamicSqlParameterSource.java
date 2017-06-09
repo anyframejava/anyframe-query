@@ -41,20 +41,18 @@ public class DefaultDynamicSqlParameterSource extends MapSqlParameterSource impl
 	}
 
 	/**
-	 * Map 또는 해당 객체로부터 입력 인자(paramName)의 속성값을 추출한다. 추출한 결과값이 존재하지 않을 경우
-	 * VariableUtil을 이용하여 속성값 추출을 재시도한다.
+	 * Input parameter(paramName) property value is extracted from Map or relevant object.
+	 * In the case where there is no extracted return value,
+	 * property value extraction is once tried with VariableUtil.
 	 */
 	public Object getValue(String paramName) {
 		Object value = getVariableFromContext(paramName);
-		// value가 null일 경우
-		// VariableUtil.getValueString()를 이용하여 value
-		// 추출하는 로직 제거함.
-		// 이는 쿼리문에 '%||searchKeyword||%'와 같은 문자열이 포함된
-		// 경우를 고려하여
-		// 추가된 로직이나 실제 입력된 값이 NULL인 경우에도 이 로직을 통해 ''
-		// 형태가 되고 있었음.
-		// 자세한 내용은 VariableUtil.getValueString() 메소드
-		// 참고할 것.
+		//In the case where Value is null,
+		//Logic to extract Value is removed by using VariableUtil.getValueString(). 
+		//This considers the case where query statement includes strings such as 
+		//'%||searchKeyword||%'. Therefore, even in the case where added logic or actual 
+		//input value is NULL, this losic allows format. 
+		//For details, please refer to  VariableUtil.getValueString() method.
 		return value;
 	}
 

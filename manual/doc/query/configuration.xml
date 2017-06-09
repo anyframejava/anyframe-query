@@ -731,7 +731,7 @@ public int[] setQueryArgTypes(int[] originalArgTypes) {
 								</listitem>	
 								<listitem>
 									<para>default : DefaultPagingSQLGenerator</para>
-								</listitem>																																												
+								</listitem>																																			
 							</itemizedlist>
 							<para>
 								적절한 PagingSQLGenerator 구현체를 찾지 못하였을 경우에도 DefaultPagingSQLGenerator로 셋팅된다.

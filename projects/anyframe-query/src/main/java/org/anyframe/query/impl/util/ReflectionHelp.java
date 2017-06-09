@@ -21,7 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 특정 target class 내에 정의된 Field 정보를 추출하거나 해당 class의 인스턴스를 생성하는 역할을 수행한다.
+ * This class either extracts Filed information defined at a specific target
+ * class or creates instance of relevant class. 
  * 
  * @author SoYon Lim
  * @author JongHoon Kim

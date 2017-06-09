@@ -27,18 +27,19 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 /**
  * TestCase Name : QueryServiceRoomTest <br>
  * <br>
- * [Description] : 별도 쿼리문 정의없이 객체의 입력만으로 데이터의 입력, 수정,
- * 삭제, 조회하고 결과를 검증한다.<br>
+ * [Description] : Without separate definition of query statement, 
+ * by only entering object, data is entered, modified, 
+ * deleted and searched and its result is verified.<br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : QueryService의 update() 메소드를
- * 호출함으로써, 별도의 쿼리문 정의없이 객체를 이용하여 특정 데이터를 수정한다.
- * QueryService는 테이블 매핑 정보를 기반으로 UPDATE 쿼리문을 생성하여
- * 실행시킨다.</li>
- * <li>#-2 Positive Case : QueryService의 remove() 메소드를
- * 호출함으로써, 별도의 쿼리문 정의없이 객체를 이용하여 특정 데이터를 삭제한다.
- * QueryService는 테이블 매핑 정보를 기반으로 DELETE 쿼리문을 생성하여
- * 실행시킨다.</li>
+ * <li>#-1 Positive Case : By calling for update() method of QueryService, 
+ * without separate definition of query statement, by using object, 
+ * specific data is modified. QueryService creates
+ * and executes UPDATE query statement based on table mapping information.</li>
+ * <li>#-2 Positive Case : By calling for remove() method of QueryService, 
+ * without separate definition of query statement, by using object, 
+ * specific data is deleted. QueryService creates 
+ * and executes DELETE query statement based on table mapping information.</li>
  * </ul>
  * @author SoYon Lim
  */
@@ -56,7 +57,7 @@ public class QueryServiceRoomTest extends
     }
 
     /**
-     * 테스트를 위해 테이블 TB_ROOM을 생성한다.
+     * Table TB_ROOM is created for test. 
      */
     public void onSetUp() throws Exception {
         System.out.println("Attempting to drop old table");
@@ -74,10 +75,10 @@ public class QueryServiceRoomTest extends
     }
 
     /**
-     * [Flow #-1] Positive Case : QueryService의
-     * update() 메소드를 호출함으로써, 별도의 쿼리문 정의없이 객체를 이용하여 특정
-     * 데이터를 수정한다. QueryService는 테이블 매핑 정보를 기반으로 UPDATE
-     * 쿼리문을 생성하여 실행시킨다.
+     * [Flow #-1] Positive Case : By calling for update() method of QueryService, 
+     * without separate definition of query statement, by using object, 
+     * specific data is modified. QueryService creates 
+     * and executes UPDATE query statement based on table mapping information.
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -98,10 +99,10 @@ public class QueryServiceRoomTest extends
     }
 
     /**
-     * [Flow #-2] Positive Case : QueryService의
-     * remove() 메소드를 호출함으로써, 별도의 쿼리문 정의없이 객체를 이용하여 특정
-     * 데이터를 삭제한다. QueryService는 테이블 매핑 정보를 기반으로 DELETE
-     * 쿼리문을 생성하여 실행시킨다.
+     * [Flow #-2] Positive Case : By calling for create() method of QueryService, 
+     * without separate definition of query statement, by using object,  
+     * specific data is deleted. QueryService creates 
+     * and executes DELETE query statement based on table mapping information.
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -120,9 +121,10 @@ public class QueryServiceRoomTest extends
     }
 
     /**
-     * QueryService의 create() 메소드를 호출함으로써, 별도의 쿼리문 정의없이
-     * 객체를 이용하여 신규 데이터를 입력한다. QueryService는 테이블 매핑 정보를
-     * 기반으로 INSERT 쿼리문을 생성하여 실행시킨다.
+     * By calling for create() method of QueryService, 
+     * without separate definition of query statement, by using object, 
+     * new data is entered. QueryService creates 
+     * and executes INSERT query statement based on table mapping information.
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -147,11 +149,12 @@ public class QueryServiceRoomTest extends
     }
 
     /**
-     * 별도의 쿼리문 정의없이 객체를 이용하여 단건의 데이터를 조회하고 결과를 검증한다.
+     * Without separate definition of query statement, by using object, 
+     * one piece of data is searched and its result is verified. 
      * @param roomNo
      * @param roomPrice
      * @param roomSize
-     * @return 조회 결과 Room 객체
+     * @return search result Room object
      * @throws Exception
      *         fail to find Room
      */

@@ -42,13 +42,16 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 /**
  * TestCase Name : JdbcBatchUpdateProcedureTest <br>
  * <br>
- * [Description] : Procedure를 batch로 실행하는 다양한 방법에 대해 테스트하고 검증한다.<br>
+ * [Description] : Various methods regarding batch-processing of procedure are
+ * tested and verified. <br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : Jdbc를 이용하여 정의된 procedure를 batch 처리하고 결과를 검증한다.</li>
- * <li>#-2 Positive Case : Spring JdbcTemplate을 이용하여 정의된 procedure를 batch 처리하고
- * 결과를 검증한다.</li>
- * <li>#-3 Positive Case : Oracle-style로 procedure를 batch 처리하고 결과를 검증한다.</li>
+ * <li>#-1 Positive Case : Procedure defined with Jdbc is batch-processed and
+ * the result is verified.</li>
+ * <li>#-2 Positive Case : Procedure is batch-processed with Spring JdbcTemplate
+ * and the result is verified.</li>
+ * <li>#-3 Positive Case : Procedure is batch-processed with Oracle-style and
+ * the result is verified.</li>
  * </ul>
  */
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -66,7 +69,8 @@ public class JdbcBatchUpdateProcedureTest {
 	String sql = null;
 
 	/**
-	 * 테스트를 위해 초기 데이터 입력 및 PROC_BATCH_TEST, TB_BATCH_TEST를 생성한다.
+	 * Initial data is entered for test and PROC_BATCH_TEST, TB_BATCH_TEST is
+	 * created.
 	 */
 	@Before
 	public void initialize() throws Exception {
@@ -135,7 +139,8 @@ public class JdbcBatchUpdateProcedureTest {
 	}
 
 	/**
-	 * [Flow #-1] Positive Case : Jdbc를 이용하여 정의된 procedure를 batch 처리하고 결과를 검증한다.
+	 * [Flow #-1] Positive Case : Procedure defined with Jdbc is batch-processed
+	 * and the result is verified.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from PreparedStatement
@@ -164,8 +169,8 @@ public class JdbcBatchUpdateProcedureTest {
 	}
 
 	/**
-	 * [Flow #-2] Positive Case : Spring JdbcTemplate을 이용하여 정의된 procedure를 batch
-	 * 처리하고 결과를 검증한다.
+	 * [Flow #-2] Positive Case : Procedure defined with Spring JdbcTemplate is
+	 * batch processed and the result is verified.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from PreparedStatement
@@ -196,7 +201,8 @@ public class JdbcBatchUpdateProcedureTest {
 	}
 
 	/**
-	 * [Flow #-3] Positive Case : Oracle-style로 procedure를 batch 처리하고 결과를 검증한다.
+	 * [Flow #-3] Positive Case : Procedure is batch-processed with Oracle-style
+	 * and the result is verified.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from PreparedStatement

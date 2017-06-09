@@ -22,21 +22,23 @@ import junit.framework.TestCase;
 /**
  * TestCase Name : DB2PagingSQLGeneratorTest <br>
  * <br>
- * [Description] : DB2PagingSQLGenerator를 이용하여 특정 쿼리문에
- * 대해 페이징 처리된 쿼리문을 검증해본다.<br>
+ * [Description] : Paging processed query statements on a specific query
+ * statement are verified with DB2PagingSQLGenerator.<br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : DBMS 유형이 DB2일 경우
- * DB2PagingSQLGenerator를 이용하여 특정 쿼리문에 대해 페이징 처리된 쿼리문을
- * 검증한다.</li>
+ * <li>#-1 Positive Case : In the case where DBMS type is DB2, Paging processed
+ * query statements on a specific query statement are verified with
+ * DB2PagingSQLGenerator.</li>
  * </ul>
+ * 
  * @author SoYon Lim
  */
 public class DB2PagingSQLGeneratorTest extends TestCase {
-    /**
-     * [Flow #-1] Positive Case : DBMS 유형이 DB2일 경우
-     * DB2PagingSQLGenerator를 이용하여 특정 쿼리문에 대해 페이징 처리된
-     * 쿼리문을 검증한다.
+	/**
+	 * [Flow #-1] Positive Case : In the case where DBMS type is DB2, Paging
+	 * processed query statements on a specific query statement are verified
+	 * with DB2PagingSQLGenerator.
+	 * 
      * @throws Exception
      *         throws exception which is from
      *         DB2PagingSQLGenerator

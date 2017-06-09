@@ -73,7 +73,7 @@ public class PreparedStatementArgTypeSetter implements PreparedStatementSetter,
 	}
 
 	/**
-	 * PreparedStatement에 각 입력 인자의 값을 셋팅한다.
+	 * Each input parameter value is set at PreparedStatement. 
 	 */
 	public void setValues(PreparedStatement ps) throws SQLException {
 		int argIndx = 1;

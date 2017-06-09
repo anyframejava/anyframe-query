@@ -17,12 +17,13 @@ public class DefaultCallbackResultSetMapper extends CallbackResultSetMapper {
 	}
 
 	/**
-	 * 한번 매핑 처리된 쿼리문은 SQLLoader의 queryResultMapping에 의해 관리되도록 한다. 조회 결과값을 Map에
-	 * 저장하여 전달한다. 이때 키값은 칼럼명으로 한다.
+	 * Once mapped query statement should be managed by queryResultMapping of SQLLoader.
+	 * Search return value is saved and Map and transferred. In this case, key value is 
+	 * expressed in colmnname.  
 	 * 
 	 * @param resultSet
-	 *            조회 결과
-	 * @return 조회 결과를 저장한 Map
+	 *            Search result
+	 * @return Map saving search result
 	 */
 	public Object generateMap(ResultSet resultSet) throws SQLException {
 		if (sqlLoader.getQueryResultMappings().containsKey(queryId)) {

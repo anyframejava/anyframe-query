@@ -532,7 +532,7 @@ public class AbstractDao {
 	 *         query
 	 */
 	protected Object findByPk(String tableName, Object[] targetObjs) throws QueryServiceException {
-		Collection collection = queryService.find(findPrefix + tableName + findByPkPostfix, targetObjs, 0, 0);
+		Collection collection = queryService.find(findPrefix + tableName + findByPkPostfix, targetObjs);
 		if (collection == null || collection.size() == 0)
 			return null;
 		return collection.iterator().next();
@@ -555,7 +555,8 @@ public class AbstractDao {
 	 *         query
 	 */
 	protected Collection findList(String tableName, Object targetObj) throws QueryServiceException {
-		return findList(tableName, targetObj, 0, 0);
+		Object[] params = convertParams(targetObj);
+		return queryService.find(findPrefix + tableName + findListPostfix, params);
 	}
 
 	/**
@@ -579,7 +580,8 @@ public class AbstractDao {
 	 *         query
 	 */
 	protected Collection findList(String tableName, Map targetMap) throws QueryServiceException {
-		return findList(tableName, targetMap, 0, 0);
+		Object[] params = convertParams(targetMap);
+		return queryService.find(findPrefix + tableName + findListPostfix, params);
 	}
 
 	/**
@@ -603,7 +605,8 @@ public class AbstractDao {
 	 *         query
 	 */
 	protected Collection findList(String tableName, List targetObjs) throws QueryServiceException {
-		return findList(tableName, targetObjs, 0, 0);
+		Object[] params = convertParams(targetObjs);
+		return queryService.find(findPrefix + tableName + findListPostfix, params);
 	}
 
 	/**
@@ -624,142 +627,6 @@ public class AbstractDao {
 	 */
 	protected Collection findList(String tableName, Object[] targetObjs) throws QueryServiceException {
 		return queryService.find(findPrefix + tableName + findListPostfix, targetObjs);
-	}
-
-	/**
-	 * Execute the SELECT query statement using
-	 * pageIndex and pageSize containing the paging
-	 * info and targetObject including the inputed
-	 * value, after finding the appropriate queryId in
-	 * combining the inputed table name and defined
-	 * findPrefix(default'find'). In order to obtain
-	 * the result handled in paging, the pageIndex and
-	 * pageSize has to be bigger than 0.
-	 * @param tableName
-	 *        table name
-	 * @param targetObj
-	 *        the object including the needed input
-	 *        value at query execution
-	 * @param pageIndex
-	 *        page number which expected to be
-	 *        displayed.
-	 * @param pageSize
-	 *        maximum number of data that can be
-	 *        displayed.
-	 * @return the object containing the query result
-	 * @throws QueryServiceException
-	 *         if there is any problem executing the
-	 *         query
-	 */
-	protected Collection findList(String tableName, Object targetObj, int pageIndex, int pageSize)
-			throws QueryServiceException {
-		Object[] params = convertParams(targetObj);
-		return findList(tableName, params, pageIndex, pageSize);
-	}
-
-	/**
-	 * Execute the SELECT query statement using the
-	 * pageIndex and pageSize containing the paging
-	 * info and targetMap including the inputed value,
-	 * after finding the appropriate queryId in
-	 * combining the inputed table name and defined
-	 * findPrefix(default='find'). Define as the
-	 * appropriate object's key value included in the
-	 * Map for the variable name of each object after
-	 * extracting the object included in the Map at the
-	 * execution of appropriate query statement. In
-	 * order to obtain the result handled in paging,
-	 * the pageIndex and pageSize have to be bigger
-	 * than 0.
-	 * @param tableName
-	 *        table name
-	 * @param targetMap
-	 *        the Map including the needed variable
-	 *        value at execution of query statement
-	 * @param pageIndex
-	 *        page number which expected to be
-	 *        displayed.
-	 * @param pageSize
-	 *        maximum number of data that can be
-	 *        displayed.
-	 * @return the object containing the query result
-	 * @throws QueryServiceException
-	 *         if there is any problem executing the
-	 *         query
-	 */
-	protected Collection findList(String tableName, Map targetMap, int pageIndex, int pageSize)
-			throws QueryServiceException {
-		Object[] params = convertParams(targetMap);
-		return findList(tableName, params, pageIndex, pageSize);
-	}
-
-	/**
-	 * Execute the SELECT query statement using the
-	 * pageIndex and pageSize containin the paging info
-	 * and targetList including the inputed value,
-	 * after findding the appropriate queryId in
-	 * combining the inputed table name,
-	 * findPrefix(default='find') and
-	 * findListPostfix(default-'List'). Define key as
-	 * (variableName + order) type for reflecting the
-	 * extraction order for the variable name of each
-	 * object after extracting the object included in
-	 * the List at the execution of query statement. In
-	 * order to obtain the result handled in paging,
-	 * the pageIndex and pageSize have to be bigger
-	 * than 0.
-	 * @param tableName
-	 *        table name
-	 * @param targetList
-	 *        the List including the needed input
-	 *        object at the execution of the query
-	 *        statement
-	 * @param pageIndex
-	 *        page number which expected to be
-	 *        displayed.
-	 * @param pageSize
-	 *        maximum number of data that can be
-	 *        displayed.
-	 * @return the object containing the query result
-	 * @throws QueryServiceException
-	 *         if there is any problem executing the
-	 *         query
-	 */
-	protected Collection findList(String tableName, List targetList, int pageIndex, int pageSize)
-			throws QueryServiceException {
-		Object[] params = convertParams(targetList);
-		return findList(tableName, params, pageIndex, pageSize);
-	}
-
-	/**
-	 * Execute the SELECT query statement using the
-	 * pageIndex and pageSize containining the paging
-	 * info and Object array including the inputed
-	 * value, after finding the appropriate queryId in
-	 * combining the inputed table name and defined
-	 * findPrefix(default='find') and
-	 * findListPostfix(default='List'). In order to
-	 * obtain the paging result, the pageIndex and
-	 * pageSize have to be bigger than 0.
-	 * @param tableName
-	 *        table name
-	 * @param targetObjs
-	 *        the Object Array including the needed
-	 *        inputed value at the query execution
-	 * @param pageIndex
-	 *        page number which expected to be
-	 *        displayed.
-	 * @param pageSize
-	 *        maximum number of data that can be
-	 *        displayed.
-	 * @return the object containing the query result
-	 * @throws QueryServiceException
-	 *         if there is any problem executing the
-	 *         query
-	 */
-	private Collection findList(String tableName, Object[] targetObjs, int pageIndex, int pageSize)
-			throws QueryServiceException {
-		return queryService.find(findPrefix + tableName + findListPostfix, targetObjs, pageIndex, pageSize);
 	}
 
 	/**

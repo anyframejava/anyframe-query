@@ -79,7 +79,7 @@ public abstract class NamedParameterUtil {
 		int i = 0;
 		while (i < statement.length) {
 			char c = statement[i];
-			// comments 처리 start
+			//Commnents handling start
 			char nextC = new Character(' ').charValue();
 			if (i < statement.length - 1)
 				nextC = statement[i + 1];
@@ -100,7 +100,7 @@ public abstract class NamedParameterUtil {
 				i = i + 2;
 				continue;
 			}
-			// comments 처리 end
+			// comments handling end
 
 			if (withinQuotes) {
 				if (c == currentQuote) {
@@ -220,7 +220,7 @@ public abstract class NamedParameterUtil {
 		while (i < statement.length) {
 			char c = statement[i];
 
-			// comments 처리 start
+			// comments handling start
 			char nextC = new Character(' ').charValue();
 			if (i < statement.length - 1)
 				nextC = statement[i + 1];
@@ -242,7 +242,7 @@ public abstract class NamedParameterUtil {
 				i = i + 2;
 				continue;
 			}
-			// comments 처리 end
+			// comments handling end
 
 			if (withinQuotes) {
 				if (c == currentQuote) {

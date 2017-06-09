@@ -33,25 +33,34 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 /**
  * TestCase Name : QueryNamespaceTest <br>
  * <br>
- * [Description] : query namespace를 이용한 QueryService 속성 정의가 제대로 인식되는지 검증한다.<br>
+ * [Description] : It is verified whether QueryService Property definition by
+ * using query namespace is properly recognized. <br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : <query:auto-config dbType="..."/>와 같이 정의하였을 때
- * QueryService 속성 정보가 제대로 인식되는지 검증한다.</li>
- * <li>#-2 Positive Case : <query:auto-config dbType="..."
- * sqlLoader-ref="..."/>와 같이 별도로 정의한 sqlLoader Bean의 속성을 참조 관계로 정의하였을 때 해당
- * sqlLoader Bean의 속성 정보를 이용하여 QueryService 속성 정보가 제대로 인식되는지 검증한다.</li>
- * <li>#-3 Positive Case : <query:auto-config dbType="..."
- * jdbcTemplate-ref="..."/>와 같이 정의하고, jdbcTemplate Bean의 속성을 참조 관계로 정의하였을 때 해당
- * jdbcTemplate Bean의 속성 정보를 이용하여 QueryService 속성 정보가 제대로 인식되는지 검증한다.</li>
- * <li>#-4 Positive Case : <query:auto-config dbType="..."
- * dataSource-ref="..."/>와 같이 정의하고, dataSource Bean의 속성을 참조 관계로 정의하였을 때 해당
- * dataSource Bean의 속성 정보를 이용하여 QueryService 속성 정보가 제대로 인식되는지 검증한다.</li>
- * <li>#-5 Negative Case : <query:auto-config dbType="xxx"/>와 같이 정의할 때 실제로 사용할
- * DBMS의 타입과 상이한 값으로 입력한 경우 pagingSQLGenerator, lobHandler가 잘못 셋팅되는지 검증한다.</li>
- * <li>#-6 Positive Case : <query:auto-config dbType="..."/>, <query:auto-config
- * id="..." dbType="..." dataSoure-ref="..."/>와 같이 정의한 경우 다양한 DataSource를 기반으로
- * 여러 개의 QueryService 인스턴스가 정상적으로 로드되었는지 검증한다.</li>
+ * <li>#-1 Positive Case : When it is defined in the way of <query:auto-config
+ * dbType="..."/>, it is verified whether QueryService Property definition is
+ * properly recognized.</li>
+ * <li>#-2 Positive Case : When sqlLoader Bean’s property is defined as
+ * reference relationship which is separately defined such as
+ * sqlLoader-ref="..."/>, it is verified whether QueryService Property
+ * definition is properly recognized by using sqlLoader Bean.</li>
+ * <li>#-3 Positive Case : When sqlLoader Bean’s property is defined as
+ * reference relationship which is separately defined such as
+ * sqlLoader-ref="..."/>, it is verified whether QueryService Property
+ * definition is properly recognized by using sqlLoader Bean.</li>
+ * <li>#-4 Positive Case : It is defined in the format of <query:auto-config
+ * dbType="..." dataSource-ref="..."/> and dataSource Bean property is defined
+ * as reference relation, it is verified whether QueryService property
+ * information is properly recognized by using datsSource Bean property
+ * information.</li>
+ * <li>#-5 Negative Case : When it is defined in the format of
+ * <query:auto-config dbType="xxx"/>, in the case where the entered number is
+ * different from DBMS type for use, it is verified whether pagingSQLGenerator
+ * and lobHandler are wrongly set.</li>
+ * <li>#-6 Positive Case : When it is defined in the format of
+ * <query:auto-config dbType="..."/>, <query:auto-config id="..." dbType="..."
+ * dataSoure-ref="..."/>, it is verified whether various QueryService instances
+ * are loaded in normal fashion based diverse DataSources.</li>
  * </ul>
  */
 @RunWith(JUnit4.class)
@@ -60,8 +69,10 @@ public class QueryNamespaceTest {
 	QueryService queryService;
 
 	/**
-	 * [Flow #-1] Positive Case : <query:auto-config dbType="..."/>와 같이 정의하였을 때
-	 * QueryService 속성 정보가 제대로 인식되는지 검증한다.
+	 * [Flow #-1] Positive Case : When it is defined in the way of
+	 * <query:auto-config dbType="...">, it is verified whether QueryService
+	 * property information is properly recognized.
+	 * 
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService or
@@ -78,9 +89,10 @@ public class QueryNamespaceTest {
 	}
 
 	/**
-	 * [Flow #-2] Positive Case : <query:auto-config dbType="..."
-	 * sqlLoader-ref="..."/>와 같이 별도로 정의한 sqlLoader Bean의 속성을 참조 관계로 정의하였을 때 해당
-	 * sqlLoader Bean의 속성 정보를 이용하여 QueryService 속성 정보가 제대로 인식되는지 검증한다.
+	 * [Flow #-2] Positive Case : When it is defined in the way of
+	 * <query:auto-config dbType="..." sqLoader-ref="..."/> and sqlLoader Bean
+	 * property as reference relationship, it is verified whether QueryService
+	 * property information is properly recognized with sqlLoader Bean.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService or
@@ -97,9 +109,11 @@ public class QueryNamespaceTest {
 	}
 
 	/**
-	 * [Flow #-3] Positive Case : <query:auto-config dbType="..."
-	 * jdbcTemplate-ref="..."/>와 같이 정의하고, jdbcTemplate Bean의 속성을 참조 관계로 정의하였을 때
-	 * 해당 jdbcTemplate Bean의 속성 정보를 이용하여 QueryService 속성 정보가 제대로 인식되는지 검증한다.
+	 * [Flow #-3] Positive Case : When it is defined in the way of
+	 * <query:auto-config dbType="..." dataSource-ref="..."/> and dataSource
+	 * Bean property as reference relationship, it is verified whether
+	 * QueryService property information is properly recognized with dataSource
+	 * Bean
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService or
@@ -119,9 +133,11 @@ public class QueryNamespaceTest {
 	}
 
 	/**
-	 * [Flow #-4] Positive Case : <query:auto-config dbType="..."
-	 * dataSource-ref="..."/>와 같이 정의하고, dataSource Bean의 속성을 참조 관계로 정의하였을 때 해당
-	 * dataSource Bean의 속성 정보를 이용하여 QueryService 속성 정보가 제대로 인식되는지 검증한다.
+	 * [Flow #-4] Positive Case : When it is defined in the way of
+	 * <query:auto-config dbType="..." dataSource-ref="..."/> and dataSource
+	 * Bean property as reference relationship, it is verified whether
+	 * QueryService property information is properly recognized with dataSource
+	 * Bean
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService or
@@ -146,9 +162,10 @@ public class QueryNamespaceTest {
 	}
 
 	/**
-	 * [Flow #-5] Negative Case : <query:auto-config dbType="xxx"/>와 같이 정의할 때
-	 * 실제로 사용할 DBMS의 타입과 상이한 값으로 입력한 경우 pagingSQLGenerator, lobHandler가 잘못 셋팅되는지
-	 * 검증한다.
+	 * [Flow #-5] Negative Case : When defined in the way of <query:auto-config
+	 * dbType="xxx"/>, in the case where entered value is different from DBMS
+	 * type for use, verified is whether pagingSQLGenerator and lobHandler are
+	 * wrongly set.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService or
@@ -172,9 +189,10 @@ public class QueryNamespaceTest {
 	}
 
 	/**
-	 * [Flow #-6] Positive Case : <query:auto-config dbType="..."/>,
-	 * <query:auto-config id="..." dbType="..." dataSoure-ref="..."/>와 같이 정의한 경우
-	 * 다양한 DataSource를 기반으로 여러 개의 QueryService 인스턴스가 정상적으로 로드되었는지 검증한다.
+	 * [Flow #-6] Positive Case : In the case of definition such as
+	 * <query:auto-config id="..." dbType="..." dataSoure-ref="..."/>, verified
+	 * is whether various QueryService instances are load in the normal fashion
+	 * based on a few Datasource.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService or
@@ -193,8 +211,9 @@ public class QueryNamespaceTest {
 	}
 
 	/**
-	 * query namespace를 이용하여 QueryService 속성을 정의한 경우 QueryService가 정상적으로 로드되었는지
-	 * 검증하기 위해 QueryService를 이용하여 Dynamic 쿼리 실행 결과에 대해 페이징 처리를 수행한다.
+	 * In the case of defining QueryService property with query namespace, in
+	 * order to verify whether QueryService is successfully loaded, paging on
+	 * Dynamic query execution result is processed with QueryService.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -220,7 +239,7 @@ public class QueryNamespaceTest {
 	}
 
 	/**
-	 * 테스트를 위한 DB 테이블을 생성한다.
+	 * DB table is created for test.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService

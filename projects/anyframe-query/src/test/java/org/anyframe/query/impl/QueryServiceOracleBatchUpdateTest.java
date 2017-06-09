@@ -30,18 +30,21 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 /**
  * TestCase Name : QueryServiceOracleBatchUpdateTest <br>
  * <br>
- * [Description] : QueryService의 OraclePagingJdbcTemplate을 이용하여 batchCreate(),
- * batchUpdate() 메소드를 호출하고 수행 결과를 검증한다.<br>
+ * [Description] : By using OraclePagingJdbcTemplate of QueryService,
+ * batchUpdate()method is called for and its execution result is verified. <br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : QueryService의 batchUpdate() 메소드를 호출하여 여러건의 데이터를
- * Batch로 수정하고 수정이 성공적으로 이루어졌는지, 수정된 건수를 정확한지 확인한다.</li>
- * <li>#-2 Positive Case : QueryService의 batchExecute() 메소드를 호출하여 수정할 대상 데이터들을
- * HashMap 객체에 담아 Batch로 수정하고 수정 작업이 성공적으로 이루어졌는지 확인한다. batchUpdate() 메소드 실행을 통해
- * 수행되는 쿼리는 프로시저를 호출한다.</li>
- * <li>#-3 Positive Case : QueryService의 batchExecuteBySQL() 메소드를 호출하여 수정할 대상
- * 데이터들을 Object[] 객체에 담아 Batch로 수정하고 수정 작업이 성공적으로 이루어졌는지 확인한다.
- * batchExecuteBySQL() 메소드 실행을 통해 수행되는 쿼리는 프로시저를 호출한다.</li>
+ * <li>#-1 Positive Case : By calling batchUpdate() of QueryService, a few sets
+ * of data is modified as Batch and checked is whether modification is
+ * successful and modified number is correct.</li>
+ * <li>#-2 Positive Case : By calling for batchExecute() method of QueryService,
+ * data for modification is put into HashMap object and modified as Batch and
+ * checked is whether modification is successful. By executing
+ * batchUpdate()method, executed query calls for procedure.</li>
+ * <li>#-3 Positive Case : By calling for batchExecute() method of QueryService,
+ * data for modification is put into HashMap object and modified as Batch and
+ * checked is whether modification is successful. By executing
+ * batchUpdate()method, executed query calls for procedure.</li>
  * </ul>
  * 
  * @author SoYon Lim
@@ -61,7 +64,7 @@ public class QueryServiceOracleBatchUpdateTest extends
 	}
 
 	/**
-	 * 테스트를 위해 테이블 TB_BATCH_TEST를 생성한다.
+	 * Table TB_BATCH_TEST is created for test.
 	 */
 	public void onSetUp() throws Exception {
 		super.onSetUp();
@@ -117,8 +120,10 @@ public class QueryServiceOracleBatchUpdateTest extends
 	}
 
 	/**
-	 * 특정 테이블과 매핑된 Transfer Object 형태의 사용자 정보를 전달하고, QueryService의 batchCreate()
-	 * 메소드를 호출하여 신규 사용자 정보를 Batch로 등록한다. 그리고 등록 작업이 성공적으로 이루어졌는지 확인한다.
+	 * By delivering user information in the form of Transfer Object mapped with
+	 * a specific table and calling for batchCreate() of QueryService, new user
+	 * information is registered as Batch. And checked is whether the
+	 * registration is successful.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -169,8 +174,10 @@ public class QueryServiceOracleBatchUpdateTest extends
 		}
 
 		/**
-		 * [Flow #-1] Positive Case : QueryService의 batchUpdate() 메소드를 호출하여 수정할
-		 * 대상 데이터들을 BatchTestVO 객체에 담아 Batch로 수정하고 수정 작업이 성공적으로 이루어졌는지 확인한다.
+		 * [Flow #-1] Positive Case : By calling for batchUpdate() of
+		 * QueryService, data for modification is put into BatchTestVO Object
+		 * and modified as Batch. After checked is whether modification is
+		 * successful.
 		 * 
 		 * @throws Exception
 		 *             throws exception which is from QueryService
@@ -208,9 +215,10 @@ public class QueryServiceOracleBatchUpdateTest extends
 	}
 
 	/**
-	 * [Flow #-2] Positive Case : QueryService의 batchExecute() 메소드를 호출하여 수정할 대상
-	 * 데이터들을 HashMap 객체에 담아 Batch로 수정하고 수정 작업이 성공적으로 이루어졌는지 확인한다. batchExecute()
-	 * 메소드 실행을 통해 수행되는 쿼리는 프로시저를 호출한다.
+	 * [Flow #-2] Positive Case : By calling for batchExecute()method of
+	 * QueryService, data for modification is put into HashMap Object and
+	 * modified as Batch. After that checked is whether modification is
+	 * successful.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -244,9 +252,9 @@ public class QueryServiceOracleBatchUpdateTest extends
 	}
 
 	/**
-	 * [Flow #-3] Positive Case : QueryService의 batchExecuteBySQL() 메소드를 호출하여
-	 * 수정할 대상 데이터들을 Object[] 객체에 담아 Batch로 수정하고 수정 작업이 성공적으로 이루어졌는지 확인한다.
-	 * batchExecuteBySQL() 메소드 실행을 통해 수행되는 쿼리는 프로시저를 호출한다.
+	 * [Flow #-3] Positive Case : By calling for batchExecuteBySQL() method of
+	 * QueryService, data for modification is put into Object[] and modified as
+	 * Batch. After checked is whether modification is successful.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService

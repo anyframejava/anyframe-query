@@ -26,22 +26,29 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 /**
  * TestCase Name : QueryServiceWithoutPageGenerator <br>
  * <br>
- * [Description] : Query 서비스 속성 정의시 pagingSQLGenerator 설정을 추가하지 않은 경우 findXXX()
- * 메소드 호출로, 페이징 처리가 정상적으로 수행되는지 확인한다.<br>
+ * [Description] : In the case of defining Query service property, 
+ * when pagingSQLGenerator setup is not added, by calling for findXXX()
+ * Method, checked is whether paging process is successful. <br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : QueryService의 findBySQLWithRowCount() 메소드를 호출하여 직접
- * 입력한 SELECT 쿼리를 실행시키고 결과를 검증한다. findBySQLWithRowCount() 호출시 pageIndex,
- * pageSize 정보를 같이 전달함으로써 페이징 처리된 조회 결과를 얻을 수 있다.</li>
- * <li>#-2 Positive Case : QueryService의 findBySQL() 메소드를 호출하여 직접 입력한 SELECT 쿼리를
- * 실행시키고 결과를 검증한다. findBySQL() 호출시 pageIndex, pageSize 정보를 같이 전달함으로써 페이징 처리된 조회
- * 결과를 얻을 수 있다.</li>
- * <li>#-3 Positive Case : QueryService의 findWithRowCount() 메소드를 호출하여 직접 입력한
- * SELECT 쿼리를 실행시키고 결과를 검증한다. findWithRowCount() 호출시 pageIndex, pageSize 정보를 같이
- * 전달함으로써 페이징 처리된 조회 결과를 얻을 수 있다.</li>
- * <li>#-4 Positive Case : QueryService의 find() 메소드를 호출하여 매핑 XML 파일에 정의된 query를
- * 실행시키고 결과를 검증한다. find() 호출시 pageIndex만 전달하고 pageSize는 해당 쿼리의 result size를 따르도록
- * 함으로써 페이징 처리된 조회 결과를 얻을 수 있다.</li>
+ * <li>#-1 Positive Case : By calling for findBySQLWithRowCount()method of QueryService, 
+ * manually entered query is executed and the result is verified. 
+ * In the case of calling for findBySQLWithRowCount(), 
+ * by delivering pageIndex and pageSize all together, 
+ * paging processed search result comes out.</li>
+ * <li>#-2 Positive Case : By calling for findBySQL() method of QueryService, 
+ * manually entered query is executed and the result is verified. 
+ * In the case of calling for findBySQL(),by delivering pageIndex 
+ * and pageSize all together, paging processed search result comes out.</li>
+ * <li>#-3 Positive Case : By calling for findWithRowCount() method of QueryService, 
+ * manually entered query is executed and the result is verified. 
+ * In the case of calling for findWithRowCount() by delivering pageIndex
+ * and pageSize all together, paging processed search result comes out.</li>
+ * <li>#-4 Positive Case : By calling for find() method of QueryService, 
+ * manually entered query is executed and the result is verified. 
+ * In the case of calling for find(), by only delivering pageIndex 
+ * and making pageSize to comply with result size, 
+ * paging processed search result comes out.</li>
  * </ul>
  * 
  * @author SoYon Lim
@@ -60,7 +67,7 @@ public class QueryServiceWithoutPageGenerator extends
 	}
 
 	/**
-	 * 테스트를 위해 테이블 TB_CUSTOMER를 생성한다.
+	 * Table TB_CUSTOMER is created for test. 
 	 */
 	public void onSetUp() throws Exception {
 		try {
@@ -81,9 +88,11 @@ public class QueryServiceWithoutPageGenerator extends
 	}
 
 	/**
-	 * [Flow #-1] Positive Case : QueryService의 findBySQLWithRowCount() 메소드를
-	 * 호출하여 직접 입력한 SELECT 쿼리를 실행시키고 결과를 검증한다. findBySQLWithRowCount() 호출시
-	 * pageIndex, pageSize 정보를 같이 전달함으로써 페이징 처리된 조회 결과를 얻을 수 있다.
+	 * [Flow #-1] Positive Case : By calling for findBySQLWithRowCount()method of QueryService, 
+	 * query defined at mapping XML file is executed and the result is verified. 
+	 * In the case of calling for findBySQLWithRowCount(), 
+	 * by delivering pageIndex and pageSize all together, 
+	 * paging processed search result comes out.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -134,9 +143,10 @@ public class QueryServiceWithoutPageGenerator extends
 	}
 
 	/**
-	 * [Flow #-2] Positive Case : QueryService의 findBySQL() 메소드를 호출하여 직접 입력한
-	 * SELECT 쿼리를 실행시키고 결과를 검증한다. findBySQL() 호출시 pageIndex, pageSize 정보를 같이
-	 * 전달함으로써 페이징 처리된 조회 결과를 얻을 수 있다.
+	 * [Flow #-2] Positive Case : By calling for findBySQL() method of QueryService, 
+	 * query defined at mapping XML file is executed and the result is verified. 
+	 * In the case of calling for findBySQL(), by delivering pageIndex 
+	 * and pageSize all together, paging processed search result comes out.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -169,9 +179,11 @@ public class QueryServiceWithoutPageGenerator extends
 	}
 
 	/**
-	 * [Flow #-3] Positive Case : QueryService의 findWithRowCount() 메소드를 호출하여 직접
-	 * 입력한 SELECT 쿼리를 실행시키고 결과를 검증한다. findWithRowCount() 호출시 pageIndex, pageSize
-	 * 정보를 같이 전달함으로써 페이징 처리된 조회 결과를 얻을 수 있다.
+	 * [Flow #-3] Positive Case : By calling for findWithRowCount() method of QueryService, 
+	 * manually entered query is executed and the result is verified. 
+	 * In the case of calling for findWithRowCount(), 
+	 * by only delivering pageIndex and making pageSize to comply with result size, 
+	 * paging processed search result comes out.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -221,9 +233,11 @@ public class QueryServiceWithoutPageGenerator extends
 	}
 
 	/**
-	 * [Flow #-4] Positive Case : QueryService의 find() 메소드를 호출하여 매핑 XML 파일에 정의된
-	 * query를 실행시키고 결과를 검증한다. find() 호출시 pageIndex만 전달하고 pageSize는 해당 쿼리의 result
-	 * size를 따르도록 함으로써 페이징 처리된 조회 결과를 얻을 수 있다.
+	 * [Flow #-4] Positive Case : By calling for find() method of QueryService, 
+	 * query defined at mapping XML file is executed and the result is verified. 
+	 * In the case of calling for find(), by only delivering pageIndex 
+	 * and making pageSize to comply with result size, 
+	 * paging processed search result comes out. 
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -254,7 +268,8 @@ public class QueryServiceWithoutPageGenerator extends
 	}
 
 	/**
-	 * SELECT 쿼리문을 직접 입력하여 단건의 데이터를 조회하고 결과를 검증한다.
+	 * By manually entering SELECT query statement, 
+	 * one piece of data is entered and the result is verified. 
 	 * 
 	 * @param ssno
 	 * @param name
@@ -281,7 +296,8 @@ public class QueryServiceWithoutPageGenerator extends
 	}
 
 	/**
-	 * INSERT 쿼리문을 직접 입력하여 단건의 데이터를 입력하고 결과를 검증한다.
+	 * By manually entering INSERT query statement, 
+	 * one piece of data is entered and the result is verified.
 	 * 
 	 * @param ssno
 	 * @param name

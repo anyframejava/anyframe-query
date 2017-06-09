@@ -1297,17 +1297,18 @@ public void insertCustomerByObject() throws Exception {
 			<note>
 				<title>Oracle-style Batch Update</title>
 				<para>
-					Oracle-style의 batch update가 필요한 경우 Anyframe에서 제공하는 <link linkend="query_configuration_jdbctemplate">OraclePagingJdbcTemplate</link>를 
-					사용해야 한다.
-					OraclePagingJdbcTemplate는 입력된 쿼리문에 대해 내부적으로 PreparedStatement 형태로 변경하여 쿼리문을 batch로 처리하고 있다.
-					그런데 입력된 쿼리문이 Stored Procedure, Function 등일 경우 PreparedStatement 형태로 batch 처리하고자 할 때 SQLException이 발생하게 된다.
-				    이를 해결하기 위해 Anyframe에서는 CallableStatement 형태로 처리되어야 하는 쿼리문(Stored Procedure, Function 등)에 대해 batch update 할 수 있도록 
-				    OraclePagingJdbcTemplate 내에 별도의 메소드를 추가하였다.
-				    이 메소드는 QueryService의 batchExecute(), batchExecuteBySQL() 메소드를 통해 내부적으로 호출된다.
+					If Oracle-style batch update is needed, OraclePagingJdbcTemplate provieded by Anyframe 
+					should be used.	OraclePagingJdbcTemplate internally to the input query by changing 
+					the form of PreparedStatement query is processed as a batch. 
+					However, the input query is Stored Procedure or Function, SQLException will be 
+					occured when batch as a PreparedStatement. For this problem, Anyframe add a seperate 
+					method in OraclePagingJdbcTemplate to be processed a query(Stored Procedure, 
+					Function, etc.) in the form of CallableStatement to allow for a batch update.
+					This method is called internally by QueryService batchExecute method and 
+					batchExecuteBySQL method.
 				</para>
 				<para>
-					따라서 Stored Procedure, Function 등에 대한 Oracle-style의 batch update를 위해서는 QueryService의 batchExecute(), batchExecuteBySQL() 메소드를 
-					호출하여 처리해야 함을 기억하도록 하자.
+					Therefore, remember to execute batch update in Oracle-style with Stored Procedure and Function, calling the batchExecute method and batchExecuteBySQL method in Query Service.
 				</para>
 			</note>
 		</section>
@@ -1614,8 +1615,8 @@ public void deleteLOB() throws Exception{
           			As Oracle LobHandler provided by Spring is applicable from 9i onwards,
 					to handle LOB data in Oracle 8i, LobHandler provided in Anyframe must be set when defining Query service properties.
 					The following is a part of context-query.xml file which defines Query service 
-					and a part of AnyframeOracle8iLobHandler provided for Oracle 8i.
-          			<programlisting language="xml"><![CDATA[<bean id="lobHandler" class="org.anyframe.query.impl.jdbc.lob.AnyframeOracle8iLobHandler"
+					and a part of Oracle8iLobHandler provided for Oracle 8i.
+          			<programlisting language="xml"><![CDATA[<bean id="lobHandler" class="org.anyframe.query.impl.jdbc.lob.Oracle8iLobHandler"
         lazy-init="true">
     <constructor-arg value="net.sf.log4jdbc.ResultSetSpy"/>
     <property name="nativeJdbcExtractor" ref="nativeJdbcExtractor"/>
@@ -1886,7 +1887,7 @@ public void findCategory(String categoryNo, String categoryName)
 		<para>
 			In general, DAO (Data Access Object) class play a role which performs data access logic by using Query service.
 			To develop such DAO class more conveniently, 
-			Query service provides anyfram.core.query.AbstractDAO class and has the following features.
+			Query service provides org.anyfram.query.dao.AbstractDao class and has the following features.
 		</para>
 
 		<itemizedlist>

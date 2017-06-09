@@ -94,8 +94,9 @@ public class DefaultMappingInfo implements MappingInfo {
 	}
 
 	/**
-	 * 테이블 매핑 정보를 기반으로 Named Parameter를 포함한 단건 조회용 SELECT문을 생성한다. (Named
-	 * Parameter는 'anyframe.관련 클래스의 속성명')
+	 * SELECT statement for single item search including Named Parameter is created based
+	 * on table mapping information. (Named Parameter is 'Anyframe.related class property 
+	 * name')
 	 */
 	public String getSelectByPrimaryKeyQuery() {
 		if (selectByPrimaryKeyQuery == null) {
@@ -127,8 +128,10 @@ public class DefaultMappingInfo implements MappingInfo {
 	}
 
 	/**
-	 * 테이블 매핑 정보를 기반으로 Named Parameter를 포함한 INSERT문을 생성한다. (Named Parameter는
-	 * 'anyframe.관련 클래스의 속성명')
+	 * INSERT statement including Named Parameter is created based
+	 * on table mapping information. (Named Parameter is 'Anyframe.related class property 
+	 * name')
+	 * 
 	 */
 	public String getInsertQuery() {
 		if (insertQuery == null) {
@@ -157,8 +160,9 @@ public class DefaultMappingInfo implements MappingInfo {
 	}
 
 	/**
-	 * 테이블 매핑 정보를 기반으로 Named Parameter를 포함한 UPDATE문을 생성한다. (Named Parameter는
-	 * 'anyframe.관련 클래스의 속성명')
+	 * UPDATE statement including Named Parameter is created based
+	 * on table mapping information. (Named Parameter is 'Anyframe.related class property 
+	 * name')
 	 */
 	public String getUpdateQuery() {
 		if (updateQuery == null) {
@@ -191,8 +195,9 @@ public class DefaultMappingInfo implements MappingInfo {
 	}
 
 	/**
-	 * 테이블 매핑 정보를 기반으로 Named Parameter를 포함한 DELETE문을 생성한다. (Named Parameter는
-	 * 'anyframe.관련 클래스의 속성명')
+	 *  DELETE statement including Named Parameter is created based
+	 * on table mapping information. (Named Parameter is 'Anyframe.related class property 
+	 * name')
 	 */
 	public String getDeleteQuery() {
 		if (deleteQuery == null) {
@@ -254,9 +259,10 @@ public class DefaultMappingInfo implements MappingInfo {
 	}
 
 	// 2009.03.17 - start
-	// Result Class내에 Custom Class Type의 속성이 정의되어 있는 경우
-	// 해당 객체에 조회 결과값을 셋팅하기 위해 필요한 매핑 정보 (compositeColumnNames,
-	// compositeFieldNames)
+	//In the case where Custom Class Type is defined within Result Class,
+	//mapping information needed for setting search return value on relevant object. 
+	
+	
 	public Map<String, String[]> getCompositeColumnNames() {
 		return compositeColumnNames;
 	}

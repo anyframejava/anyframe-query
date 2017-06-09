@@ -24,12 +24,11 @@ import java.io.OutputStream;
 import org.anyframe.query.QueryService;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
-
 /**
  * TestCase Name : QueryServiceDynamicReloadTest <br>
  * <br>
- * [Description] : Dynamic Reload 기능을 점검한다. Dynamic
- * Reload를 위해서는 다음과 같은 형태로 SQLLoader의 속성을 정의해야 한다.<br>
+ * [Description] : Dynamic Reload function is checked. Dynamic Reload requires
+ * SQLLoader property definition in the same format as bellows. <br>
  * 
  * <pre>
  * &lt;sqlload dynamic=&quot;true&quot; frequency=&quot;5&quot; /&gt;
@@ -37,10 +36,11 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
  * 
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : QueryService의 Dynamic
- * Reload 기능을 이용하여 매핑 XML 파일이 변경되었을 경우 정의된 주기에 의해 변경된
- * 내용이 반영되는지 검증한다.</li>
+ * <li>#-1 Positive Case : In the case where mapping XML file is changed by
+ * using Dynamic Reload of QueryService, it is verified whether contents
+ * modified by defined interval are reflected.</li>
  * </ul>
+ * 
  * @author SoYon Lim
  */
 public class QueryServiceDynamicReloadTest extends
@@ -56,10 +56,11 @@ public class QueryServiceDynamicReloadTest extends
         return new String[] {"classpath*:/spring/context-*.xml" };
     }
 
-    /**
-     * [Flow #-1] Positive Case : QueryService의 Dynamic
-     * Reload 기능을 이용하여 매핑 XML 파일이 변경되었을 경우 정의된 주기에 의해
-     * 변경된 내용이 반영되는지 검증한다.
+	/**
+	 * [Flow #-1] Positive Case : In the case where mapping XML file is changed
+	 * by using Dynamic Reload of QueryService, it is verified whether contents
+	 * modified by defined interval are reflected.
+	 * 
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -68,11 +69,11 @@ public class QueryServiceDynamicReloadTest extends
 //        dynamicReload();
     }
 
-    /**
-     * 미리 정의된 testcase-queries-update.xml 파일의 내용을
-     * testcase-queries-dynamicreload.xml 파일에 복사하고,
-     * QueryService에 의해 Dynamic Reload가 성공적으로 수행되는지
-     * 검증한다.
+	/**
+	 * By coping pre-defined testcase-queries-update.xml on to
+	 * testcase-queries-dynamicreload.xml file, it is verified whether Dynamic
+	 * Reload is well carried out by QueryService.
+	 * 
      * @throws Exception
      *         fail to dynamic reload
      */
@@ -105,12 +106,13 @@ public class QueryServiceDynamicReloadTest extends
             changedQuery.toString());
     }
 
-    /**
-     * source 파일의 내용을 destination 파일에 복사한다.
-     * @param source
-     *        수정 파일
-     * @param destination
-     *        원본 파일
+	/**
+	 * Source file contents are copied on to destination file. 
+	 * 
+	 * @param source
+	 *            modification file 
+	 * @param destination
+	 *            original file
      * @throws Exception
      *         fail to change file contents.
      */

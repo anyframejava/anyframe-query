@@ -20,24 +20,26 @@ import org.anyframe.query.QueryServiceException;
 import org.anyframe.query.impl.util.InternalDataAccessException;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
-
 /**
  * TestCase Name : QueryServiceDDLTest <br>
  * <br>
- * [Description] : DDL 유형의 쿼리문을 실행하고 수행 결과를 검증한다.<br>
+ * [Description] : queries of the type of DDL are tested and verified.<br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : QueryServcie의 create() 메소드를
- * 호출하여 신규 테이블을 생성하기 위한 DDL을 실행시킨다. 신규 테이블이 성공적으로
- * 생성되었는지 확인하기 위해 동일한 쿼리문을 다시 실행시켜봄으로써 "기존의 객체가 이름을
- * 사용하고 있습니다."라는 "ORA-00955" 에러가 발생하는지 검증한다.</li>
- * <li>#-2 Positive Case : QueryServcie의 remove() 메소드를
- * 호출하여 기 생성된 테이블을 DROP하기 위한 DDL을 실행시킨다. 해당 테이블이 성공적으로
- * DROP되었는지 확인하기 위해 동일한 쿼리문을 다시 실행시켜봄으로써 "테이블 또는 뷰가
- * 존재하지 않습니다."라는 "ORA-00942" 에러가 발생하는지 검증한다.</li>
- * <li>#-3 Positive Case : QueryServcie의 creaet(),
- * remove() 메소드를 호출하여 Index를 생성 및 삭제하고 이 결과를 검증한다.</li>
+ * <li>#-1 Positive Case : By calling for create()method of QueryService, DDL is
+ * executed in order to create a new table. By executing the identical query
+ * statement again to check whether the new table is well created, verified is
+ * whether “ORA-00955” error meaning the existing object uses this name takes
+ * place.</li>
+ * <li>#-2 Positive Case : By calling for create()method of QueryService, DDL is
+ * executed in order to drop the newly created table. By executing the identical
+ * query statement again to check whether the new table is well dropped,
+ * verified is whether “ORA-00942” error meaning there is no table or view takes
+ * place</li>
+ * <li>#-3 Positive Case : By calling for create(), remove() methods of
+ * QueryService, Index is created and deleted and its result is verified.</li>
  * </ul>
+ * 
  * @author SoYon Lim
  */
 public class QueryServiceDDLTest extends
@@ -53,9 +55,9 @@ public class QueryServiceDDLTest extends
         return new String[] {"classpath*:/spring/context-*.xml" };
     }
 
-    /**
-     * 테스트를 위해 인덱스 IDX_CUSTOMER를 생성한다.
-     */
+	/**
+	 * Index IDX_CUSTOMER is created for test.
+	 */
     public void onSetUp() throws Exception {
         try {
             queryService.remove("dropTable", new Object[] {});
@@ -71,12 +73,12 @@ public class QueryServiceDDLTest extends
         }
     }
 
-    /**
-     * [Flow #-1] Positive Case : QueryServcie의
-     * create() 메소드를 호출하여 신규 테이블을 생성하기 위한 DDL을 실행시킨다.
-     * 신규 테이블이 성공적으로 생성되었는지 확인하기 위해 동일한 쿼리문을 다시
-     * 실행시켜봄으로써 "기존의 객체가 이름을 사용하고 있습니다."라는 "ORA-00955"
-     * 에러가 발생하는지 검증한다.
+	/**
+	 * [Flow #-1] Positive Case : By calling for create()method of QueryService,
+	 * DDL is executed in order to create a new table. By executing the
+	 * identical query statement again to check whether the new table is well
+	 * created, verified is whether “ORA-00955” error meaning the current object
+	 * uses this name takes place.
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -99,12 +101,13 @@ public class QueryServiceDDLTest extends
         }
     }
 
-    /**
-     * [Flow #-2] Positive Case : QueryServcie의
-     * remove() 메소드를 호출하여 기 생성된 테이블을 DROP하기 위한 DDL을
-     * 실행시킨다. 해당 테이블이 성공적으로 DROP되었는지 확인하기 위해 동일한 쿼리문을
-     * 다시 실행시켜봄으로써 "테이블 또는 뷰가 존재하지 않습니다."라는 "ORA-00942"
-     * 에러가 발생하는지 검증한다.
+	/**
+	 * [Flow #-2] Positive Case : By calling for create()method of QueryService,
+	 * DDL is executed in order to drop the newly created table. By executing
+	 * the identical query statement again to check whether the new table is
+	 * well dropped, verified is whether “ORA-00942” error meaning there is no
+	 * table or viewF takes place
+	 * 
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -129,10 +132,10 @@ public class QueryServiceDDLTest extends
         }
     }
 
-    /**
-     * [Flow #-3] Positive Case : QueryServcie의
-     * creaet(), remove() 메소드를 호출하여 Index를 생성 및 삭제하고 이
-     * 결과를 검증한다.
+	/**
+	 * [Flow #-3] Positive Case : By calling for create(), remove()methods of
+	 * QueryService, index is created and deleted and its result is verified.
+	 * 
      * @throws Exception
      *         throws exception which is from
      *         QueryService

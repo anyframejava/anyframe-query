@@ -26,18 +26,25 @@ public abstract class VariableUtil {
 	}
 
 	/**
-	 * 정의된 쿼리문이 '%'||vo.searchKeyword||'%' 와 같은 문자열을 포함하고 있을 경우 Velocity에서 처리하지
-	 * 못하는 현상이 발생한다. 따라서 [%]vo.searchKeyword[%]와 같은 문자열 형태로 정의해 주면 Anyframe에서
-	 * searchKeyword의 값을 추출하여 %...%와 같은 형태로 변경할 수 있도록 해준다. 단, '%' ||
-	 * vo.searchKeyword || '%' 와 같이 정의해주면 %를 [] 내에 정의하지 않고도 Velocity 만을 이용하여
-	 * 처리가능하다.
+	 * In the case where defined query statement includes strings such as
+	 * '%'||vo.searchKeyword||'%' Velocity fails to process. Therefore, if it is
+	 * defined in the format of [%]vo.searchKeyword[%] Anyframe can extract
+	 * searchKeyword value and change it into %...% format. However, it is
+	 * defined in the format of '%' ||, Velocity alone can process without
+	 * defining % within [].
+	 * 
+	 * vo.searchKeyword || '%'
 	 * 
 	 * @deprecated
 	 * @param originalString
 	 *            original paramname
 	 * @param variableSelector
-	 *            Map 또는 VO 로부터 추출된 paramname에 해당하는 값을 꺼내는 VariableSelector
-	 * @return Map 또는 VO 로부터 추출된 paramname에 해당하는 값
+	 *            VariableSelector extracting value which is the same as
+	 *            paramname extracted from Map or VO
+	 * 
+	 * @return Value which is the same as paramname extracted form Map or Vo
+	 * 
+	 * 
 	 */
 	public static String getValueString(String originalString,
 			VariableSelector variableSelector) {

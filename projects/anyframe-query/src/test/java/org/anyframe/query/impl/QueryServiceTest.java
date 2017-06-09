@@ -27,25 +27,27 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 /**
  * TestCase Name : QueryServiceTest <br>
  * <br>
- * [Description] : 매핑 XML 파일에 정의된 queryId를 입력하여 데이터를 입력, 수정, 삭제, 조회하고 결과를 검증한다.<br>
+ * [Description] : By entering queryId defined at mapping XML file, 
+ * data is entered, modified, deleted and researched and its result is verified. <br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : 매핑 XML 파일에 정의된 queryId를 입력하여 UPDATE 쿼리를 실행시키고 결과를
- * 검증한다.</li>
- * <li>#-2 Positive Case : 매핑 XML 파일에 정의된 queryId를 입력하여 DELETE 쿼리를 실행시키고 결과를
- * 검증한다.</li>
- * <li>#-3 Positive Case : 매핑 XML 파일에 정의된 queryId를 입력하여 SELECT 쿼리를 실행시키고 결과를
- * 검증한다. 이 테스트케이스에서는 한글 입력 및 조회에 대해서 검증한다.</li>
- * <li>#-4 Negative Case : 매핑 XML 파일에 정의되지 않은 queryId를 입력하여
- * QueryServiceException이 발생하는지 검증한다.</li>
- * <li>#-5 Positive Case : QueryService의 getQueryMap() 메소드를 호출함으로써 QueryService에
- * 의해 load된 모든 쿼리문을 조회하고 제대로 조회되었는지 검증한다.</li>
- * <li>#-6 Positive Case : QueryService의 getStatement() 메소드를 호출함으로써 특정 queryId에
- * 해당하는 쿼리문을 조회하고 제대로 조회되었는지 검증한다.</li>
- * <li>#-7 Positive Case : QueryService의 countQuery() 메소드를 호출함으로써 QueryService에
- * 의해 load된 모든 쿼리문의 개수를 조회하고 제대로 조회되었는지 검증한다.</li>
- * <li>#-8 Positive Case : QueryService의 getQueryParams() 메소드를 호출함으로써 특정
- * queryId에 해당하는 입력 Parameter들을 조회하고 제대로 조회되었는지 검증한다.</li>
+ * <li>#-1 Positive Case : By entering queryId defined at mapping XML file, 
+ * UPDATE query is executed and its result is verified. </li>
+ * <li>#-2 Positive Case : By entering queryId defined at mapping XML file, 
+ * DELETE query is executed and its result is verified. </li>
+ * <li>#-3 Positive Case : By entering queryId defined at mapping XML file, 
+ * SELECT query is executed and its result is verified. 
+ * This TestCase verifies Korean entering and research. </li>
+ * <li>#-4 Negative Case : By entering queryId not defined at mapping XML file,
+ * verified is whether QueryServiceException takes place. </li>
+ * <li>#-5 Positive Case : By calling for getQueryMap () method of QueryService, 
+ * all query statements loaded by Query Service are researched and verified for research result.</li>
+ * <li>#-6 Positive Case : By calling for getStatement() method of QueryService, 
+ * query statements serving as specific queryId are researched and verified for research result.</li>
+ * <li>#-7 Positive Case : By calling for countQuery() method of QueryService, 
+ * all query statement numbers loaded by QueryService are researched and verified for research result.</li>
+ * <li>#-8 Positive Case : By calling for getQueryParams()method of QueryService, 
+ * input Parameters serving as specific queryId are researched and verified for research result.</li>
  * </ul>
  * 
  * @author SoYon Lim
@@ -64,7 +66,7 @@ public class QueryServiceTest extends
 	}
 
 	/**
-	 * 테스트를 위해 테이블 TB_CUSTOMER, TB_USER를 생성한다.
+	 * Table TB_CUSTOMER, TB_USER is created for test. 
 	 */
 	public void onSetUp() throws Exception {
 		System.out.println("Attempting to drop old table");
@@ -94,8 +96,8 @@ public class QueryServiceTest extends
 	}
 
 	/**
-	 * [Flow #-1] Positive Case : 매핑 XML 파일에 정의된 queryId를 입력하여 UPDATE 쿼리를 실행시키고
-	 * 결과를 검증한다.
+	 * [Flow #-1] Positive Case : By entering queryId defined at mapping XML file, 
+	 * UPDATE query is executed and its result is verified. 
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -121,8 +123,8 @@ public class QueryServiceTest extends
 	}
 
 	/**
-	 * [Flow #-2] Positive Case : 매핑 XML 파일에 정의된 queryId를 입력하여 DELETE 쿼리를 실행시키고
-	 * 결과를 검증한다.
+	 * [Flow #-2] Positive Case : By entering queryId defined at mapping XML file, 
+	 * DELETE query is executed and its result is verified. 
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -148,8 +150,9 @@ public class QueryServiceTest extends
 	}
 
 	/**
-	 * [Flow #-3] Positive Case : 매핑 XML 파일에 정의된 queryId를 입력하여 SELECT 쿼리를 실행시키고
-	 * 결과를 검증한다. 이 테스트케이스에서는 한글 입력 및 조회에 대해서 검증한다.
+	 * [Flow #-3] Positive Case : By entering queryId defined at mapping XML file, 
+	 * SELCT query is executed and its result is verified. 
+	 * This TestCase is to verify Korean entering and research. 
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -194,8 +197,8 @@ public class QueryServiceTest extends
 	}
 
 	/**
-	 * [Flow #-4] Negative Case : 매핑 XML 파일에 정의되지 않은 queryId를 입력하여
-	 * QueryServiceException이 발생하는지 검증한다.
+	 * [Flow #-4] Negative Case : By entering queryId not defined at mapping XML file, 
+	 * verified is whether QueryServiceException takes place. 
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -213,8 +216,8 @@ public class QueryServiceTest extends
 	}
 
 	/**
-	 * [Flow #-5] Positive Case : QueryService의 getQueryMap() 메소드를 호출함으로써
-	 * QueryService에 의해 load된 모든 쿼리문을 조회하고 제대로 조회되었는지 검증한다.
+	 * [Flow #-5] Positive Case : By calling for getQueryMap () method of QueryService, 
+	 * all query statements loaded by Query Service are researched and verified for research result.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -230,8 +233,8 @@ public class QueryServiceTest extends
 	}
 
 	/**
-	 * [Flow #-6] Positive Case : QueryService의 getStatement() 메소드를 호출함으로써 특정
-	 * queryId에 해당하는 쿼리문을 조회하고 제대로 조회되었는지 검증한다.
+	 * [Flow #-6] Positive Case : By calling for getStatement() method of QueryService, 
+	 * query statements serving as specific queryId are researched and verified for research result. 
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -245,8 +248,9 @@ public class QueryServiceTest extends
 	}
 
 	/**
-	 * [Flow #-7] Positive Case : QueryService의 countQuery() 메소드를 호출함으로써
-	 * QueryService에 의해 load된 모든 쿼리문의 개수를 조회하고 제대로 조회되었는지 검증한다.
+	 * [Flow #-7] Positive Case : By calling for countQuery() method of QueryService, 
+	 * all query statement numbers loaded by QueryService are researched 
+	 * and verified for research result.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -258,8 +262,9 @@ public class QueryServiceTest extends
 	}
 
 	/**
-	 * [Flow #-8] Positive Case : QueryService의 getQueryParams() 메소드를 호출함으로써 특정
-	 * queryId에 해당하는 입력 Parameter들을 조회하고 제대로 조회되었는지 검증한다.
+	 * [Flow #-8] Positive Case : By calling for getQueryParams()method of QueryService, 
+	 * input Parameters serving as specific queryId are researched 
+	 * and verified for research result. 
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -278,7 +283,8 @@ public class QueryServiceTest extends
 	}
 
 	/**
-	 * 매핑 XML 파일에 정의된 query id를 이용하여 테스트를 위한 단건의 데이터를 입력하고 결과를 검증한다.
+	 * By using query I.D. defined at mapping XML file, 
+	 * one piece of data is searched and its result is verified.
 	 * 
 	 * @param ssno
 	 * @param name
@@ -300,7 +306,8 @@ public class QueryServiceTest extends
 	}
 
 	/**
-	 * 매핑 XML 파일에 정의된 query id를 이용하여 단건의 데이터를 조회하고 결과를 검증한다.
+	 * By using query I.D. defined at mapping XML file, 
+	 * one piece of data is searched and its result is verified. 
 	 * 
 	 * @param ssno
 	 * @param name

@@ -22,20 +22,22 @@ import junit.framework.TestCase;
 /**
  * TestCase Name : AltibasePaginSQLGenerator <br>
  * <br>
- * [Description] : AltibasePaginSQLGenerator를 이용하여 특정 쿼리문에 대해 페이징 처리된 쿼리문을
- * 검증해본다.<br>
+ * [Description] : Verified is query statement paging processed on a specific
+ * query statement with AltibasePaginSQLGenerator.<br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : DBMS 유형이 ALTIBASE일 경우 AltibasePaginSQLGenerator를 이용하여
- * 특정 쿼리문에 대해 페이징 처리된 쿼리문을 검증한다.</li>
+ * <li>#-1 Positive Case : In the case where DBMS type is ALTIBASE, Verified is
+ * query statement paging processed on a specific query statement with
+ * AltibasePaginSQLGenerator.</li>
  * </ul>
  * 
  * @author SoYon Lim
  */
 public class AltibasePaginSQLGenerator extends TestCase {
 	/**
-	 * [Flow #-1] Positive Case : DBMS 유형이 Altibase일 경우 DB2PagingSQLGenerator를
-	 * 이용하여 특정 쿼리문에 대해 페이징 처리된 쿼리문을 검증한다.
+	 * [Flow #-1] Positive Case : In the case where DBMS type is ALTIBASE,
+	 * Verified is query statement paging processed on a specific query
+	 * statement with DB2PagingSQLGenerator.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from AltibasePagingSQLGenerator

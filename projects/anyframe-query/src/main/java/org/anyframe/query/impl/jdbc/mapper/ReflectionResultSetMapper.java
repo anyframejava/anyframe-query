@@ -48,7 +48,9 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.lob.LobHandler;
 
 /**
- * ResultSet에서 조회 결과를 꺼내 특정 객체 형태로 변환한다.
+ * By extracting search result from ReseultSet, it is transformed into a
+ * specific object format. By extracting search result from ReseultSet, it is
+ * transferred into a specific object format.
  * 
  * @author SOOYEON PARK
  */
@@ -106,7 +108,7 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 	}
 
 	/**
-	 * 조회 결과값을 가진 객체 목록을 전달한다.
+	 * Object list with search return value is transferred.
 	 * 
 	 * @return the objects
 	 */
@@ -115,7 +117,7 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 	}
 
 	/**
-	 * 입력된 target class를 ArrayList에 담아 저장한다.
+	 * Entered target class is stored in ArrayList.
 	 * 
 	 * @param targetClass
 	 */
@@ -147,31 +149,34 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 	}
 
 	/**
-	 * 특정 객체에 조회 결과값을 담아 objects 객체에 저장한다. processRow must be called within
-	 * extractData of ResultSetExtractor.
+	 * A specific object including search return value is saved in Objects.
+	 * processRow must be called within extractData of ResultSetExtractor.
 	 * 
 	 * @param resultSet
-	 *            조회 결과
+	 *            Search result
 	 * @exception SQLException
-	 *                조회 결과 매핑에 실패하였을 경우
+	 *                In the case where search result mapping fails
 	 */
 	public void processRow(ResultSet resultSet) throws SQLException {
 		objects.add(this.mapRow(resultSet, 9999));
 	}
 
 	/**
-	 * 조회된 각 Row를 구성하는 Column의 값들을 추출하여 target class의 인스턴스에 담아 전달한다.
+	 * By extracting Column values consisting of searched each Row, transfers
+	 * these values in the format of target class instance.
 	 * 
 	 * @param resultSet
-	 *            조회 결과 중 하나의 Row
-	 * @return 조회 결과를 담은 target class의 인스턴스
+	 *            One of search result is Row
+	 * @return Target class instance of search result
+	 * 
 	 */
 	public Object mapRow(ResultSet resultSet) throws SQLException {
 		Object object = null;
 		Iterator targetClassIterator = targetClasses.iterator();
 		while (targetClassIterator.hasNext() && object == null) {
 			Class targetClass = (Class) targetClassIterator.next();
-			// 특정 클래스와 테이블의 매핑 정보 추출
+			// 특정 클래스와 테이블의 매핑 정보 추출 Mapping information extraction on specific
+			// class and table
 			ResultSetMappingConfiguration config = getConfig(targetClass,
 					resultSet.getMetaData());
 			object = toObject(resultSet, targetClass, config);
@@ -180,12 +185,13 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 	}
 
 	/**
-	 * 조회된 각 Row를 구성하는 Column의 값들을 추출하여 target class의 인스턴스에 담아 전달한다.
+	 * By extracting Column values consisting of searched each Row, it is
+	 * transferred in the format of target class.
 	 * 
 	 * @param resultSet
-	 *            조회 결과
+	 *            Search Result
 	 * @param targetClass
-	 *            조회 결과를 저장할 클래스
+	 *            Class to save search result
 	 * @return
 	 * @throws SQLException
 	 */
@@ -195,9 +201,10 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 		Object object = createObject(resultSet, targetClass, config);
 
 		// 2009.03.17 - start
-		// result class가 Primitive Type이 아닌 Custom
-		// Class Type의 속성을 가지고 있고, 조회 결과값을 해당 객체에 매핑해야
-		// 하는 경우
+		// In the case where result class has not Primitive type but Custom
+		// CLsss Type property and search return value should be mapped on
+		// relevant return value
+
 		if (!config.getCompositeObjMap().isEmpty()) {
 			Map compositeObjMap = config.getCompositeObjMap();
 			Set keySet = compositeObjMap.keySet();
@@ -206,14 +213,15 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 				String attribute = (String) keyItr.next();
 				ResultSetMappingConfiguration subconfiguration = (ResultSetMappingConfiguration) config
 						.getCompositeObjMap().get(attribute);
-				// Result Class가 가진 Custom Class Type의
-				// 속성의 인스턴스 생성 및 하위 속성 값 셋팅
-				Object compositeObj = createObject(resultSet, subconfiguration
-						.getResultClass(), subconfiguration);
+				// Create instance of Custom Class Type Result Class has and set
+				// up lower property value
+
+				// Instance of Custom Class Type
+				Object compositeObj = createObject(resultSet,
+						subconfiguration.getResultClass(), subconfiguration);
 
 				try {
-					// Result Class에 해당 Custom Object
-					// 셋팅
+					// Setting the custom object to result class.
 					subconfiguration.getCompositeClassSetter().invoke(object,
 							new Object[] { compositeObj });
 				} catch (Exception e) {
@@ -231,40 +239,46 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 	}
 
 	/**
-	 * 특정 클래스 내에 정의된 모든 속성 정보를 추출하여 관련 테이블의 칼럼에 대한 매핑 정보를 생성한 후, classConfigMap에
-	 * 담는다. 한 번 처리한 target class는 classConfigMap에 저장되므로 두번째부터는 저장된 정보를 이용한다.
+	 * By extracting all property information within a specific class, create
+	 * mapping information on relvated table column. After that, target class
+	 * once handled in classConfigMap saves classConfigMap. Therefore, from the
+	 * second round, use the saved information.
 	 * 
 	 * @param targetClass
-	 *            조회 결과를 저장할 클래스
+	 *            Class to save search result
 	 * @param resultSetMetaData
-	 *            조회 결과의 Meta 정보
-	 * @return 특정 클래스와 테이블의 매핑 정보
+	 *            Meta information of search result
+	 * @return Mapping information of @return specific class and table
 	 * @throws SQLException
-	 *             ResultSetMetaData로부터 Meta 정보 추출에 실패한 경우
+	 *             In the case Meta information fails to be extracted form
+	 *             ResultSetMetaData
 	 */
 	protected ResultSetMappingConfiguration getConfig(Class targetClass,
 			ResultSetMetaData resultSetMetaData) throws SQLException {
 		ResultSetMappingConfiguration mappingConfiguration;
 
 		if (classConfigMap.containsKey(targetClass)) {
-			// classConfigMap에 입력 인자로 전달된 target class의
-			// 정보가 저장되어 있는 경우
+			// In the case target class information transferred as entered
+			// parameter at classConfigMap is saved
 			mappingConfiguration = (ResultSetMappingConfiguration) classConfigMap
 					.get(targetClass);
 		} else {
-			// classConfigMap에 입력 인자로 전달된 target class의
-			// 정보가 저장되어 있지 않은 경우
+			// In the case target class information transferred as entered
+			// parameter at classConfigMap is not saved
 			Map attributeMap = ReflectionHelp.getAllDeclaredFields(targetClass);
 
 			// AccessibleObject.setAccessible(attributes, true);
 
-			// 특정 테이블의 칼럼과 클래스의 필드 매핑 정보를 정의하고
-			// classConfigMap에 저장한다.
+			// Define a specific table column an class filed mapping information
+			// and save them at classConfigMap
 			// 2009.03.17 - start
-			// Result Class 내에 Primitive Type이 아닌 속성이
-			// 존재할 경우 해당 Custom 객체에 조회 결과값을 반영하는 기능을
-			// 추가하기 위해 발생한 NameMatcher API 변경으로 인해 변경이
-			// 발생함.
+			// Define field mapping information of a specific table column and
+			// class and save it on classConfigMap.
+			// In the case property which is not Primitive Type within Result
+			// Class exists, modification takes place because of NameMatcher API
+			// change occurring in order to add function to reflect search
+			// return value on relevant Custom object.
+
 			mappingConfiguration = mapColumnsToAttributes(targetClass,
 					resultSetMetaData, attributeMap, null, false);
 			// 2009.03.17 - start
@@ -274,16 +288,18 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 	}
 
 	/**
-	 * ResultSetMetaData를 기반으로 특정 column에 매핑되는 target class field의 순번을 저장하여
-	 * 전달한다. (초기에 한번 수행)
+	 * By saving order of target class field mapped on a specific column based
+	 * on ResultSetMetaData, transfer it. (one-off execution in the early stage)
 	 * 
 	 * @param resultSetMetaData
-	 *            조회 결과의 Meta 정보
+	 *            Meta information of search result
 	 * @param fields
-	 *            특정 target class를 구성하는 모든 field 목록
-	 * @return 특정 column에 매핑되는 target class field의 순번 목록
+	 *            All field list consisting of a specific target class
+	 * @return All order list of target class field mapped in @return specific
+	 *         column
 	 * @throws SQLException
-	 *             ResultSetMetaData로부터 Meta 정보 추출에 실패한 경우
+	 *             In the case Meta information fails to be extracted from
+	 *             ResultSetMetaData
 	 */
 	private ResultSetMappingConfiguration mapColumnsToAttributes(
 			Class targetClass, ResultSetMetaData resultSetMetaData,
@@ -295,8 +311,7 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 		int[] columnTypes = new int[totalCols];
 		Method[] setters = new Method[totalCols];
 		// 2009.03.17 - start
-		// Result Class 내에 정의된 Custom 객체에 대한 정보를 저장하기
-		// 위한 Map
+		// Map to save information on Custom Object defined within Result Class
 		Map compositeObjMap = new HashMap();
 		// 2009.03.17 - end
 
@@ -346,7 +361,7 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 		}
 
 		// 2009.03.17 - start
-		// Custom 객체에 대한 정보도 함께 저장
+		// Save information on Custom object along with it
 		return new ResultSetMappingConfiguration(columnNames, columnTypes,
 				attributes, setters, compositeObjMap);
 		// 2009.03.17 - end
@@ -365,32 +380,33 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 			String key = (String) keyItr.next();
 			if (attributeMap.containsKey(key)) {
 				Field attribute = (Field) attributeMap.get(key);
-				// 복합키 형태인 경우
+				// In the case of composite key type
 				Method compositeClassSetter = null;
-				// 해당 속성에 대한 Setter가 존재하는지 체크,
-				// 없으면 처리하지 않음.
-				compositeClassSetter = findSetter(descriptors, targetClass
-						.getName(), key);
+				// Check whether Setter on relevant property exists. if it
+				// doesn’t, don’t process it.
+				compositeClassSetter = findSetter(descriptors,
+						targetClass.getName(), key);
 
 				if (compositeClassSetter == null)
 					continue;
 
-				// 해당 속성의 클래스가 가진 하위 속성 정보들을 조회
+				// Search lower property information that relevant property
+				// class owns
 				Map childAttributeMap = ReflectionHelp
 						.getAllDeclaredFields(attribute.getType());
 				// AccessibleObject.setAccessible(childAttributes, true);
 
-				// 해당 속성의 클래스에 대한 정보를 저장해두기 위해
-				// mapColumnsToAttributes 호출
+				// To save class information of relevant property, call for
+				// mapColumnsToAttributes
 				ResultSetMappingConfiguration subconfigurations = mapColumnsToAttributes(
 						attribute.getType(), resultSetMetaData,
 						childAttributeMap, attribute.getName(), true);
-				// 해당 속성의 클래스 정보 저장
+				// Save class information of relevant property
 				subconfigurations.setResultClass(attribute.getType());
-				// 이후에 Result 객체에 해당 속성의 값을 셋팅하기 위해
-				// Setter 정보 저장
+				// Save Setter information in order to set up relevant property
+				// value of Result object.
 				subconfigurations.setCompositeClassSetter(compositeClassSetter);
-				// Custom 객체에 대한 정보 저장
+				// Save information on Custom object
 				compositeObjMap.put(attribute.getName(), subconfigurations);
 			}
 		}
@@ -399,12 +415,13 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 	}
 
 	/**
-	 * 특정 클래스로부터 입력 인자로 전달된 Field에 대한 Setter를 찾아 전달한다.
+	 * Setter on Field transferred as input parameter of a specific class is
+	 * found and transferred.
 	 * 
 	 * @param targetClass
-	 *            대상 클래스
+	 *            Target Class
 	 * @param field
-	 *            대상이 되는 Field
+	 *            Target Field
 	 * @return Setter Method
 	 */
 	private Method findSetter(PropertyDescriptor[] descriptors,
@@ -432,14 +449,15 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 	 * Creates a new object and initialises its fields from the ResultSet.
 	 * 
 	 * @param resultSet
-	 *            조회 결과
+	 *            Search result
 	 * @param targetClass
-	 *            대상 클래스
+	 *            Target class
 	 * @param config
-	 *            특정 클래스와 테이블 사이의 매핑 정보를 저장하기 위한 Configuration
-	 * @return 조회 결과를 매핑한 객체
+	 *            Configuration to save mapping information between a specific
+	 *            class and table
+	 * @return Object to map search result
 	 * @throws SQLException
-	 *             조회 결과 매핑에 실패한 경우
+	 *             In the case search result mapping is failed
 	 */
 	private Object createObject(ResultSet resultSet, Class targetClass,
 			ResultSetMappingConfiguration config) throws SQLException {
@@ -467,15 +485,16 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 	}
 
 	/**
-	 * 특정 객체의 Setter 메소드를 호출하여 입력된 값을 셋팅한다. Setter 메소드가 없을 경우에는 ReflectionHelp의
-	 * setFieldValue 메소드를 호출하여 직접 셋팅한다.
+	 * By calling for Setter method of a specific object, entered value is set.
+	 * In the case there is no Setter method, By calling for setFieldValue
+	 * method of ReflectionHelp, set up by itself.
 	 * 
 	 * @param field
-	 *            조회 결과를 매핑할 Field
+	 *            Field to map search result
 	 * @param object
-	 *            조회 결과를 매핑할 객체
+	 *            Object to map search result
 	 * @param value
-	 *            조회 결과 값
+	 *            Search result value
 	 */
 	private void setValue(Field field, Method setter, Object object,
 			Object value) {
@@ -515,21 +534,23 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 	}
 
 	/**
-	 * Metadata에 total count값과 같은 paging 관련 정보를 세팅 할 때 paginationVO에서 값을 얻기 위해
-	 * 사용한다.
+	 * When paging-related information similar to total count value on Metadata
+	 * is set, it is used to extract value from paginationVO.
 	 */
-	// 2009.06.18일 추가
+	// added at 2009.06.18
 	public void setPagination(Pagination paginationVO) {
 		// TODO Auto-generated method stub
 	}
 
 	/**
-	 * ResultSet으로부터 Meta 정보를 읽어서 조회 결과값 셋팅을 위한 기본 정보를 추출한다. (초기에 한번 수행)
+	 * After reading Meta information from ResultSet, extract basic information
+	 * for search return value setup. (one-off execution in the early stage)
 	 * 
 	 * @param resultSet
-	 *            조회 결과
+	 *            Search result
 	 * @throws SQLException
-	 *             ResultSetMetaData로부터 정보 추출에 실패하였을 경우
+	 *             In the case information fails to be extracted from
+	 *             ResultSetMetaData
 	 */
 	protected void makeMeta(ResultSet resultSet) throws SQLException {
 		ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
@@ -551,8 +572,11 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 					.getAllDeclaredFields(this.targetClass);
 		}
 
-		// 2009.05.28 특정 쿼리에 대해 mappingStyle이 'camel'인 경우 CamelCase 적용,
-		// mappingStyle이 'lower'인 경우 소문자로 변경, mappingStyle이 'upper'인 경우 대문자로 변경
+		// 2009.05.28 In the case mappingStyple on a specific query is ‘camel’,
+		// apply CamelCase.
+		// In the case mappingStype is ‘lower’, modify it into small letter. In
+		// the case maapingStype is ‘upper’, modify it into Capital letter.
+
 		for (int i = 0; i < columnCount; i++) {
 			String columnName = resultSetMetaData.getColumnLabel(i + 1);
 			int columnType = resultSetMetaData.getColumnType(i + 1);
@@ -568,8 +592,8 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 			if (!(columnName == null
 					|| (this.targetClass == null || this.targetClass
 							.equals(HashMap.class)) || getMappingInfo() == null)) {
-				// 테이블 매핑 정보를 이용하여 특정 칼럼과 매핑되는
-				// Field를 추출한다.
+				// Extract Field. And this field is mapped on a specific column
+				// by using table mapping information.
 				String attributeName = (String) getMappingInfo()
 						.getMappingInfoAsMap().get(columnName.toLowerCase());
 
@@ -580,25 +604,22 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 
 				Field attribute = (Field) attributeMap.get(attributeName);
 
-				// 페이징 처리시 ROW NUMBER 칼럼에 대해서는 매핑되는
-				// 속성명이 존재하지 않음.
+				// In the case of paging process, property name mapped at ROW
+				// NUMBER column does not exist.
 				if (attribute == null) {
 					continue;
 				}
-				// target class 특정 Field의 클래스 타입을
-				// 기준으로 이와 매핑되는 SQL Type을
-				// 추출한다.
+				// Class type of target class specific Field is set as standard.
+				// Extract SQL Type matching it.
 				dataType = SQLTypeTransfer.getSQLType(attribute.getType());
 			}
 
-			// ResultSet을 이용하여 target class에 값을 셋팅할때,
-			// DB 칼럼 타입이 아닌 target class
-			// attribute의 타입을 기준으로 셋팅하도록 함. 단, target
-			// class의 attribute가
-			// java.lang.String이면서 DB 칼럼 타입이 CLOB인 경우와
-			// target class의 attribute가
-			// byte[]이면서 DB 칼럼 타입이 BLOB인 경우에는 DB 칼럼 타입을
-			// 기준으로 셋팅함.
+			// When value is set on target class by using ResultSet, Not DB
+			// column type but target class attribute type should be set.
+			// However, in the case where target class attribute is
+			// java.lang.String and DB column type is CLOB type, and target
+			// class attribute is byte[] and DB column type is BLOB, DB column
+			// type is set as default.
 			if (!((dataType == Types.VARCHAR && columnType == Types.CLOB) || (dataType == Types.VARBINARY && columnType == Types.BLOB))) {
 				if (dataType != SQLTypeTransfer.UNDEFINED)
 					columnType = dataType;
@@ -610,9 +631,8 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
 			try {
 				columnPrecisions[i] = resultSetMetaData.getPrecision(i + 1);
 			} catch (NumberFormatException e) {
-				// oracle 8i인 경우 CLOB, BLOB 타입의 칼럼에 대해
-				// Precision 조회할 때
-				// NumberFormatException이 발생함.
+				// In the case of oracle 8i, when Precision is searched on CLOB
+				// and BLOB type column, NumberFormatException takes place.
 				columnPrecisions[i] = 0;
 			}
 			// add for Gauce (2008-04-15)

@@ -27,16 +27,19 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 /**
  * TestCase Name : QueryServiceMaxFetchSizeByQueryTest <br>
  * <br>
- * [Description] : 특정 쿼리문의 조회 결과 개수가 개별 쿼리문의 속성으로 정의한 maxFetchSize보다 클 경우 이에 대한
- * 처리를 검증한다.<br>
+ * [Description] : In the case where search result number of a specific query
+ * statement is bigger than maxFetchSize defined as property of specific query
+ * statement. <br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : Positive Case : QueryService를 통해 isDynamic이 true인
- * 쿼리문을 실행시키고 쿼리별로 정의된 maxFetchSize를 초과하는 조회 결과가 검색되었을 경우
- * DataRetrievalFailureException이 발생하는지 검증한다.</li>
- * <li>#-2 Positive Case : Positive Case : QueryService를 통해 isDynamic이 true인
- * 쿼리문을 실행시키고 쿼리별로 정의된 maxFetchSize를 초과하는 조회 결과가 검색되었을 경우
- * DataRetrievalFailureException이 발생하는지 검증한다.</li>
+ * <li>#-1 Positive Case : Positive Case : In the case where executed is query
+ * statement which isDynamic is true via QueryService and search result is
+ * bigger than maxFetchSize defined each query, verified is whether
+ * DataRetrievalFailureException takes place.</li>
+ * <li>#-2 Positive Case : Positive Case : In the case where executed is query
+ * statement which isDynamic is true via QueryService and search result is
+ * bigger than maxFetchSize defined by each query, verified is whether
+ * DataRetrievalFailureException takes place.</li>
  * </ul>
  */
 public class QueryServiceMaxFetchSizeByQueryTest extends
@@ -53,7 +56,7 @@ public class QueryServiceMaxFetchSizeByQueryTest extends
 	}
 
 	/**
-	 * 테스트를 위해 테이블 TB_CUSTOMER를 생성한다.
+	 * Table TB_CUSTMER is created for test.
 	 */
 	public void onSetUp() throws Exception {
 		System.out.println("Attempting to drop old table");
@@ -70,9 +73,10 @@ public class QueryServiceMaxFetchSizeByQueryTest extends
 	}
 
 	/**
-	 * [Flow #-1] Positive Case : QueryService를 통해 isDynamic이 true인 쿼리문을 실행시키고
-	 * 쿼리별로 정의된 maxFetchSize를 초과하는 조회 결과가 검색되었을 경우
-	 * DataRetrievalFailureException이 발생하는지 검증한다.
+	 * [Flow #-1] Positive Case : In the case where executed is query statement
+	 * which isDynamic is true via QueryService and search result is bigger than
+	 * maxFetchSize defined by each query, verified is whether
+	 * DataRetrievalFailureException takes place.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -158,9 +162,10 @@ public class QueryServiceMaxFetchSizeByQueryTest extends
 	}
 
 	/**
-	 * [Flow #-2] Positive Case : QueryService를 통해 isDynamic이 true인 쿼리문을 실행시키고
-	 * 쿼리별로 정의된 maxFetchSize를 초과하는 조회 결과가 검색되었을 경우
-	 * DataRetrievalFailureException이 발생하는지 검증한다.
+	 * [Flow #-2] Positive Case : In the case where executed is query statement
+	 * which isDynamic is true via QueryService and search result is bigger than
+	 * maxFetchSize defined each query, verified is whether
+	 * DataRetrievalFailureException takes place.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -245,7 +250,8 @@ public class QueryServiceMaxFetchSizeByQueryTest extends
 	}
 
 	/**
-	 * SELECT 쿼리문을 직접 입력하여 단건의 데이터를 조회하고 결과를 검증한다.
+	 * By manually entering INSERT query statement, one piece of data is entered
+	 * and its result is verified.
 	 * 
 	 * @param ssno
 	 * @param name
@@ -272,7 +278,8 @@ public class QueryServiceMaxFetchSizeByQueryTest extends
 	}
 
 	/**
-	 * INSERT 쿼리문을 직접 입력하여 단건의 데이터를 입력하고 결과를 검증한다.
+	 * By manually entering INSERT query statement, one piece of data is entered
+	 * and its result is verified.
 	 * 
 	 * @param ssno
 	 * @param name

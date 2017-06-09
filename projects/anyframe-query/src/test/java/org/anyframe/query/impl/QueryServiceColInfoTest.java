@@ -27,12 +27,14 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 /**
  * TestCase Name : QueryServiceColInfoTest <br>
  * <br>
- * [Description] : findColInfo() 메소드를 호출한 경우 특정 쿼리문의 조회 결과 존재 여부와 무관하게 조회될 칼럼
- * 정보를 추출할 수 있는지 검증한다.<br>
+ * [Description] : In the case of calling for findColInfo()method, verified is
+ * whether column information for search can be extracted regardless of search
+ * result. <br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : QueryService의 findWithColInfo() 메소드 호출을 통해 조회 결과값이
- * 0이더라도 Column 정보를 추출할 수 있는지 검증한다.</li>
+ * <li>#-1 Positive Case : By calling for findWithColInfo()method of
+ * QueryService, verified is whether Column information can be extracted even
+ * tough search result value is 0.</li>
  * </ul>
  */
 public class QueryServiceColInfoTest extends
@@ -49,7 +51,7 @@ public class QueryServiceColInfoTest extends
 	}
 
 	/**
-	 * 테스트를 위해 테이블 TB_CUSTOMER를 생성한다.
+	 * Table TB_CUSTOMER is created for test.
 	 */
 	public void onSetUp() throws Exception {
 		System.out.println("Attempting to drop old table");
@@ -66,8 +68,9 @@ public class QueryServiceColInfoTest extends
 	}
 
 	/**
-	 * [Flow #-1] Positive Case : QueryService의 findWithColInfo() 메소드 호출을 통해 조회
-	 * 결과값이 0이더라도 Column 정보를 추출할 수 있는지 검증한다.
+	 * [Flow #-1] Positive Case : By calling for findWithColInfo()method of
+	 * QueryService, verified is whether Column information can be extracted
+	 * even tough search result value is 0.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -112,11 +115,12 @@ public class QueryServiceColInfoTest extends
 		assertEquals("fail to find column information about ssno",
 				"VARCHAR:20:0", columnInfos.get("name"));
 		assertEquals("fail to find column information about ssno",
-				"VARCHAR:20:0", columnInfos.get("address"));		
+				"VARCHAR:20:0", columnInfos.get("address"));
 	}
 
 	/**
-	 * SELECT 쿼리문을 직접 입력하여 단건의 데이터를 조회하고 결과를 검증한다.
+	 * By manually entering SELECT query statement, one piece of data is entered
+	 * and its result is verified.
 	 * 
 	 * @param ssno
 	 * @param name
@@ -143,7 +147,8 @@ public class QueryServiceColInfoTest extends
 	}
 
 	/**
-	 * INSERT 쿼리문을 직접 입력하여 단건의 데이터를 입력하고 결과를 검증한다.
+	 * By manually entering INSERT query statement, one piece of data is entered
+	 * and its result is verified.
 	 * 
 	 * @param ssno
 	 * @param name

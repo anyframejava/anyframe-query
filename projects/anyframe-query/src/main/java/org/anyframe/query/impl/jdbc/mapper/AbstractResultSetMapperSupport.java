@@ -29,9 +29,9 @@ import org.anyframe.query.impl.util.AbstractNameMatcher;
 import org.anyframe.query.impl.util.ObjectValidator;
 import org.springframework.jdbc.support.lob.LobHandler;
 
-
 /**
- * ResultSet에서 조회 결과를 꺼내 특정 객체 형태로 변환한다.
+ * By extracting search result from Resultset, it is transformed into a specific
+ * object format.
  * 
  * @author SOOYEON PARK
  * @author Byunghun Woo
@@ -50,8 +50,8 @@ public abstract class AbstractResultSetMapperSupport implements ResultSetMapper 
 	protected LobHandler lobHandler;
 
 	/**
-	 * DefaultObjectValidator와 NameConverter를 objectValidator, nameMatcher로
-	 * 셋팅한다.
+	 * DefaultObjectValidator and NameConverter are set as objectValidator and
+	 * nameMatcher.
 	 */
 	public AbstractResultSetMapperSupport(Map nullchecks, LobHandler lobHandler) {
 		super();
@@ -62,7 +62,8 @@ public abstract class AbstractResultSetMapperSupport implements ResultSetMapper 
 	}
 
 	/**
-	 * 테이블 칼럼명과 특정 객체의 속성명을 매핑하는데 사용할 NameMatcher를 셋팅한다.
+	 * NameMatcher for table column name and mapping property name of a specific
+	 * object is set.
 	 * 
 	 * @param nameMatcher
 	 *            the nameMatcher to set
@@ -116,13 +117,14 @@ public abstract class AbstractResultSetMapperSupport implements ResultSetMapper 
 	}
 
 	/**
-	 * Validator를 이용하여 입력 객체에 대한 유효성을 체크한다. 해당 객체가 IClassValidator의 구현체인 경우에는 해당
-	 * 객체 내의 isValid 메소드 호출을 통해 유효성을 체크하고 그렇지 않은 경우 DefaultObjectValidator의
-	 * isValid 메소드 호출을 통해 유효성을 체크한다.
+	 * Validity of entered object is checked with Validator. In the case where
+	 * relevant object is implementation of IClassValidator, validity is checked
+	 * by calling for isValid method within object. Otherwise, validity is
+	 * checked by calling for isValid method of DefaultObjectValidator.
 	 * 
 	 * @param object
-	 *            조회 결과를 담을 객체
-	 * @return valid 여부
+	 *            Object to save search result
+	 * @return whether valid
 	 */
 	protected boolean isValid(Object object) {
 		if (object instanceof ClassValidator) {
@@ -133,12 +135,12 @@ public abstract class AbstractResultSetMapperSupport implements ResultSetMapper 
 
 	/**
 	 * @param resultSet
-	 *            조회 결과
+	 *            Search result
 	 * @param columnType
-	 *            특정 칼럼의 DBMS Column Type
+	 *            DBMS Column Type of a specific column
 	 * @param columnName
-	 *            특정 칼럼명
-	 * @return 조회 결과로부터 추출한 특정 칼럼의 값
+	 *            A specific column name
+	 * @return A specific column value extracted from @return search result
 	 */
 	protected Object getValue(ResultSet resultSet, int columnType,
 			String columnName, int columnIndex) {
@@ -236,11 +238,12 @@ public abstract class AbstractResultSetMapperSupport implements ResultSetMapper 
 	}
 
 	/**
-	 * NULL 값을 가진 특정 칼럼의 타입에 대해 대체할 값이 정의된 경우 대체 값을 전달한다.
+	 * In the case where value to replace a specific column type with NULL value
+	 * is defined, replacement value is transferred.
 	 * 
 	 * @param type
-	 *            특정 칼럼의 타입
-	 * @return 대체할 값
+	 *            a specific column's type
+	 * @return Value to replace
 	 */
 	protected Object changeNullValue(String type) {
 		if (nullchecks.containsKey(type)) {

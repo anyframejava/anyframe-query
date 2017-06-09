@@ -16,7 +16,7 @@
 package org.anyframe.query.impl;
 
 /**
- * Live Scrolling 기능을 지원하기 위해 Pagination를 확장한 클래스이다.
+ * This class is to expend Pagination to support Live Scrolling function.
  * @author SoYon Lim
  * @author JongHoon Kim
  */

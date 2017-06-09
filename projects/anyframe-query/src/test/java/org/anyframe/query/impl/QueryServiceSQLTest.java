@@ -27,24 +27,25 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 /**
  * TestCase Name : QueryServiceSQLTest <br>
  * <br>
- * [Description] : 쿼리문을 직접 입력하여 데이터를 입력, 수정, 삭제, 조회하고
- * 결과를 검증한다.<br>
+ * [Description] : By manually entering query statement, data is entered, 
+ * modified, deleted and searched and its result is verified. <br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : QueryService의 findBySQL()
- * 메소드를 호출하여 직접 입력한 SELECT 쿼리를 실행시키고 결과를 검증한다.</li>
- * <li>#-2 Positive Case : QueryService의 findBySQL()
- * 메소드를 호출하여 직접 입력한 SELECT 쿼리를 실행시키고 결과를 검증한다.
- * findBySQL() 호출시 pageIndex, pageSize 정보를 같이 전달함으로써
- * 페이징 처리된 조회 결과를 얻을 수 있다.</li>
- * <li>#-3 Negative Case : QueryService의 findBySQL()
- * 메소드를 호출하여 직접 입력한 SELECT 쿼리를 실행시키고 결과를 검증한다. 이 테스트
- * 케이스에서는 쿼리문 이외의 입력 인자의 값을 NULL로 전달하고
- * QueryServiceException이 발생하는지 검증한다.</li>
- * <li>#-4 Positive Case : QueryService의 updateBySQL()
- * 메소드를 호출하여 직접 입력한 UPDATE 쿼리를 실행시키고 결과를 검증한다.</li>
- * <li>#-5 Positive Case : QueryService의 removeBySQL()
- * 메소드를 호출하여 직접 입력한 DELETE 쿼리를 실행시키고 결과를 검증한다.</li>
+ * <li>#-1 Positive Case : By calling for method of findBySQL() method of QueryService, 
+ * manually entered SELECT query is executed and its result is verified.</li>
+ * <li>#-2 Positive Case : By calling for method of findBySQL() method of QueryService, 
+ * manually entered SELECT query is executed and its result is verified. 
+ * In the case of calling for findBySQL(), by delivering pageIndex 
+ * and pageSize information all together, 
+ * paging processed search result comes out. </li>
+ * <li>#-3 Negative Case : By calling for method of findBySQL() method of QueryService, 
+ * manually entered SELECT query is executed and its result is verified. 
+ * This TestCase delivers input factor value besides query statement to NULL 
+ * and verified is whether QueryServiceException takes place. </li>
+ * <li>#-4 Positive Case : By calling for method of updateBySQL()method of QueryService, 
+ * manually entered UPDATE query is executed and its result is verified.</li>
+ * <li>#-5 Positive Case : By calling for removeBySQL()method of method of QueryService, 
+ * manually entered DELETE query is executed and its result is verified.</li>
  * </ul>
  * @author SoYon Lim
  */
@@ -62,7 +63,7 @@ public class QueryServiceSQLTest extends
     }
 
     /**
-     * 테스트를 위해 테이블 TB_CUSTOMER를 생성한다.
+     * Table TB_CUSTOMER is created for test. 
      */
     public void onSetUp() throws Exception {
         System.out.println("Attempting to drop old table");
@@ -79,9 +80,8 @@ public class QueryServiceSQLTest extends
     }
 
     /**
-     * [Flow #-1] Positive Case : QueryService의
-     * findBySQL() 메소드를 호출하여 직접 입력한 SELECT 쿼리를 실행시키고
-     * 결과를 검증한다.
+     * [Flow #-1] Positive Case : By calling for method of findBySQL() method of QueryService, 
+     * manually entered SELECT query is executed and its result is verified.
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -114,10 +114,10 @@ public class QueryServiceSQLTest extends
     }
 
     /**
-     * [Flow #-2] Positive Case : QueryService의
-     * findBySQL() 메소드를 호출하여 직접 입력한 SELECT 쿼리를 실행시키고
-     * 결과를 검증한다. findBySQL() 호출시 pageIndex, pageSize
-     * 정보를 같이 전달함으로써 페이징 처리된 조회 결과를 얻을 수 있다.
+     * [Flow #-2] Positive Case : By calling for method of findBySQL() method of QueryService, 
+     * manually entered SELECT query is executed and its result is verified. 
+     * In the case of calling for findBySQL(), by delivering pagIndex 
+     * and pageSize information all together, paging processed search result comes out. 
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -150,10 +150,10 @@ public class QueryServiceSQLTest extends
     }
 
     /**
-     * [Flow #-3] Negative Case : QueryService의
-     * findBySQL() 메소드를 호출하여 직접 입력한 SELECT 쿼리를 실행시키고
-     * 결과를 검증한다. 이 테스트 케이스에서는 쿼리문 이외의 입력 인자의 값을 NULL로
-     * 전달하고 QueryServiceException이 발생하는지 검증한다.
+     * [Flow #-3] Negative Case : By calling for method of updateBySQL() QueryService, 
+     * manually entered UPDATE query is executed and its result is verified. 
+     * This TestCase delivers input factor value besides query statement to NULL 
+     * and verified is whether QueryServiceException takes place. 
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -175,9 +175,8 @@ public class QueryServiceSQLTest extends
     }
 
     /**
-     * [Flow #-4] Positive Case : QueryService의
-     * updateBySQL() 메소드를 호출하여 직접 입력한 UPDATE 쿼리를 실행시키고
-     * 결과를 검증한다.
+     * [Flow #-4] Positive Case : By calling for method of updateBySQL() QueryService, 
+     * manually entered UPDATE query is executed and its result is verified. 
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -199,9 +198,8 @@ public class QueryServiceSQLTest extends
     }
 
     /**
-     * [Flow #-5] Positive Case : QueryService의
-     * removeBySQL() 메소드를 호출하여 직접 입력한 DELETE 쿼리를 실행시키고
-     * 결과를 검증한다.
+     * [Flow #-5] Positive Case : By calling for removeBySQL() method of QueryService, 
+     * manually entered DELETE query is executed and its result is verified. 
      * @throws Exception
      *         throws exception which is from
      *         QueryService
@@ -225,7 +223,8 @@ public class QueryServiceSQLTest extends
     }
 
     /**
-     * SELECT 쿼리문을 직접 입력하여 단건의 데이터를 조회하고 결과를 검증한다.
+     * By manually entering SELECT query statement, 
+     * one piece of data is entered and its result is verified. 
      * @param ssno
      * @param name
      * @param address
@@ -252,7 +251,8 @@ public class QueryServiceSQLTest extends
     }
 
     /**
-     * INSERT 쿼리문을 직접 입력하여 단건의 데이터를 입력하고 결과를 검증한다.
+     * By manually entering INSERT query statement, 
+     * one piece of data is entered and its result is verified. 
      * @param ssno
      * @param name
      * @param address

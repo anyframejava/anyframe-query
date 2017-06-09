@@ -27,33 +27,48 @@ import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 /**
  * TestCase Name : QueryServiceWithRowCountTest <br>
  * <br>
- * [Description] : findWithRowCount() 메소드를 호출하여 페이징 처리된 조회 결과와 해당 쿼리에 대한 전체 조회
- * 결과 건수를 얻고, 검증한다.<br>
+ * [Description] : By calling for findWithRowCount() method, paging processed 
+ * search result andthe whole search result number of relevant query come out and are verified. <br>
  * [Main Flow]
  * <ul>
- * <li>#-1 Positive Case : QueryService의 findBySQLWithRowCount() 메소드를 호출하여 직접
- * 입력한 SELECT 쿼리를 실행시키고 결과를 검증한다. findBySQLWithRowCount() 호출시 pageIndex,
- * pageSize 정보를 같이 전달함으로써 페이징 처리된 조회 결과를 얻을 수 있다.</li>
- * <li>#-2 Positive Case : QueryService의 findBySQLWithRowCount() 메소드를 호출하여 직접
- * 입력한 SELECT 쿼리(조회 결과가 없음)를 실행시키고 결과를 검증한다. findBySQLWithRowCount() 호출시
- * pageIndex, pageSize 정보를 같이 전달함으로써 페이징 처리된 조회 결과를 얻을 수 있다.</li>
- * <li>#-3 Positive Case : 5건의 신규 데이터를 입력한 후, QueryService의
- * findBySQLWithRowCount() 메소드를 호출하여 직접 입력한 SELECT 쿼리를 실행시키고 결과를 검증한다.
- * findBySQLWithRowCount() 호출시 pageIndex, pageSize 정보를 같이 전달함으로써 페이징 처리된 조회 결과를
- * 얻을 수 있다.</li>
- * <li>#-4 Positive Case : 5건의 신규 데이터를 입력한 후, QueryService의
- * findBySQLWithRowCount() 메소드를 호출하여 직접 입력한 SELECT 쿼리를 실행시키고 결과를 검증한다.
- * findBySQLWithRowCount() 호출시 페이징 처리를 위한 정보를 전달하지 않음으로써 페이징 처리되지 않은 조회 결과를 얻게
- * 된다.</li>
- * <li>#-5 Positive Case : 5건의 신규 데이터를 입력한 후, QueryService의
- * findBySQLWithRowCount() 메소드를 호출하여 매핑 XML 파일에 정의된 query를 실행시키고 결과를 검증한다.
- * findBySQLWithRowCount() 호출시 pageIndex만 전달하고 pageSize는 해당 쿼리의 result size를
- * 따르도록 함으로써 페이징 처리된 조회 결과를 얻을 수 있다.</li>
- * <li>#-6 Negative Case : 5건의 신규 데이터를 입력한 후, QueryService의
- * findBySQLWithRowCount() 메소드를 호출하여 매핑 XML 파일에 정의된 query를 실행시키고 결과를 검증한다.
- * findWithRowCount() 호출시 pageIndex만 전달하고 pageSize는 해당 쿼리의 result size를 따르도록
- * 함으로써 페이징 처리된 조회 결과를 얻을 수 있다. 단, 매핑 XML 파일 내에는 result length를 별도로 정의하지 않았음.
- * 이러한 경우 조회 결과 목록의 수는 0개임.</li>
+ * <li>#-1 Positive Case : By calling for findBySQLWithRowCount() method of QueryService, 
+ * manually entered SELECT query is executed and the result is verified. 
+ * In the case of calling for findBySQLWithRowCount(), 
+ * by delivering pageIndex and pageSize all together, 
+ * paging processed search result comes out. </li>
+ * <li>#-2 Positive Case : By calling for findBySQLWithRowCount() method of QueryService, 
+ * manually entered SELECT query(no search result) is executed and the result is verified. 
+ * In the case of calling for findBySQLWithRowCount(), 
+ * by delivering pageIndex and pageSize all together, 
+ * paging processed search result comes out. </li>
+ * <li>#-3 Positive Case : After entering 5 pieces of new data, 
+ * by calling for findBySQLWithRowCount() method of QueryService, 
+ * manually entered SELECT query is executed and the result is verified. 
+ * In the case of calling for findBySQLWithRowCount(), 
+ * by delivering pageIndex and pageSize all together, 
+ * paging processed search result comes out. </li>
+ * <li>#-4 Positive Case : After entering 5 pieces of new data, 
+ * by calling for findBySQLWithRowCount() method of QueryService, 
+ * manually entered SELECT query is executed and the result is verified. 
+ * In the case of calling for findBySQLWithRowCount(), 
+ * by not delivering information for paging process, 
+ * the search result without paging process comes out. </li>
+ * <li>#-5 Positive Case :After entering 5 pieces of new data, 
+ * by calling for findBySQLWithRowCount() method of QueryService, 
+ * query defined at mapping XML file is executed and the result is verified.
+ * In the case of calling for findBySQLWithRowCount(), 
+ * by only delivering pageIndex and making pageSize to comply with 
+ * result size of relevant query, paging processed search result comes out. 
+</li>
+ * <li>#-6 Negative Case : After entering 5 pieces of new data, 
+ * by calling for findBySQLWithRowCount() method of QueryService, 
+ * query defined at mapping XML file is executed and the result is verified. 
+ * In the case of calling for findWithRowCount(), 
+ * by only delivering pageIndex and making pageSize to comply with 
+ * result size of relevant query, paging processed search result comes out. 
+ * However, result length is not separately defined within mapping XML file. 
+ * In this case, the number of search result list is 0. 
+</li>
  * </ul>
  * 
  * @author SoYon Lim
@@ -72,7 +87,7 @@ public class QueryServiceWithRowCountTest extends
 	}
 
 	/**
-	 * 테스트를 위해 테이블 TB_CUSTOMER를 생성한다.
+	 * Table TB_CUSTOMER is created for test.  
 	 */
 	public void onSetUp() throws Exception {
 		try {
@@ -89,9 +104,11 @@ public class QueryServiceWithRowCountTest extends
 	}
 
 	/**
-	 * [Flow #-1] Positive Case : QueryService의 findBySQLWithRowCount() 메소드를
-	 * 호출하여 직접 입력한 SELECT 쿼리를 실행시키고 결과를 검증한다. findBySQLWithRowCount() 호출시
-	 * pageIndex, pageSize 정보를 같이 전달함으로써 페이징 처리된 조회 결과를 얻을 수 있다.
+	 * [Flow #-1] Positive Case : By calling for findBySQLWithRowCount() method of QueryService, 
+	 * manually entered SELECT query is executed and the result is verified. 
+	 * In the case of calling for findBySQLWithRowCount(), 
+	 * by delivering pageIndex and pageSize all together, 
+	 * paging processed search result comes out. 
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -127,9 +144,11 @@ public class QueryServiceWithRowCountTest extends
 	}
 
 	/**
-	 * [Flow #-2] Positive Case : QueryService의 findBySQLWithRowCount() 메소드를
-	 * 호출하여 직접 입력한 SELECT 쿼리(조회 결과가 없음)를 실행시키고 결과를 검증한다. findBySQLWithRowCount()
-	 * 호출시 pageIndex, pageSize 정보를 같이 전달함으로써 페이징 처리된 조회 결과를 얻을 수 있다.
+	 * [Flow #-2] Positive Case : By calling for findBySQLWithRowCount() method of QueryService, 
+	 * manually entered SELECT query(no search result) is executed and the result is verified. 
+	 * In the case of calling for findBySQLWithRowCount(), 
+	 * by delivering pageIndex and pageSize all together, 
+	 * paging processed search result comes out. 
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -166,10 +185,12 @@ public class QueryServiceWithRowCountTest extends
 	}
 
 	/**
-	 * [Flow #-3] Positive Case : 5건의 신규 데이터를 입력한 후, QueryService의
-	 * findBySQLWithRowCount() 메소드를 호출하여 직접 입력한 SELECT 쿼리를 실행시키고 결과를 검증한다.
-	 * findBySQLWithRowCount() 호출시 pageIndex, pageSize 정보를 같이 전달함으로써 페이징 처리된 조회
-	 * 결과를 얻을 수 있다.
+	 * [Flow #-3] Positive Case : After entering 5 pieces of new data, 
+	 * by calling for findBySQLWithRowCount() method of QueryService, 
+	 * manually entered SELECT query is executed and the result is verified. 
+	 * In the case of calling for findBySQLWithRowCount(), 
+	 * by delivering pageIndex and pageSize all together, 
+	 * paging processed search result comes out. 
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -219,10 +240,12 @@ public class QueryServiceWithRowCountTest extends
 	}
 
 	/**
-	 * [Flow #-4] Positive Case : 5건의 신규 데이터를 입력한 후, QueryService의
-	 * findBySQLWithRowCount() 메소드를 호출하여 직접 입력한 SELECT 쿼리를 실행시키고 결과를 검증한다.
-	 * findBySQLWithRowCount() 호출시 페이징 처리를 위한 정보를 전달하지 않음으로써 페이징 처리되지 않은 조회 결과를
-	 * 얻게 된다.
+	 * [Flow #-4] Positive Case : After entering 5 pieces of new data, 
+	 * by calling for findBySQLWithRowCount() method of QueryService, 
+	 * manually entered SELECT query  is executed and the result is verified. 
+	 * In the case of calling for findBySQLWithRowCount(), 
+	 * by not delivering information for paging process, 
+	 * search result without paging process comes out. 
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -257,10 +280,12 @@ public class QueryServiceWithRowCountTest extends
 	}
 
 	/**
-	 * [Flow #-5] Positive Case : 5건의 신규 데이터를 입력한 후, QueryService의
-	 * findBySQLWithRowCount() 메소드를 호출하여 매핑 XML 파일에 정의된 query를 실행시키고 결과를 검증한다.
-	 * findBySQLWithRowCount() 호출시 pageIndex만 전달하고 pageSize는 해당 쿼리의 result size를
-	 * 따르도록 함으로써 페이징 처리된 조회 결과를 얻을 수 있다.
+	 * [Flow #-5] Positive Case : After entering 5 pieces of new data, 
+	 * by calling for findBySQLWithRowCount() method of QueryService, 
+	 * query defined at mapping XML file is executed and the result is verified. 
+	 * In the case of calling for findBySQLWithRowCount(), 
+	 * by only delivering pageIndex and making pageSize to comply with result size of relevant query, 
+	 * paging processed search result comes out.
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -295,11 +320,14 @@ public class QueryServiceWithRowCountTest extends
 	}
 
 	/**
-	 * [Flow #-6] Negative Case : 5건의 신규 데이터를 입력한 후, QueryService의
-	 * findBySQLWithRowCount() 메소드를 호출하여 매핑 XML 파일에 정의된 query를 실행시키고 결과를 검증한다.
-	 * findWithRowCount() 호출시 pageIndex만 전달하고 pageSize는 해당 쿼리의 result size를 따르도록
-	 * 함으로써 페이징 처리된 조회 결과를 얻을 수 있다. 단, 매핑 XML 파일 내에는 result length를 별도로 정의하지
-	 * 않았음. 이러한 경우 조회 결과 목록의 수는 0개임.
+	 * [Flow #-6] Negative Case : After entering 5 pieces of new data, 
+	 * by calling for findBySQLWithRowCount() method of QueryService, 
+	 * query defined at mapping XML file is executed and the result is verified. 
+	 * In the case of calling for findWithRowCount(), 
+	 * by only delivering pageIndex and making pageSize to comply with result size of relevant query,
+	 * paging processed search result comes out. 
+	 * However, result length is not separately defined within mapping XML file. 
+	 * In this case, the number of search result list is 0. 
 	 * 
 	 * @throws Exception
 	 *             throws exception which is from QueryService
@@ -340,7 +368,7 @@ public class QueryServiceWithRowCountTest extends
 	}
 
 	/**
-	 * SELECT 쿼리문을 직접 입력하여 단건의 데이터를 조회하고 결과를 검증한다.
+	 * By entering SELECT query statement, one piece of data is entered and its result is verified. 
 	 * 
 	 * @param ssno
 	 * @param name
@@ -367,7 +395,7 @@ public class QueryServiceWithRowCountTest extends
 	}
 
 	/**
-	 * INSERT 쿼리문을 직접 입력하여 단건의 데이터를 입력하고 결과를 검증한다.
+	 * By entering INSERT query statement, one piece of data is entered and its result is verified. 
 	 * 
 	 * @param ssno
 	 * @param name

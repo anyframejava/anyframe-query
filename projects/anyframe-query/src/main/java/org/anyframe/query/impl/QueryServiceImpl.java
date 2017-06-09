@@ -144,9 +144,9 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	/** ************* SERVICE METHODS ************** */
 
 	/**
-	 * Issue update statement (INSERT) using JDBC 2.0 batch updates
-	 * and PreparedStatementSetters to set values on a PreparedStatement created
-	 * by this method.
+	 * Issue update statement (INSERT) using JDBC 2.0 batch updates and
+	 * PreparedStatementSetters to set values on a PreparedStatement created by
+	 * this method.
 	 * 
 	 * @param targets
 	 *            object of class which is matched with specified table in
@@ -171,9 +171,9 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	}
 
 	/**
-	 * Issue update statement (DELETE) using JDBC 2.0 batch updates
-	 * and PreparedStatementSetters to set values on a PreparedStatement created
-	 * by this method.
+	 * Issue update statement (DELETE) using JDBC 2.0 batch updates and
+	 * PreparedStatementSetters to set values on a PreparedStatement created by
+	 * this method.
 	 * 
 	 * @param targets
 	 *            object of class which is matched with specified table in
@@ -198,9 +198,9 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	}
 
 	/**
-	 * Issue update statement (UPDATE) using JDBC 2.0 batch updates
-	 * and PreparedStatementSetters to set values on a PreparedStatement created
-	 * by this method.
+	 * Issue update statement (UPDATE) using JDBC 2.0 batch updates and
+	 * PreparedStatementSetters to set values on a PreparedStatement created by
+	 * this method.
 	 * 
 	 * @param targets
 	 *            object of class which is matched with specified table in
@@ -225,9 +225,9 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	}
 
 	/**
-	 * Issue update statement (INSERT, UPDATE, DELETE) using JDBC 2.0
-	 * batch updates and PreparedStatementSetters to set values on a
-	 * PreparedStatement created by this method.
+	 * Issue update statement (INSERT, UPDATE, DELETE) using JDBC 2.0 batch
+	 * updates and PreparedStatementSetters to set values on a PreparedStatement
+	 * created by this method.
 	 * 
 	 * @param queryId
 	 *            identifier of query statement to execute
@@ -308,10 +308,10 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	}
 
 	/**
-	 * Issue update statement (INSERT, UPDATE, DELETE) using JDBC 2.0
-	 * batch updates and PreparedStatementSetters to set values on a
-	 * PreparedStatement created by this method Execute update statments, Using
-	 * update statement directly without being defined in mapping xml files.
+	 * Issue update statement (INSERT, UPDATE, DELETE) using JDBC 2.0 batch
+	 * updates and PreparedStatementSetters to set values on a PreparedStatement
+	 * created by this method Execute update statments, Using update statement
+	 * directly without being defined in mapping xml files.
 	 * 
 	 * @param sql
 	 *            query statement.
@@ -674,7 +674,7 @@ public class QueryServiceImpl extends AbstractQueryService implements
 					.getMappingInfos().get(className);
 
 			sql = mappingInfo.getSelectByPrimaryKeyQuery();
-			// result mapping을 위한 RowCallbackHandler 셋팅
+			// Set up RowCallbackHandler for result mapping
 			// 2009.05.28
 			CallbackResultSetMapper rowCallbackHandler = new DefaultCallbackResultSetMapper(
 					Class.forName(className), mappingInfo, lobHandler,
@@ -1198,10 +1198,11 @@ public class QueryServiceImpl extends AbstractQueryService implements
 				params[0] = param.getName();
 				String paramTypeName = param.getTypeName();
 
-				// param type이 OTHER 또는 CURSOR일 경우
-				// SqlOutParameter 셋팅시 param
-				// type name을 셋팅할 수 있는 API가 없음. 따라서 별도로
-				// 체크하여 셋팅하도록 로직 추가함.
+				// In the case param type is OTHER or CURSOR,
+				// when SqlOutParameter is set, there is no API which can set up
+				// param type name. Therefore, check it separately and add logic
+				// for setting.
+
 				if (paramTypeName == null) {
 					int type = param.getSqlType();
 					paramTypeName = SQLTypeTransfer.getSQLTypeName(type);
@@ -1262,7 +1263,7 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	/** ************* PROTECTED METHODS ************** */
 
 	/**
-	 * BatchSqlUpdate 클래스를 이용하여 입력된 SQL에 대한 Batch 처리를 수행한다.
+	 * Entered SQL by using BatchSqlUpdate class, execute Batch handling.
 	 * 
 	 * @param sql
 	 *            query statement.
@@ -1299,9 +1300,10 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	}
 
 	/**
-	 * Dynamic SQL에 대해 Spring JdbcTemplate의 batchUpdate 메소드를 호출하여 Insert,
-	 * Update, Delete를 Batch로 처리한다. (특정 테이블에 매핑된 클래스의 인스턴스 목록이 입력된 경우, 해당 SQL의
-	 * isDynamic이 true일 경우)
+	 * By calling for batchUpdate method of Spring JdbcTemplate regarding
+	 * Dynamic SQL, process Update and Delete as Batch. ( In the case instance
+	 * list of mapped class in a specific table is entered and relevant SQL
+	 * isDynamic is true )
 	 * 
 	 * @param sql
 	 *            dynamic query statement.
@@ -1311,9 +1313,8 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	 * @return an array of the number of rows affected by each statement
 	 */
 	protected int[] batchDynamicExecutor(final String sql, final List targets) {
-		// NamedParameterUtils를 통해 모든 Bind Variables를
-		// 분석하고 Prepared Statement
-		// 형태로 전환한다.
+		// Analyze all Bind Variables via NamedParameterUtils and transform them
+		// into Prepared Statement format.
 		final ParsedSql parsedSql = NamedParameterUtil.parseSqlStatement(sql);
 		return jdbcTemplate.batchUpdate(parsedSql.getNewSql(),
 				new BatchPreparedStatementSetter() {
@@ -1322,8 +1323,7 @@ public class QueryServiceImpl extends AbstractQueryService implements
 						return targets.size();
 					}
 
-					// Spring JdbcTemplate에 의해 호출되는
-					// callback method
+					// callback method called for by Spring JdbcTemplate
 					public void setValues(PreparedStatement ps, int index)
 							throws SQLException {
 						Map properties = new HashMap();
@@ -1341,10 +1341,9 @@ public class QueryServiceImpl extends AbstractQueryService implements
 							}
 						} else
 							properties.put("anyframe", targets.get(index));
-						// NamedParameterUtils을 통해
-						// inputMap에서 해당 dynamic SQL에
-						// 셋팅해야 할 모든 Bind Variables의 값을 찾아
-						// 배열 형태로 전달받는다.
+						// Find all Bind Variables to set at relevant dynamic
+						// SQL at inputMap via NamedParameterUtils and transfer
+						// them in the format of sequence.
 						Object[] args = NamedParameterUtil
 								.buildValueArray(parsedSql,
 										new DefaultDynamicSqlParameterSource(
@@ -1359,8 +1358,9 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	}
 
 	/**
-	 * 일반 SQL에 대해 Spring JdbcTemplate의 batchUpdate 메소드를 호출하여 Insert, Update,
-	 * Delete를 Batch로 처리한다. 해당 SQL의 isDynamic이 false일 경우)
+	 * By calling for batchUpdate method of Spring JdbcTemplate regarding
+	 * ordinary SQL, process Insert, Update and Delete as Batch. (relevant SQL
+	 * isDynamic is false)
 	 * 
 	 * @param sql
 	 *            static query statement.
@@ -1377,8 +1377,7 @@ public class QueryServiceImpl extends AbstractQueryService implements
 						return targets.size();
 					}
 
-					// Spring JdbcTemplate에 의해 호출되는
-					// callback method
+					// callback method called for by Spring JdbcTemplate
 					public void setValues(PreparedStatement ps, int index)
 							throws SQLException {
 						Object[] args = (Object[]) targets.get(index);
@@ -1392,7 +1391,7 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	}
 
 	/**
-	 * 입력된 SQL Type Name을 이용하여 이에 맞는 java.sql.Types를 찾는다.
+	 * By using entered SQL Type Name, find java.sql.Types matching it.
 	 * 
 	 * @param types
 	 *            SQL Type Names
@@ -1407,13 +1406,14 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	}
 
 	/**
-	 * 객체 입력만으로 한건의 데이터에 대한 INSERT, UPDATE, DELETE를 수행한다. 입력 인자로 전달된 SQL은
-	 * QueryService에 의해 테이블 매핑 정보를 기반으로 자동 생성된 것이다.
+	 * Entering object alone executes INSERT, UPDATE and DELETE on single case
+	 * of data.
 	 * 
 	 * @param obj
-	 *            INSERT, UPDATE, DELETE 대상이 되는 객체
+	 *            Object targeted for INSERT, UPDATE and DELETE
 	 * @param sql
-	 *            QueryService에 의해 테이블 매핑 정보를 기반으로 자동 생성된 query statement
+	 *            Automatically created query statement based on table mapping
+	 *            information by QueryService
 	 * @return the number of rows affected
 	 */
 	protected int objectCUDExecutor(Object obj, String sql) {
@@ -1424,16 +1424,18 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	}
 
 	/**
-	 * 특정 queryId에 해당하는 쿼리 매핑 정보를 기반으로 Variable의 SQL Type을 찾아 셋팅한 후
-	 * sqlCUDExecutor 메소드를 호출하여 해당 query statement를 실행한다.
+	 * After finding and setting SQL Type of Variable based on query mapping
+	 * information serving as a specific query I.D., execute query statement by
+	 * calling for sqlCUDExecutor method.
 	 * 
 	 * @param queryInfo
-	 *            특정 queryId에 해당하는 쿼리 매핑 정보
+	 *            Query mapping information serving as a specific queryId.
 	 * @param values
 	 *            a set of variable for executing query
 	 * @return the number of rows affected
 	 * @throws Exception
-	 *             실행할 쿼리문을 완성에 실패한 경우
+	 *             In the case query statement to be executed fails to be
+	 *             completed
 	 */
 	protected int sqlCUDExecutor(QueryInfo queryInfo, Object[] values)
 			throws Exception {
@@ -1446,12 +1448,13 @@ public class QueryServiceImpl extends AbstractQueryService implements
 		}
 
 		return sqlCUDExecutor(queryInfo.getQueryString(), values, types,
-				queryInfo.isDynamic(), queryInfo.getLobStatement(), queryInfo
-						.getLobParamTypes(), queryInfo.getQueryId());
+				queryInfo.isDynamic(), queryInfo.getLobStatement(),
+				queryInfo.getLobParamTypes(), queryInfo.getQueryId());
 	}
 
 	/**
-	 * 특정 queryId에 해당하는 쿼리 매핑 정보를 기반으로 실행할 쿼리문을 완성하여 실행한다.
+	 * Complete and execute query statement to be executed based on query
+	 * mapping information serving as a specific queryId.
 	 * 
 	 * @param sql
 	 *            query statement.
@@ -1460,14 +1463,15 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	 * @param types
 	 *            an array of the SQL Type
 	 * @param isDynamic
-	 *            dynamic query statement 여부
+	 *            whether dynamic query statement
 	 * @param lobStatement
 	 *            lob statement (update for Handling Lob of Oracle 8i)
 	 * @param queryId
 	 *            identifier of query statement to execute
 	 * @return the number of rows affected
 	 * @throws Exception
-	 *             실행할 쿼리문을 완성에 실패한 경우
+	 *             In the case query statement to be executed fails to be
+	 *             completed
 	 */
 	protected int sqlCUDExecutor(String sql, Object[] values, int[] types,
 			boolean isDynamic, String lobStatement, String[] lobParamTypes,
@@ -1640,8 +1644,8 @@ public class QueryServiceImpl extends AbstractQueryService implements
 				count = resultList.size();
 			else
 				count = paginationVO.getRecordCount();
-			return makeResultMap(resultList, count, rowCallbackHandler
-					.getColumnInfo());
+			return makeResultMap(resultList, count,
+					rowCallbackHandler.getColumnInfo());
 		} catch (Exception e) {
 			throw processException("select with column info [query id = '"
 					+ queryId + "']", getQueryString(queryInfo), e);
@@ -1649,8 +1653,9 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	}
 
 	/**
-	 * Exception 메시지 처리시 사용되는 메소드로 입력 인자로 전달된 queryId가 존재하지 않는 경우 빈 문자열을 쿼리문으로
-	 * 전달한다.
+	 * In the case QueryI.D. which is transferred as input parameter with method
+	 * used in processing Exception message does not exist, transfer query
+	 * statement with empty string.
 	 */
 	private String getQueryString(QueryInfo queryInfo) {
 		String sql = "";
@@ -1702,8 +1707,8 @@ public class QueryServiceImpl extends AbstractQueryService implements
 				return resultSetMapper.getObjects();
 			} else {
 				if (!paging)
-					return jdbcTemplate.query(sql, values, queryInfo
-							.getSqlTypes(), queryMaxFetchSize,
+					return jdbcTemplate.query(sql, values,
+							queryInfo.getSqlTypes(), queryMaxFetchSize,
 							(RowMapper) resultSetMapper);
 				else
 					return jdbcTemplate.queryWithPagination(sql, values,
@@ -1753,8 +1758,8 @@ public class QueryServiceImpl extends AbstractQueryService implements
 		if (mapperClazz != null
 				&& CallbackResultSetMapper.class.isAssignableFrom(mapperClazz)) {
 			callbackResultSetMapper = new CallbackResultSetMapper(targetClazz,
-					mappingInfo, lobHandler, nullchecks, queryInfo
-							.getMappingStyle());
+					mappingInfo, lobHandler, nullchecks,
+					queryInfo.getMappingStyle());
 			customResultSetMapper = callbackResultSetMapper;
 		} else if (mapperClazz != null
 				&& ReflectionResultSetMapper.class
@@ -1764,8 +1769,8 @@ public class QueryServiceImpl extends AbstractQueryService implements
 			customResultSetMapper = callbackResultSetMapper;
 		} else {
 			callbackResultSetMapper = new DefaultCallbackResultSetMapper(
-					targetClazz, mappingInfo, lobHandler, nullchecks, queryInfo
-							.getMappingStyle());
+					targetClazz, mappingInfo, lobHandler, nullchecks,
+					queryInfo.getMappingStyle());
 		}
 		// 2009.10.28
 		callbackResultSetMapper.setSqlLoader(this.getSqlRepository());
@@ -1830,8 +1835,8 @@ public class QueryServiceImpl extends AbstractQueryService implements
 					throw new QueryServiceException(
 							"Query Service : Invalid Argument - Argument String must include a delimiter '='.");
 				}
-				properties.put(tempStr.substring(0, pos), tempStr
-						.substring(pos + 1));
+				properties.put(tempStr.substring(0, pos),
+						tempStr.substring(pos + 1));
 				if (mapSqlParameterSource != null)
 					mapSqlParameterSource.addValue(tempStr.substring(0, pos),
 							tempStr.substring(pos + 1), types[i]);
@@ -1866,12 +1871,13 @@ public class QueryServiceImpl extends AbstractQueryService implements
 
 	public QueryServiceException processException(String actionName,
 			String sql, Exception exception) {
-		QueryService.LOGGER.error("Query Service : Fail to {" + actionName
-				+ "}.\n Query = [" + sql + "] \n Reason = ["
-				+ exception.getMessage() + "].", exception);
-		// 원인이 되는 Exception이
-		// InternalDataAccessException와 같은 유형일 경우 쿼리
-		// 수행시 발생한 ErrorCode가 셋팅된다.
+		QueryService.LOGGER.error(
+				"Query Service : Fail to {" + actionName + "}.\n Query = ["
+						+ sql + "] \n Reason = [" + exception.getMessage()
+						+ "].", exception);
+		// In the case Exception serving as root cause has the same type as
+		// InternalDataAccessException, ErrorCode occurring in query execution
+		// is set.
 		if (exception instanceof InternalDataAccessException) {
 			InternalDataAccessException idaException = (InternalDataAccessException) exception;
 			QueryServiceException queryServiceException = new QueryServiceException(

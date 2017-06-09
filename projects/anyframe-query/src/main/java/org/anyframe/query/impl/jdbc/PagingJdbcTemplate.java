@@ -67,7 +67,7 @@ import org.springframework.util.Assert;
  * @author JongHoon Kim
  */
 public class PagingJdbcTemplate extends JdbcTemplate {
-	
+
 	// 2011.05.11
 	private PagingSQLGenerator paginationSQLGetter;
 
@@ -163,8 +163,10 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 	}
 
 	/**
-	 * 정의된 SQLGenerator가 없을 경우 입력된 SQL을 그대로 실행한다. 정의된 SQL Generator가 있을 경우 입력된
-	 * SQL 실행 결과에 대한 전체 건수와 페이징 처리된 결과를 구한다.
+	 * In the case where there is no defined SQLGenerator, entered SQL is
+	 * executed as it is. In the case where there is defined SQLGenerator, a
+	 * total case on SQL execution result and paging processed result are
+	 * sought.
 	 * 
 	 * @param sql
 	 *            query statement
@@ -174,10 +176,11 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 	 *            is matched with input parameters. A type must belong to fields
 	 *            defined java.sql.Types package. *
 	 * @param rowMapper
-	 *            조회 결과로부터 하나의 Row를 특정 객체 형태에 매핑하기 위한 Mapper
+	 *            Mapper to map one Row from search result on a specific object
+	 *            format
 	 * @param context
-	 *            페이징 처리를 위해 필요한 기본 정보
-	 * @return 쿼리 수행 결과
+	 *            Basic information necessary for paging process
+	 * @return Query execution result
 	 */
 	public List queryWithPagination(String sql, Object[] args, int[] argTypes,
 			int queryMaxFetchSize, RowMapper rowMapper, Pagination paginationVO)
@@ -231,22 +234,26 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 		String paginationSql = getPaginationSQL(sql, args, argTypes,
 				paginationVO);
 
-		query(paginationSql, new PreparedStatementArgTypeSetter(paginationArgs, paginationArgTypes, null),
+		query(paginationSql, new PreparedStatementArgTypeSetter(paginationArgs,
+				paginationArgTypes, null),
 				new NonPagingRowCallbackHandlerResultSetExtractor(rch,
 						queryMaxFetchSize));
 	}
 
 	/**
-	 * 정의된 SQLGenerator가 없을 경우 입력된 SQL을 그대로 실행한다. 정의된 SQL Generator가 있을 경우 입력된
-	 * SQL 실행 결과에 대한 전체 건수와 페이징 처리된 결과를 구한다.
+	 * In the case where there is no defined SQLGenerator, entered SQL is
+	 * executed as it is. In the case where there is defined SQLGenerator, a
+	 * total case on SQL execution result and paging processed result are
+	 * sought.
 	 * 
 	 * @param sql
 	 *            query statement
 	 * @param rowMapper
-	 *            조회 결과로부터 하나의 Row를 특정 객체 형태에 매핑하기 위한 Mapper
+	 *            Mapper to map one Row from search result on a specific object
+	 *            format
 	 * @param context
-	 *            페이징 처리를 위해 필요한 기본 정보
-	 * @return 쿼리 수행 결과
+	 *            Basic information necessary for paging process
+	 * @return Query execution result
 	 */
 	public List queryWithPagination(String sql, RowMapper rowMapper,
 			Pagination paginationVO) throws Exception {
@@ -259,8 +266,8 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 		}
 
 		Object[] paginationArgs = paginationSQLGetter.setQueryArgs(
-				new Object[0], paginationVO.getPageIndex(), paginationVO
-						.getPageSize());
+				new Object[0], paginationVO.getPageIndex(),
+				paginationVO.getPageSize());
 		String paginationSql = getPaginationSQL(sql, new Object[0], new int[0],
 				paginationVO);
 
@@ -268,18 +275,21 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 	}
 
 	/**
-	 * 정의된 SQLGenerator가 없을 경우 입력된 SQL을 그대로 실행한다. 정의된 SQL Generator가 있을 경우 입력된
-	 * SQL 실행 결과에 대한 전체 건수와 페이징 처리된 결과를 구한다.
+	 * In the case where there is no defined SQLGenerator, entered SQL is
+	 * executed as it is. In the case where there is defined SQLGenerator, a
+	 * total case on SQL execution result and paging processed result are
+	 * sought.
 	 * 
 	 * @param sql
 	 *            query statement
 	 * @param args
 	 *            a set of variable values for executing query
 	 * @param rowMapper
-	 *            조회 결과로부터 하나의 Row를 특정 객체 형태에 매핑하기 위한 Mapper
+	 *            Mapper to map one Row from search result on a specific object
+	 *            format
 	 * @param context
-	 *            페이징 처리를 위해 필요한 기본 정보
-	 * @return 쿼리 수행 결과
+	 *            Basic information necessary for paging process
+	 * @return Query execution result
 	 */
 	public List queryWithPagination(String sql, Object[] args,
 			RowMapper rowMapper, Pagination paginationVO) throws Exception {
@@ -302,7 +312,8 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 	}
 
 	public List queryForListWithPagination(String sql, Object[] args,
-			int[] argTypes, int queryMaxFetchSize, Pagination paginationVO) throws Exception {
+			int[] argTypes, int queryMaxFetchSize, Pagination paginationVO)
+			throws Exception {
 		return queryWithPagination(sql, args, argTypes, queryMaxFetchSize,
 				getColumnMapRowMapper(), paginationVO);
 	}
@@ -355,8 +366,10 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 	}
 
 	// 2011.05.03 - maxFetchSize
-	public Collection query(String sql, Object[] args, int[] argTypes, int queryMaxFetchSize) {
-		return query(sql, args, argTypes, queryMaxFetchSize, new ColumnMapRowMapper());
+	public Collection query(String sql, Object[] args, int[] argTypes,
+			int queryMaxFetchSize) {
+		return query(sql, args, argTypes, queryMaxFetchSize,
+				new ColumnMapRowMapper());
 	}
 
 	// 2011.05.03 - maxFetchSize
@@ -457,8 +470,8 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 							&& resultSetParameters.size() > rsIndex) {
 						SqlReturnResultSet declaredRsParam = (SqlReturnResultSet) resultSetParameters
 								.get(rsIndex);
-						returnedResults.putAll(processResultSet(cs
-								.getResultSet(), declaredRsParam));
+						returnedResults.putAll(processResultSet(
+								cs.getResultSet(), declaredRsParam));
 						rsIndex++;
 					} else {
 						if (!skipUndeclaredResults) {
@@ -467,11 +480,10 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 							SqlReturnResultSet undeclaredRsParam = new SqlReturnResultSet(
 									rsName, new MappingStyleColumnMapRowMapper(
 											sqlLoader, queryInfo));
-							logger
-									.info("Added default SqlReturnResultSet parameter named "
-											+ rsName);
-							returnedResults.putAll(processResultSet(cs
-									.getResultSet(), undeclaredRsParam));
+							logger.info("Added default SqlReturnResultSet parameter named "
+									+ rsName);
+							returnedResults.putAll(processResultSet(
+									cs.getResultSet(), undeclaredRsParam));
 							rsIndex++;
 						}
 					}
@@ -488,9 +500,8 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 						if (!skipUndeclaredResults) {
 							String undeclaredUcName = RETURN_UPDATE_COUNT_PREFIX
 									+ (updateIndex + 1);
-							logger
-									.info("Added default SqlReturnUpdateCount parameter named "
-											+ undeclaredUcName);
+							logger.info("Added default SqlReturnUpdateCount parameter named "
+									+ undeclaredUcName);
 							returnedResults.put(undeclaredUcName, new Integer(
 									updateCount));
 							updateIndex++;
@@ -683,10 +694,11 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 
 			int rowNum = 1;
 
-			// 2008.04.11 - 데이터가 없는 경우라도 meta data 설정은
-			// 필요할 수 있음.
-			// processMetaData 처리는 각 rch 의 구현에 따름. 현재
-			// Gauce 에만 구현
+			// 2008.04.11
+			// Even in the case where there is no data, meta data setup can be
+			// needed.
+			// processMetaData handling follows implementation of each rch. As
+			// of now, only it is implemented in Gauce.
 			if (this.rch instanceof RowMetadataCallbackHandler
 					&& ((RowMetadataCallbackHandler) rch).isNeedColumnInfo()) {
 				((RowMetadataCallbackHandler) this.rch).processMetaData(rs);
