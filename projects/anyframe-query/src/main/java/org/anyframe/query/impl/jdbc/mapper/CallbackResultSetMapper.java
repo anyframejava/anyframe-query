@@ -18,12 +18,14 @@ package org.anyframe.query.impl.jdbc.mapper;
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 import org.anyframe.query.MappingInfo;
 import org.anyframe.query.impl.util.AbstractNameMatcher;
 import org.anyframe.query.impl.util.ColumnUtil;
 import org.anyframe.query.impl.util.SQLTypeTransfer;
+import org.anyframe.query.impl.util.Tree;
 import org.anyframe.util.StringUtil;
 import org.apache.commons.collections.map.ListOrderedMap;
 import org.springframework.jdbc.support.lob.LobHandler;
@@ -175,13 +177,15 @@ public class CallbackResultSetMapper<T> extends DefaultReflectionResultSetMapper
 					// are mapped according to their order.
 					String[] columns = getMappingInfo()
 							.getCompositeColumnNames().get(parentAttributeName);
-					String[] attributes = getMappingInfo()
-							.getCompositeFieldNames().get(parentAttributeName);
-
+					Tree<String> attributes = getMappingInfo()
+							.getCompositeFieldNames().getTree(parentAttributeName);
 					for (int i = 0; i < columns.length; i++) {
 						if (columnName.equals(columns[i])) {
-							mappedAttribute = attributes[i];
-							return mappedAttribute.equals(attributeName);
+
+							if(attributes.getTree(attributeName) != null)
+								return true;
+							else
+								return false;
 						}
 					}
 				}
@@ -199,7 +203,7 @@ public class CallbackResultSetMapper<T> extends DefaultReflectionResultSetMapper
 		}
 
 		public Field isMatching(Map<String, Field> attributeMap,
-				String columnName, String parentAttributeName) {
+				String columnName, String parentAttributeName, Field[] parentAttributes) {
 			// 2009.03.17 - start
 			String mappedAttribute = null;
 
@@ -208,7 +212,7 @@ public class CallbackResultSetMapper<T> extends DefaultReflectionResultSetMapper
 				mappedAttribute = getMappingInfo().getMappingInfoAsMap().get(
 						columnName.toLowerCase());
 
-				if (!StringUtil.isEmpty(mappedAttribute))
+				if (!StringUtil.isEmpty(mappedAttribute) && attributeMap.get(mappedAttribute)!=null && (parentAttributeName == null || "".equals(parentAttributeName)))
 					return attributeMap.get(mappedAttribute);
 
 				// In the case where parentAttributeName exists without
@@ -219,26 +223,36 @@ public class CallbackResultSetMapper<T> extends DefaultReflectionResultSetMapper
 				if (parentAttributeName != null) {
 					// Based on mapping XML definition, Columns and attributes
 					// are mapped according to their order.
+					
 					String[] columns = getMappingInfo()
 							.getCompositeColumnNames().get(parentAttributeName);
-					String[] attributes = getMappingInfo()
-							.getCompositeFieldNames().get(parentAttributeName);
-
+					
+					Tree<String> attributes = getMappingInfo()
+							.getCompositeFieldNames().getTree(parentAttributeName);
+					
+					List<Tree<String>> col = (List<Tree<String>>)attributes.getSubTrees();
+					
 					for (int i = 0; i < columns.length; i++) {
-						if (columnName.equals(columns[i])) {
-							mappedAttribute = attributes[i];
-							return attributeMap.get(mappedAttribute);
+						Tree<String> subTree = col.get(i);
+						if (columnName.equals(columns[i]) && subTree != null) {
+							return attributeMap.get(subTree.getHead());
 						}
 					}
 				}
 			}
+			
 			// 2009.05.28 If mappedAttribute is not found via above process,
 			// relevant column name is changed according to mappingStype
 			// property.
-
 			mappedAttribute = ColumnUtil.changeColumnName(mappingStyle,
 					columnName);
-
+			if (mappedAttribute != null ) {
+				for (int i = 0; i < parentAttributes.length; i++) {
+					if (parentAttributes[i] != null && mappedAttribute.equals(parentAttributes[i].getName())) {
+						return null;
+					}
+				}
+			}
 			// If mappedAttribute is not found via above process, it is handled
 			// as no mapping information.
 			return attributeMap.get(mappedAttribute);

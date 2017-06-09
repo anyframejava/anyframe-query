@@ -39,7 +39,7 @@ public abstract class AbstractNameMatcher implements Cloneable {
 			String parentAttributeName);
 
 	public abstract Field isMatching(Map<String, Field> attributeMap,
-			String columnName, String parentAttributeName);
+			String columnName, String parentAttributeName, Field[] attributes);
 
 	/**
 	 * Set the prefix to use when matching a field name to column name. The

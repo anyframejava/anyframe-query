@@ -31,7 +31,7 @@ public class OraclePagingSQLGenerator extends AbstractPagingSQLGenerator {
 		sql.append(originalSql);
 
 		sql
-				.append(" ) INNER_TABLE WHERE ROWNUM <= ? )  WHERE ROW_SEQ BETWEEN ? AND ?");
+				.append(" ) INNER_TABLE WHERE TO_NUMBER(ROWNUM) <= ? )  WHERE ROW_SEQ BETWEEN ? AND ?");
 
 		return sql.toString();
 	}

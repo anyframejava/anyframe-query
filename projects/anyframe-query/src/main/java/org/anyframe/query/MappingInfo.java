@@ -17,6 +17,8 @@ package org.anyframe.query;
 
 import java.util.Map;
 
+import org.anyframe.query.impl.util.Tree;
+
 /**
  * This is a class for the role of saving the mapping info of the defined table
  * inside the table mappings.
@@ -109,7 +111,7 @@ public interface MappingInfo {
 	 * 
 	 * @return composite attributes
 	 */
-	Map<String, String[]> getCompositeFieldNames();
+	Tree<String> getCompositeFieldNames();
 	// 2009.03.17 - end
 
 }

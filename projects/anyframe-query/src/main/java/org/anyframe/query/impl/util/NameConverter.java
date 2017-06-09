@@ -67,7 +67,7 @@ public class NameConverter extends AbstractNameMatcher {
 	}
 	
 	public Field isMatching(Map<String, Field> attributeMap, String columnName,
-			String parentFieldName) {
+			String parentFieldName, Field[] parentAttributes) {
 		
 		String camelCasedColumnName = prefix.concat(
 				NameConverter.convertToCamelCase(columnName)).concat(suffix);

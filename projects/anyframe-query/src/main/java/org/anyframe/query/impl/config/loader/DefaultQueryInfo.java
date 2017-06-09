@@ -17,13 +17,16 @@ package org.anyframe.query.impl.config.loader;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.anyframe.exception.MissingRequiredPropertyException;
 import org.anyframe.query.QueryInfo;
 import org.anyframe.query.QueryService;
 import org.anyframe.query.impl.util.SQLTypeTransfer;
+import org.anyframe.query.impl.util.Tree;
 import org.anyframe.util.StringUtil;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.core.SqlTypeValue;
@@ -82,8 +85,8 @@ public class DefaultQueryInfo implements QueryInfo {
 		statement = statementElement.getTextContent();
 
 		String isDynamicValue = query.getAttribute("isDynamic");
-		dynamic = "".equals(isDynamicValue) ? true : new Boolean(
-				isDynamicValue).booleanValue();
+		dynamic = "".equals(isDynamicValue) ? true
+				: new Boolean(isDynamicValue).booleanValue();
 		String mappingStyleValue = query.getAttribute("mappingStyle");
 		mappingStyle = "".equals(mappingStyleValue) ? "camel"
 				: mappingStyleValue;
@@ -119,8 +122,8 @@ public class DefaultQueryInfo implements QueryInfo {
 				List<String> fields = new ArrayList<String>();
 
 				Map<String, String[]> compositeColumnMap = new HashMap<String, String[]>();
-				Map<String, String[]> compositeFieldMap = new HashMap<String, String[]>();
-
+				Tree<String> compositeFiledTree = new Tree<String>("compositeFiledTree");
+				
 				for (int i = 0; i < resultMappings.getLength(); i++) {
 					Element resultMapping = (Element) resultMappings.item(i);
 
@@ -136,34 +139,67 @@ public class DefaultQueryInfo implements QueryInfo {
 								.trimAllWhitespace(column).split(",");
 						String[] compositeFieldes = StringUtils
 								.trimAllWhitespace(field).split(",");
-
+						
 						if (compositeColumns.length == compositeFieldes.length) {
 							String compositeField = "";
-
+							Map<String, List<String>> tmpColumnMap = new HashMap<String, List<String>>();
 							for (int j = 0; j < compositeFieldes.length; j++) {
 								String compositeFieldName = compositeFieldes[j];
-								String tempField = compositeFieldName
-										.substring(0, compositeFieldName
-												.indexOf("."));
-								if (i != 0 && !tempField.equals(compositeField))
+								String key = compositeFieldName.substring(0,
+										compositeFieldName.indexOf("."));
+								Tree<String> child;
+								
+								if(compositeFiledTree.getTree(key)!=null){
+									child = compositeFiledTree.getTree(key);
+								}else{
+									child = compositeFiledTree.addLeaf(key);
+								}
+									
+								if (i != 0 && !key.equals(compositeField))
 									QueryService.LOGGER
-											.warn(
-													"Query Service : This mapping information is ignored. Property name is different. If you want to handle properties of user defined type, attribute should start with same property name. Please check result mapping (queryId ='{}')",
+											.warn("Query Service : This mapping information is ignored. Property name is different. If you want to handle properties of user defined type, attribute should start with same property name. Please check result mapping (queryId ='{}')",
 													queryId);
-								compositeField = tempField;
-								compositeFieldes[j] = compositeFieldName
+								String[] fieldNames = compositeFieldName
 										.substring(compositeFieldName
-												.indexOf(".") + 1);
-							}
+												.indexOf(".") + 1).split("\\.");
+								Tree<String> lvnChild;
+								compositeField = key;
+//								if(child.getTree(fieldNames[0])!=null){
+//									lvnChild = child.getTree(fieldNames[0]);
+//								}else{
+//									lvnChild = child.addLeaf(fieldNames[0]);
+//								}
+								lvnChild = child.addLeaf(fieldNames[0]);
+								
+								if (fieldNames.length > 1) {
+									for (int k=1; k < fieldNames.length; k++) {
+										lvnChild = lvnChild.addLeaf(fieldNames[k]);
+										compositeField = fieldNames[k-1];
+									}
+								}
+								List<String> attrs  = new ArrayList<String>();
+								if(tmpColumnMap.get(compositeField)!=null && tmpColumnMap.get(compositeField).size() > 0){
+									attrs = tmpColumnMap.get(compositeField);
+								}
+								attrs.add(compositeColumns[j]);
+								tmpColumnMap.put(compositeField, attrs);
 
-							compositeFieldMap.put(compositeField,
-									compositeFieldes);
-							compositeColumnMap.put(compositeField,
-									compositeColumns);
+							}
+							Set<String> keySet = tmpColumnMap.keySet();
+							Iterator<String> keyItr = keySet.iterator();
+							while(keyItr.hasNext()){
+								String colKey = keyItr.next();
+								List<String> colList = tmpColumnMap.get(colKey);
+								String[] colValues = new String[colList.size()];
+								for(int l=0; l < colList.size(); l++){
+									colValues[l] = colList.get(l);
+								}
+								compositeColumnMap.put(colKey, colValues);
+							}
+							
 						} else {
 							QueryService.LOGGER
-									.warn(
-											"Query Service : This mapping information is ignored. If you want to handle properties of user defined type, the number of column should be same as that of attribute. Please check result mapping (queryId ='{}')",
+									.warn("Query Service : This mapping information is ignored. If you want to handle properties of user defined type, the number of column should be same as that of attribute. Please check result mapping (queryId ='{}')",
 											queryId);
 						}
 					} else {
@@ -177,7 +213,7 @@ public class DefaultQueryInfo implements QueryInfo {
 				localMappingInfo.setFieldNames(fields.toArray(new String[fields
 						.size()]));
 				localMappingInfo.setCompositeColumnNames(compositeColumnMap);
-				localMappingInfo.setCompositeFieldNames(compositeFieldMap);
+				localMappingInfo.setCompositeFieldNames(compositeFiledTree);
 			}
 		}
 
@@ -193,22 +229,24 @@ public class DefaultQueryInfo implements QueryInfo {
 			paramBindingNames[i] = param.getAttribute("name");
 
 			if (isDynamic())
-				paramMap.put(paramBindingNames[i], new Integer(SQLTypeTransfer
-						.getSQLType(paramTypeNames[i].toUpperCase())));
+				paramMap.put(
+						paramBindingNames[i],
+						new Integer(SQLTypeTransfer
+								.getSQLType(paramTypeNames[i].toUpperCase())));
 		}
 
 		// for Handling Lob of Oracle 8i
 		NodeList lobHandlings = query.getElementsByTagName("lobStatement");
 
 		if (lobHandlings.getLength() > 0) {
-			hasOnlyOneElements("query", "lobStatement", lobHandlings
-					.getLength());
+			hasOnlyOneElements("query", "lobStatement",
+					lobHandlings.getLength());
 			Element lobHandling = (Element) lobHandlings.item(0);
 
 			NodeList lobStatements = lobHandling
 					.getElementsByTagName("statement");
-			hasOnlyOneElements("lobStatement", "statement", lobStatements
-					.getLength());
+			hasOnlyOneElements("lobStatement", "statement",
+					lobStatements.getLength());
 			lobStatement = lobStatements.item(0).getTextContent();
 			if ("".equals(lobStatement)) {
 				lobStatement = null;

@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.anyframe.exception.MissingRequiredPropertyException;
 import org.anyframe.query.MappingInfo;
+import org.anyframe.query.impl.util.Tree;
 import org.anyframe.util.StringUtil;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -39,7 +40,7 @@ public class DefaultMappingInfo implements MappingInfo {
 	// 2009.03.17 - start
 	private Map<String, String[]> compositeColumnNames = new HashMap<String, String[]>();
 
-	private Map<String, String[]> compositeFieldNames = new HashMap<String, String[]>();
+	private Tree<String> compositeFieldNames;
 	// 2009.03.17 - end
 	private String[] primaryKeyColumnNames = new String[0];
 
@@ -274,14 +275,6 @@ public class DefaultMappingInfo implements MappingInfo {
 		this.compositeColumnNames = compositeColumnNames;
 	}
 
-	public Map<String, String[]> getCompositeFieldNames() {
-		return compositeFieldNames;
-	}
-
-	public void setCompositeFieldNames(Map<String, String[]> compositeFieldNames) {
-		this.compositeFieldNames = compositeFieldNames;
-	}
-
 	// 2009.03.17 - end
 
 	private void checkRequiredAttribute(String element, String name,
@@ -308,5 +301,13 @@ public class DefaultMappingInfo implements MappingInfo {
 					"Query Service : must have one <" + childElement
 							+ "> in a <" + parentElement + ">.");
 		}
+	}
+
+	public Tree<String> getCompositeFieldNames() {
+		return compositeFieldNames;
+	}
+
+	public void setCompositeFieldNames(Tree<String> compositeFieldNames) {
+		this.compositeFieldNames = compositeFieldNames;
 	}
 }

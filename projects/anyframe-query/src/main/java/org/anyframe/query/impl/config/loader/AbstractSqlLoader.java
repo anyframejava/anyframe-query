@@ -25,6 +25,7 @@ import org.anyframe.query.MappingInfo;
 import org.anyframe.query.QueryInfo;
 import org.anyframe.query.SqlLoader;
 import org.anyframe.query.impl.jdbc.mapper.ResultSetMappingConfiguration;
+import org.anyframe.query.impl.util.Tree;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -139,7 +140,7 @@ public abstract class AbstractSqlLoader implements SqlLoader, InitializingBean,
 					return null;
 				}
 
-				public Map<String, String[]> getCompositeFieldNames() {
+				public Tree<String> getCompositeFieldNames() {
 					return null;
 				}
 

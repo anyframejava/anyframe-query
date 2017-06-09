@@ -156,7 +156,7 @@
 		</section>
 
 		<warning>
-			<title>Result Mapping시 유의사항</title>
+			<title>Result Mapping 시 유의사항</title>
 			<para>
 				<itemizedlist>
 					<listitem>
@@ -164,6 +164,7 @@
 							SELECT 문을 통해 조회된 칼럼 중 <![CDATA[<result-mapping>]]>을 통해 매핑하지 않은
 							경우에는 기본적으로 mappingStyle을 이용하여, 매핑 처리를 수행한다. 만약 정의된 Result
 							클래스 내에 mappingStyle에 맞는 속성명이 존재하지 않으면 매핑은 수행되지 않을 것이다.</para>
+						<para>즉, <![CDATA[<result-mapping>]]>을 통하여 선언된 매핑규칙은 mappingStyle에 의한 것보다 우선한다.</para>
 					</listitem>
 					<listitem>
 						<para>
@@ -172,10 +173,8 @@
 							정의할 수 있다. 단, attribute 정의시 반드시 내부 Object의 변수명을 그대로 사용해야
 							한다. 
 						</para>
-						<para>
-							쿼리 수행 결과를 성공적으로 Result 클래스에 매핑하기 위해 매핑되는 테이블은 ID라는 이름의 칼럼명을 포함하지 않아야 함을  
-							반드시 기억하도록 한다. 
-						</para>
+						<para>Composite Object에 대한 맵핑은 <![CDATA[<result-mapping>]]>을 통해서만 맵핑할 수 있으며, 
+						mappingStyle에 대한 기본 매핑은 Composite Object에는 해당되지 않는다</para>
 						<programlisting language="xml"><![CDATA[<query id="findWithCompositeResultMapping">
     <statement>
         select grp.GROUP_ID, grp.GROUP_NAME, cd.CODE_ID, cd.CODE_NAME,
