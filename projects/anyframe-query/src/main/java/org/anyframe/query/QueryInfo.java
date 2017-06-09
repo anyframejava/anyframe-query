@@ -17,6 +17,8 @@ package org.anyframe.query;
 
 import java.util.List;
 
+import org.springframework.jdbc.core.SqlParameter;
+
 /**
  * This is a class for the role of saving the info about query statement defined
  * in the query mapping xml file.
@@ -64,26 +66,10 @@ public interface QueryInfo {
 	 */
 	boolean isDynamic();
 
-	// 2008.8.20 add
-	/**
-	 * 해당 쿼리문 수행 결과를 Map 또는 별도 정의된 클래스에 매핑할 때 CamelCase를 적용할 것인지 여부를 체크한다.
-	 * 
-	 * @return 특정 쿼리문의 속성인 isCamelCase의 value (default=true)
-	 */
-
 	// 2009.05.28
 	/**
 	 * When mapping in the defined class or Map for the appropriate query's
-	 * execution results, check for whether to apply CamelCase
-	 * 
-	 * @return isCamelCase's value which is defined in the arbitrary query's
-	 *         configuration (default=true)
-	 */
-	// boolean isCamelCase();
-	// 2009.05.28
-	/**
-	 * When mapping in the defined class or Map for the appropriate query's
-	 * execution results, check mapping style (must be one of CamelCase,
+	 * execution results, check mapping style. (must be one of CamelCase,
 	 * LowerCase, UpperCase)
 	 * 
 	 * @return mappingStyle's value which is defined in the arbitrary query's
@@ -107,11 +93,11 @@ public interface QueryInfo {
 	 * 
 	 * @return SqlParameter list
 	 */
-	List getSqlParameterList();
+	List<SqlParameter> getSqlParameterList();
 
 	/**
 	 * Transmits the variable's sql types defined in the arbitrary order among
-	 * the variables for replacing in the appropriate query statement
+	 * the variables for replacing in the appropriate query statement.
 	 * 
 	 * @param pos
 	 *            Order of the arbitrary variable
@@ -121,15 +107,15 @@ public interface QueryInfo {
 
 	/**
 	 * Transmits the variable's sql types for replacing in the appropriate query
-	 * statement
+	 * statement.
 	 * 
-	 * @return sql type list of variables
+	 * @return sql types of variables
 	 */
 	int[] getSqlTypes();
 
 	/**
 	 * Transmits the variable's sql types defined as arbitray name among the
-	 * variables for replacing in the appropropriate query statement
+	 * variables for replacing in the appropriate query statement.
 	 * 
 	 * @param name
 	 *            name of the arbitrary variable
@@ -139,7 +125,7 @@ public interface QueryInfo {
 
 	/**
 	 * Transmits the statement (for Oracle 8i) in the case where an arbitrary
-	 * lobStatement is defined for handling the LOB type data
+	 * lobStatement is defined for handling the LOB type data.
 	 * 
 	 * @return lob statement for LOB handling
 	 */
@@ -147,7 +133,7 @@ public interface QueryInfo {
 
 	/**
 	 * Transmits the defined Parameter (for Oracle 8i) in the case where a
-	 * separate lobStatement is defined for handling the LOB type
+	 * separate lobStatement is defined for handling the LOB type.
 	 * 
 	 * @return lob parameter for handling a LOB
 	 */
@@ -160,4 +146,11 @@ public interface QueryInfo {
 	 * @return resultset mapper class name
 	 */
 	String getResultMapper();
+
+	/**
+	 * Transmits the defined maxFetchSize.
+	 * 
+	 * @return maxFetchSize value
+	 */
+	int getMaxFetchSize();
 }

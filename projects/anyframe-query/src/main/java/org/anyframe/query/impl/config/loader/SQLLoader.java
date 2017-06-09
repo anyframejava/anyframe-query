@@ -22,41 +22,44 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
+import org.anyframe.query.ConfigurationException;
 import org.anyframe.query.MappingInfo;
 import org.anyframe.query.QueryInfo;
 import org.anyframe.query.QueryService;
 import org.anyframe.query.QueryServiceException;
-import org.anyframe.query.impl.config.BeansDtdResolver;
+import org.anyframe.query.impl.config.QuerySchemaResolver;
+import org.anyframe.query.impl.jdbc.mapper.ResultSetMappingConfiguration;
 import org.anyframe.util.StringUtil;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.MessageSource;
-import org.springframework.context.MessageSourceAware;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.util.ResourceUtils;
+import org.springframework.util.xml.SimpleSaxErrorHandler;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
-import org.xml.sax.XMLReader;
 
 /**
  * @author Soyon Lim
  */
-public class SQLLoader implements MessageSourceAware, ResourceLoaderAware,
-		InitializingBean, DisposableBean {
+public class SQLLoader implements ResourceLoaderAware, InitializingBean,
+		DisposableBean {
+
+	private static final String SCHEMA_LANGUAGE_ATTRIBUTE = "http://java.sun.com/xml/jaxp/properties/schemaLanguage";
+
+	private static final String XSD_SCHEMA_LANGUAGE = "http://www.w3.org/2001/XMLSchema";
 
 	private boolean skipError = false;
 
@@ -64,31 +67,21 @@ public class SQLLoader implements MessageSourceAware, ResourceLoaderAware,
 
 	private Watcher watcher;
 
-	private MessageSource messageSource;
-
 	private ResourceLoader resourceLoader = null;
 
 	private Map<String, String> nullchecks = new HashMap<String, String>();
 
-	private Map queryInfos = new HashMap();
+	private Map<String, QueryInfo> queryInfos = new HashMap<String, QueryInfo>();
 
-	private Map mappingInfos = new HashMap();
+	private Map<String, MappingInfo> mappingInfos = new HashMap<String, MappingInfo>();
 
-	private Map queryResultMappings = new HashMap();
+	private Map<String, ResultSetMappingConfiguration> queryResultMappings = new HashMap<String, ResultSetMappingConfiguration>();
 
 	private String mappingFiles = "";
 
 	private int registeredQueryCount = 0;
 
-	/**
-	 * @param messageSource
-	 *            the messageSource to set
-	 */
-	public void setMessageSource(MessageSource messageSource) {
-		this.messageSource = messageSource;
-	}
-
-	public Map getQueryResultMappings() {
+	public Map<String, ResultSetMappingConfiguration> getQueryResultMappings() {
 		return queryResultMappings;
 	}
 
@@ -124,12 +117,12 @@ public class SQLLoader implements MessageSourceAware, ResourceLoaderAware,
 	public void afterPropertiesSet() throws Exception {
 		try {
 			boolean isDynamic = setUpWatcher();
-			DefaultConfigurationBuilder builder = getBuilder();
+			DocumentBuilder builder = getBuilder();
 			loadSQLDefinitions(builder, isDynamic);
 		} catch (Exception e) {
-			QueryService.LOGGER.error(messageSource.getMessage(
-					"error.query.initialize.configure", new String[] {},
-					Locale.getDefault()), e);
+			QueryService.LOGGER.error(
+					"Query Service : Fail to initialize query service.\n Reason = ["
+							+ e.getMessage() + "]", e);
 			throw new ConfigurationException(
 					"Query Service : Fail to configure mapping xml files.", e);
 		}
@@ -139,11 +132,11 @@ public class SQLLoader implements MessageSourceAware, ResourceLoaderAware,
 				+ " defined queries in all configuration files.");
 	}
 
-	public Map getQueryInfos() {
+	public Map<String, QueryInfo> getQueryInfos() {
 		return queryInfos;
 	}
 
-	public Map getMappingInfos() {
+	public Map<String, MappingInfo> getMappingInfos() {
 		return mappingInfos;
 	}
 
@@ -174,17 +167,18 @@ public class SQLLoader implements MessageSourceAware, ResourceLoaderAware,
 
 				// 2009.03.17 - start
 				// IMappingInfo에 추가된 오퍼레이션 추가 구현
-				public Map getCompositeColumnNames() {
+				public Map<String, String[]> getCompositeColumnNames() {
 					return null;
 				}
 
-				public Map getCompositeFieldNames() {
+				public Map<String, String[]> getCompositeFieldNames() {
 					return null;
 				}
 
 				// 2009.03.17 - end
 
-				public Map getMappingInfoAsMap() {
+				@SuppressWarnings("unchecked")
+				public Map<String, String> getMappingInfoAsMap() {
 					return new Map() {
 
 						public void clear() {
@@ -310,20 +304,36 @@ public class SQLLoader implements MessageSourceAware, ResourceLoaderAware,
 		return isDynamic;
 	}
 
-	private DefaultConfigurationBuilder getBuilder()
-			throws QueryServiceException, ParserConfigurationException,
-			SAXException {
-		final SAXParserFactory saxParserFactory = SAXParserFactory
-				.newInstance();
-		saxParserFactory.setValidating(false);
-		final SAXParser saxParser = saxParserFactory.newSAXParser();
-		XMLReader parser = saxParser.getXMLReader();
-		parser.setEntityResolver(new BeansDtdResolver());
-		return new DefaultConfigurationBuilder(parser);
+	private DocumentBuilder getBuilder() throws QueryServiceException,
+			ParserConfigurationException, SAXException {
+
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		factory.setNamespaceAware(true);
+//		factory.setValidating(true);
+
+		try {
+			factory
+					.setAttribute(SCHEMA_LANGUAGE_ATTRIBUTE,
+							XSD_SCHEMA_LANGUAGE);
+		} catch (IllegalArgumentException ex) {
+			ParserConfigurationException pcex = new ParserConfigurationException(
+					"Unable to validate using XSD: Your JAXP provider ["
+							+ factory
+							+ "] does not support XML Schema. Are you running on Java 1.4 with Apache Crimson? "
+							+ "Upgrade to Apache Xerces (or Java 1.5) for full XSD support.");
+			pcex.initCause(ex);
+			throw pcex;
+		}
+
+		DocumentBuilder builder = factory.newDocumentBuilder();
+		builder.setErrorHandler(new SimpleSaxErrorHandler(QueryService.LOGGER));
+		builder.setEntityResolver(new QuerySchemaResolver()); 
+		
+		return builder;
 	}
 
-	private void loadSQLDefinitions(DefaultConfigurationBuilder builder,
-			boolean isDynamic) throws Exception {
+	private void loadSQLDefinitions(DocumentBuilder builder, boolean isDynamic)
+			throws Exception {
 		List<String> files = StringUtil.getTokens(this.mappingFiles);
 		String location = "";
 
@@ -375,7 +385,7 @@ public class SQLLoader implements MessageSourceAware, ResourceLoaderAware,
 			watcher.addResource(resource);
 	}
 
-	private int loadSQLDefinitions(DefaultConfigurationBuilder builder,
+	private int loadSQLDefinitions(DocumentBuilder builder,
 			boolean dynamicSqlLoad, Resource[] resources) throws Exception {
 		int loadCount = 0;
 		for (int i = 0; i < resources.length; i++) {
@@ -385,31 +395,38 @@ public class SQLLoader implements MessageSourceAware, ResourceLoaderAware,
 		return loadCount;
 	}
 
-	private int buildSQLMap(DefaultConfigurationBuilder builder,
-			Resource resource) throws ConfigurationException, SAXException,
-			IOException {
+	private int buildSQLMap(DocumentBuilder builder, Resource resource)
+			throws ConfigurationException, SAXException, IOException {
 		int successCount = 0;
 		try {
-			Configuration rootConfig = builder.build(resource.getInputStream());
-			Configuration[] configs = rootConfig.getChildren();
-			for (int i = 0, size = configs.length; i < size; i++) {
-				Configuration config = configs[i];
+			Document rootConfig = builder.parse(resource.getInputStream());
 
-				Configuration[] querys = config.getChildren("query");
+			NodeList tableMappingConfig = rootConfig
+					.getElementsByTagName("table-mapping");
 
-				for (int j = 0; j < querys.length; j++) {
+			if (tableMappingConfig.getLength() > 0) {
+				NodeList tables = ((Element) tableMappingConfig.item(0))
+						.getElementsByTagName("table");
+
+				for (int i = 0; i < tables.getLength(); i++) {
+					DefaultMappingInfo mappingInfo = new DefaultMappingInfo();
+					mappingInfo.configure((Element) tables.item(i));
+					mappingInfos.put(mappingInfo.getClassName(), mappingInfo);
+				}
+			}
+
+			NodeList queriesConfig = rootConfig.getElementsByTagName("queries");
+
+			if (queriesConfig.getLength() > 0) {
+				NodeList queries = ((Element) queriesConfig.item(0))
+						.getElementsByTagName("query");
+
+				for (int i = 0; i < queries.getLength(); i++) {
 					DefaultQueryInfo queryInfo = new DefaultQueryInfo();
-					queryInfo.configure(querys[j]);
+					queryInfo.configure((Element) queries.item(i));
 					queryInfos.put(queryInfo.getQueryId(), queryInfo);
 					++successCount;
 					++registeredQueryCount;
-				}
-
-				Configuration[] tables = config.getChildren("table");
-				for (int j = 0; j < tables.length; j++) {
-					DefaultMappingInfo mappingInfo = new DefaultMappingInfo();
-					mappingInfo.configure(tables[j]);
-					mappingInfos.put(mappingInfo.getClassName(), mappingInfo);
 				}
 			}
 		} catch (SAXParseException se) {
@@ -431,7 +448,7 @@ public class SQLLoader implements MessageSourceAware, ResourceLoaderAware,
 
 		private final int scanRate = 10;
 
-		private Hashtable resources = new Hashtable();
+		private Hashtable<Resource, Long> resources = new Hashtable<Resource, Long>();
 
 		private boolean done = false;
 
@@ -476,7 +493,7 @@ public class SQLLoader implements MessageSourceAware, ResourceLoaderAware,
 				while (!done) {
 					synchronized (this) {
 						boolean modificationChk = false;
-						Enumeration en = resources.keys();
+						Enumeration<Resource> en = resources.keys();
 						while (en.hasMoreElements()) {
 							try {
 								Resource resource = (Resource) en.nextElement();
@@ -499,7 +516,8 @@ public class SQLLoader implements MessageSourceAware, ResourceLoaderAware,
 								}
 							} catch (Exception e) {
 								QueryService.LOGGER
-										.error("Query Service : Fail to check whether mapping XML file is modified.",
+										.error(
+												"Query Service : Fail to check whether mapping XML file is modified.",
 												e);
 							}
 						}
@@ -509,7 +527,8 @@ public class SQLLoader implements MessageSourceAware, ResourceLoaderAware,
 								rebuildSQLMap(getBuilder());
 						} catch (Exception e) {
 							QueryService.LOGGER
-									.error("Query Service : Fail to rebuild Query Mapping.",
+									.error(
+											"Query Service : Fail to rebuild Query Mapping.",
 											e);
 						}
 						sleep(getRefreshRate());
@@ -521,12 +540,12 @@ public class SQLLoader implements MessageSourceAware, ResourceLoaderAware,
 			}
 		}
 
-		private void rebuildSQLMap(DefaultConfigurationBuilder builder)
+		private void rebuildSQLMap(DocumentBuilder builder)
 				throws QueryServiceException {
 			QueryService.LOGGER
 					.info("Query Service : Watcher rebuilds Query Mapping.....");
 			clearSQLMap();
-			Enumeration en = resources.keys();
+			Enumeration<Resource> en = resources.keys();
 			while (en.hasMoreElements()) {
 				Resource resource = (Resource) en.nextElement();
 				try {

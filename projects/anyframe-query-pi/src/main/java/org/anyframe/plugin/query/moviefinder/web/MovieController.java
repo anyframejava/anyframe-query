@@ -127,7 +127,7 @@ public class MovieController {
 	public String update(@Valid Movie movie, BindingResult results,
 			SessionStatus status) throws Exception {
 		if (results.hasErrors()) {
-			return "queryViewMovie";
+			return "query/moviefinder/movie/form";
 		}
 
 		this.movieService.update(movie);

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE queryservice PUBLIC "-//ANYFRAME//DTD QUERYSERVICE//EN"
-"http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.2.dtd">
+"http://www.anyframejava.org/dtd/anyframe-query-mapping-1.0.dtd">
 <queryservice>
   	<queries>
   		<query id="insertCustomer" isDynamic="false">

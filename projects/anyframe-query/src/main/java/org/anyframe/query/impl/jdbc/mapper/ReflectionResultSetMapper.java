@@ -40,20 +40,20 @@ import org.anyframe.query.ResultSetMapper;
 import org.anyframe.query.RowMetadataCallbackHandler;
 import org.anyframe.query.impl.Pagination;
 import org.anyframe.query.impl.config.loader.SQLLoader;
+import org.anyframe.query.impl.util.ColumnUtil;
 import org.anyframe.query.impl.util.ReflectionHelp;
 import org.anyframe.query.impl.util.SQLTypeTransfer;
 import org.apache.commons.collections.map.ListOrderedMap;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.lob.LobHandler;
 
-
 /**
  * ResultSet에서 조회 결과를 꺼내 특정 객체 형태로 변환한다.
  * 
  * @author SOOYEON PARK
  */
-public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport implements
-		RowMapper, RowMetadataCallbackHandler {
+public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport
+		implements RowMapper, RowMetadataCallbackHandler {
 	/**
 	 * Special array value used by <code>mapColumnsToFields</code> that
 	 * indicates there is no object field that matches a column from a
@@ -77,6 +77,20 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport im
 	protected ResultSetMapper customResultSetMapper = null;
 
 	protected List objects = new ArrayList();
+
+	protected boolean initialized = false;
+
+	protected boolean needColumnInfo = false;
+
+	protected Class targetClass = null;
+
+	// 2008.8.21 CamelCase Option Addition
+	// private boolean isCamelCase = false;
+
+	// 2009.05.28
+	protected String mappingStyle = null;
+
+	protected ResultSetMappingConfiguration mappingConfiguration;
 
 	public void setSqlLoader(SQLLoader sqlLoader) {
 		this.sqlLoader = sqlLoader;
@@ -127,6 +141,9 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport im
 	 * makeMeta
 	 */
 	public void processMetaData(ResultSet resultSet) throws SQLException {
+		if (!this.initialized) {
+			this.makeMeta(resultSet);
+		}
 	}
 
 	/**
@@ -237,10 +254,9 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport im
 		} else {
 			// classConfigMap에 입력 인자로 전달된 target class의
 			// 정보가 저장되어 있지 않은 경우
-			Map attributeMap = ReflectionHelp
-					.getAllDeclaredFields(targetClass);
-			
-//			AccessibleObject.setAccessible(attributes, true);
+			Map attributeMap = ReflectionHelp.getAllDeclaredFields(targetClass);
+
+			// AccessibleObject.setAccessible(attributes, true);
 
 			// 특정 테이블의 칼럼과 클래스의 필드 매핑 정보를 정의하고
 			// classConfigMap에 저장한다.
@@ -271,7 +287,8 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport im
 	 */
 	private ResultSetMappingConfiguration mapColumnsToAttributes(
 			Class targetClass, ResultSetMetaData resultSetMetaData,
-			Map attributeMap, String parentAttribute, boolean isComposite) throws SQLException {
+			Map attributeMap, String parentAttribute, boolean isComposite)
+			throws SQLException {
 		int totalCols = resultSetMetaData.getColumnCount();
 		Field[] attributes = new Field[totalCols];
 		String[] columnNames = new String[totalCols];
@@ -302,37 +319,36 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport im
 		}
 
 		if (compositeFields != null)
-			compositeObjMap = makeCompositeObjMap(targetClass, descriptors, resultSetMetaData,
-					compositeFields, attributeMap);
-		
+			compositeObjMap = makeCompositeObjMap(targetClass, descriptors,
+					resultSetMetaData, compositeFields, attributeMap);
+
 		for (int idx = 0; idx < totalCols; idx++) {
 			String columnName = resultSetMetaData.getColumnLabel(idx + 1);
 			int columnType = resultSetMetaData.getColumnType(idx + 1);
 
 			Field attribute = getNameMatcher().isMatching(attributeMap,
 					columnName, parentAttribute);
-			
-			if (attribute!=null) {
+
+			if (attribute != null) {
 				attributes[idx] = attribute;
 				columnNames[idx] = columnName;
 
-				int dataType = SQLTypeTransfer.getSQLType(attribute
-						.getType());
+				int dataType = SQLTypeTransfer.getSQLType(attribute.getType());
 				if (!((dataType == Types.VARCHAR && columnType == Types.CLOB) || (dataType == Types.VARBINARY && columnType == Types.BLOB))) {
 					if (dataType != SQLTypeTransfer.UNDEFINED)
 						columnType = dataType;
 				}
 
 				columnTypes[idx] = columnType;
-				setters[idx] = findSetter(descriptors, targetClass
-						.getName(), attribute.getName());
-			}			
+				setters[idx] = findSetter(descriptors, targetClass.getName(),
+						attribute.getName());
+			}
 		}
-		
+
 		// 2009.03.17 - start
 		// Custom 객체에 대한 정보도 함께 저장
-		return new ResultSetMappingConfiguration(
-				columnNames, columnTypes, attributes, setters, compositeObjMap);
+		return new ResultSetMappingConfiguration(columnNames, columnTypes,
+				attributes, setters, compositeObjMap);
 		// 2009.03.17 - end
 	}
 
@@ -362,7 +378,7 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport im
 				// 해당 속성의 클래스가 가진 하위 속성 정보들을 조회
 				Map childAttributeMap = ReflectionHelp
 						.getAllDeclaredFields(attribute.getType());
-//				AccessibleObject.setAccessible(childAttributes, true);
+				// AccessibleObject.setAccessible(childAttributes, true);
 
 				// 해당 속성의 클래스에 대한 정보를 저장해두기 위해
 				// mapColumnsToAttributes 호출
@@ -444,8 +460,7 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport im
 			Object value = getValue(resultSet, columnType, columnNames[i],
 					i + 1);
 
-			setValue(attributes[i], setters[i], object,
-					value);
+			setValue(attributes[i], setters[i], object, value);
 		}
 
 		return object;
@@ -464,29 +479,30 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport im
 	 */
 	private void setValue(Field field, Method setter, Object object,
 			Object value) {
-//		if (value != null) { // if column value is null, set property value to null
-			boolean valueSet = false;
-			try {
-				if (setter != null) {
-					setter.invoke(object, new Object[] { value });
-					valueSet = true;
-				}
-			} catch (IllegalAccessException e) {
-				throw new RuntimeException(
-						"Query Service : Fail to invoke a setter method ['"
-								+ setter.getName() + "'. Reason : "
-								+ e.getMessage(), e);
-			} catch (InvocationTargetException e) {
-				throw new RuntimeException(
-						"Query Service : Fail to invoke a setter method ['"
-								+ setter.getName() + "'. Reason : "
-								+ e.getMessage(), e);
+		// if (value != null) { // if column value is null, set property value
+		// to null
+		boolean valueSet = false;
+		try {
+			if (setter != null) {
+				setter.invoke(object, new Object[] { value });
+				valueSet = true;
 			}
-			if (!valueSet) {
-				// Set the field directly
-				ReflectionHelp.setFieldValue(field, object, value);
-			}
-//		}
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(
+					"Query Service : Fail to invoke a setter method ['"
+							+ setter.getName() + "'. Reason : "
+							+ e.getMessage(), e);
+		} catch (InvocationTargetException e) {
+			throw new RuntimeException(
+					"Query Service : Fail to invoke a setter method ['"
+							+ setter.getName() + "'. Reason : "
+							+ e.getMessage(), e);
+		}
+		if (!valueSet) {
+			// Set the field directly
+			ReflectionHelp.setFieldValue(field, object, value);
+		}
+		// }
 	}
 
 	public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -505,5 +521,115 @@ public class ReflectionResultSetMapper extends AbstractResultSetMapperSupport im
 	// 2009.06.18일 추가
 	public void setPagination(Pagination paginationVO) {
 		// TODO Auto-generated method stub
+	}
+
+	/**
+	 * ResultSet으로부터 Meta 정보를 읽어서 조회 결과값 셋팅을 위한 기본 정보를 추출한다. (초기에 한번 수행)
+	 * 
+	 * @param resultSet
+	 *            조회 결과
+	 * @throws SQLException
+	 *             ResultSetMetaData로부터 정보 추출에 실패하였을 경우
+	 */
+	protected void makeMeta(ResultSet resultSet) throws SQLException {
+		ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+
+		int columnCount = resultSetMetaData.getColumnCount();
+		String[] columnKeys = new String[columnCount];
+		String[] columnNames = new String[columnCount];
+		int[] columnTypes = new int[columnCount];
+
+		// 2008.04.15 - added -
+		// add for Gauce (2008-04-15)
+		int[] columnPrecisions = new int[columnCount];
+		// add for Gauce (2008-04-15)
+		int[] columnScales = new int[columnCount];
+
+		Map attributeMap = new HashMap();
+		if (this.targetClass != null && !this.targetClass.equals(HashMap.class)) {
+			attributeMap = ReflectionHelp
+					.getAllDeclaredFields(this.targetClass);
+		}
+
+		// 2009.05.28 특정 쿼리에 대해 mappingStyle이 'camel'인 경우 CamelCase 적용,
+		// mappingStyle이 'lower'인 경우 소문자로 변경, mappingStyle이 'upper'인 경우 대문자로 변경
+		for (int i = 0; i < columnCount; i++) {
+			String columnName = resultSetMetaData.getColumnLabel(i + 1);
+			int columnType = resultSetMetaData.getColumnType(i + 1);
+
+			columnNames[i] = columnName;
+			// 2008.8.21 CamelCase Option Addition
+
+			// 2009.05.28
+			columnKeys[i] = ColumnUtil.changeColumnName(this.mappingStyle,
+					columnName);
+
+			int dataType = SQLTypeTransfer.UNDEFINED;
+			if (!(columnName == null
+					|| (this.targetClass == null || this.targetClass
+							.equals(HashMap.class)) || getMappingInfo() == null)) {
+				// 테이블 매핑 정보를 이용하여 특정 칼럼과 매핑되는
+				// Field를 추출한다.
+				String attributeName = (String) getMappingInfo()
+						.getMappingInfoAsMap().get(columnName.toLowerCase());
+
+				if (attributeName == null) {
+					attributeName = ColumnUtil.changeColumnName(
+							this.mappingStyle, columnName);
+				}
+
+				Field attribute = (Field) attributeMap.get(attributeName);
+
+				// 페이징 처리시 ROW NUMBER 칼럼에 대해서는 매핑되는
+				// 속성명이 존재하지 않음.
+				if (attribute == null) {
+					continue;
+				}
+				// target class 특정 Field의 클래스 타입을
+				// 기준으로 이와 매핑되는 SQL Type을
+				// 추출한다.
+				dataType = SQLTypeTransfer.getSQLType(attribute.getType());
+			}
+
+			// ResultSet을 이용하여 target class에 값을 셋팅할때,
+			// DB 칼럼 타입이 아닌 target class
+			// attribute의 타입을 기준으로 셋팅하도록 함. 단, target
+			// class의 attribute가
+			// java.lang.String이면서 DB 칼럼 타입이 CLOB인 경우와
+			// target class의 attribute가
+			// byte[]이면서 DB 칼럼 타입이 BLOB인 경우에는 DB 칼럼 타입을
+			// 기준으로 셋팅함.
+			if (!((dataType == Types.VARCHAR && columnType == Types.CLOB) || (dataType == Types.VARBINARY && columnType == Types.BLOB))) {
+				if (dataType != SQLTypeTransfer.UNDEFINED)
+					columnType = dataType;
+			}
+
+			// 2008.8.21 CamelCase Option Addition
+			columnTypes[i] = columnType;
+			// add for Gauce (2008-04-15)
+			try {
+				columnPrecisions[i] = resultSetMetaData.getPrecision(i + 1);
+			} catch (NumberFormatException e) {
+				// oracle 8i인 경우 CLOB, BLOB 타입의 칼럼에 대해
+				// Precision 조회할 때
+				// NumberFormatException이 발생함.
+				columnPrecisions[i] = 0;
+			}
+			// add for Gauce (2008-04-15)
+			columnScales[i] = resultSetMetaData.getScale(i + 1);
+		}
+
+		this.mappingConfiguration = new ResultSetMappingConfiguration(
+				columnCount, columnKeys, columnNames, columnTypes,
+				columnPrecisions, columnScales);
+		initialized = true;
+	}
+
+	public boolean isNeedColumnInfo() {
+		return needColumnInfo;
+	}
+
+	public void setNeedColumnInfo(boolean needColumnInfo) {
+		this.needColumnInfo = needColumnInfo;
 	}
 }

@@ -20,14 +20,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.anyframe.query.ConfigurationException;
 import org.anyframe.query.QueryInfo;
 import org.anyframe.query.QueryService;
 import org.anyframe.query.impl.util.SQLTypeTransfer;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.core.SqlTypeValue;
 import org.springframework.util.StringUtils;
-
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  * @author Soyon Lim
@@ -38,69 +39,95 @@ public class DefaultQueryInfo implements QueryInfo {
 	protected static final String LOWER_CASE = "lower";
 
 	private String queryId = null;
-	private String queryString = null;
+	private String statement = null;
 	private String resultClass = null;
 	// 2009.01.15 - custom resultset mapper
 	private String resultMapper = null;
 	private DefaultMappingInfo localMappingInfo = null;
 	private boolean isDynamic = true;
-	private boolean isCamelCase = true;
 	private String lobStatement = null;
 	private String[] lobParamTypes = null;
 	private int length = 0;
 	// 2009.05.28
 	private String mappingStyle = null;
+	// 2011.05.03 - maxFetchSize
+	private int maxFetchSize = -1;
 
 	private String[] paramTypeNames = null;
 	private String[] paramBindingTypes = null;
 	private String[] paramBindingNames = null;
-	private List sqlParameterList = null;
-	private Map paramMap = new HashMap();
+	private List<SqlParameter> sqlParameterList = null;
+	private Map<String, Integer> paramMap = new HashMap<String, Integer>();
 
-	public void configure(Configuration queryConfig)
-			throws ConfigurationException {
-		queryId = queryConfig.getAttribute("id", "");
-		if (queryId.equals(""))
-			throw new ConfigurationException(
-					"Query Service : id is essential attribute in a <query>.");
+	public void configure(Element query) throws ConfigurationException {
+		queryId = query.getAttribute("id");
+		checkRequiredAttribute("query", "id", queryId);
 
-		queryString = queryConfig.getChild("statement").getValue();
-		isDynamic = queryConfig.getAttributeAsBoolean("isDynamic", true);
-		// 2008.11.27 change default value (false ->
-		// true)
-		isCamelCase = queryConfig.getAttributeAsBoolean("isCamelCase", true);
-		// 2009.05.28
-		mappingStyle = queryConfig.getAttribute("mappingStyle", null);
-		// TODO - will be deprecated when isCamelCase is substituted by
-		// mappingStyle.
-		checkMappingStyle();
+		NodeList statements = query.getElementsByTagName("statement");
+		
+		Element statementElement = null;
+		int statementLength = 0;
+		for(int i=0; i<statements.getLength(); i++){
+			Element temporaryElement = (Element)statements.item(i);
+			
+			String parentNode = temporaryElement.getParentNode().getNodeName();
+			if(parentNode.equals("query")){
+				statementElement = temporaryElement;
+				statementLength++;
+			}
+		}
+		
+		hasOnlyOneElements("query", "statement", statementLength);
+		statement = statementElement.getTextContent();
 
-		Configuration results = queryConfig.getChild("result", false);
+		String isDynamicValue = query.getAttribute("isDynamic");
+		isDynamic = isDynamicValue.equals("") ? true : new Boolean(
+				isDynamicValue).booleanValue();
+		String mappingStyleValue = query.getAttribute("mappingStyle");
+		mappingStyle = mappingStyleValue.equals("") ? "camel" : mappingStyleValue;		
 
-		if (results != null) {
-			resultClass = results.getAttribute("class", null);
-			// 2009.01.15 - custom resultset mapper
-			resultMapper = results.getAttribute("mapper", null);
-			length = results.getAttributeAsInteger("length", 0);
-			Configuration[] resultMappings = results
-					.getChildren("result-mapping");
-			if (resultMappings.length > 0) {
+		String maxFetchSizeValue = query.getAttribute("maxFetchSize");
+		maxFetchSize = maxFetchSizeValue.equals("") ? -1 : new Integer(
+				maxFetchSizeValue).intValue();
+
+		NodeList results = query.getElementsByTagName("result");
+
+		if (results.getLength() > 0) {
+			hasOnlyOneElements("query", "result", results.getLength());
+			Element result = (Element) results.item(0);
+
+			resultClass = result.getAttribute("class");
+			if(resultClass.equals("")) {
+				resultClass = null;
+			}
+			resultMapper = result.getAttribute("mapper");
+			if(resultMapper.equals("")) {
+				resultMapper = null;
+			}		
+
+			String lengthValue = result.getAttribute("length");
+			length = lengthValue.equals("") ? 0 : new Integer(lengthValue)
+					.intValue();
+
+			NodeList resultMappings = result
+					.getElementsByTagName("result-mapping");
+			if (resultMappings.getLength() > 0) {
 				localMappingInfo = new DefaultMappingInfo();
-				ArrayList columns = new ArrayList();
-				ArrayList fields = new ArrayList();
+				ArrayList<String> columns = new ArrayList<String>();
+				ArrayList<String> fields = new ArrayList<String>();
 
-				Map compositeColumnMap = new HashMap();
-				Map compositeFieldMap = new HashMap();
-				for (int i = 0; i < resultMappings.length; i++) {
-					// 정의된 local result mapping에서
-					// column, attribute 값 추출
-					String column = resultMappings[i].getAttribute("column");
-					String field = resultMappings[i].getAttribute("attribute");
+				Map<String, String[]> compositeColumnMap = new HashMap<String, String[]>();
+				Map<String, String[]> compositeFieldMap = new HashMap<String, String[]>();
 
-					// column의 값이 ,를 구분자로 여러 개가 정의된 경우
+				for (int i = 0; i < resultMappings.getLength(); i++) {
+					Element resultMapping = (Element) resultMappings.item(i);
+
+					// extract column, attribute from local result mapping
+					String column = resultMapping.getAttribute("column");
+					String field = resultMapping.getAttribute("attribute");
+
+					// if column includes separator ','
 					if (isComposite(column) && isComposite(field)) {
-						// attribute, column의 값을 ,로
-						// 구분하여 분리
 						column = column.substring(1, column.length() - 1);
 						field = field.substring(1, field.length() - 1);
 						String[] compositeColumns = StringUtils
@@ -126,10 +153,6 @@ public class DefaultQueryInfo implements QueryInfo {
 												.indexOf(".") + 1);
 							}
 
-							// compositeFieldMap,
-							// compositeColumnMap에 관련
-							// 속성명을 키값으로 하여, 매핑 정보 저장
-
 							compositeFieldMap.put(compositeField,
 									compositeFieldes);
 							compositeColumnMap.put(compositeField,
@@ -143,60 +166,60 @@ public class DefaultQueryInfo implements QueryInfo {
 						columns.add(column);
 						fields.add(field);
 					}
-
 				}
 
 				localMappingInfo.setColumnNames((String[]) columns
 						.toArray(new String[columns.size()]));
-				localMappingInfo.setFieldNames((String[]) fields.toArray(new String[fields.size()]));
+				localMappingInfo.setFieldNames((String[]) fields
+						.toArray(new String[fields.size()]));
 				localMappingInfo.setCompositeColumnNames(compositeColumnMap);
 				localMappingInfo.setCompositeFieldNames(compositeFieldMap);
-				// 2009.03.17 - end
 			}
 		}
 
-		Configuration[] params = queryConfig.getChildren("param");
-		paramTypeNames = new String[params.length];
-		paramBindingTypes = new String[params.length];
-		paramBindingNames = new String[params.length];
+		NodeList params = query.getElementsByTagName("param");
+		paramTypeNames = new String[params.getLength()];
+		paramBindingTypes = new String[params.getLength()];
+		paramBindingNames = new String[params.getLength()];
 
-		for (int i = 0, size = params.length; i < size; i++) {
-			paramTypeNames[i] = params[i].getAttribute("type");
-			paramBindingTypes[i] = params[i].getAttribute("binding", "");
-			paramBindingNames[i] = params[i].getAttribute("name", "");
+		for (int i = 0, size = params.getLength(); i < size; i++) {
+			Element param = (Element) params.item(i);
+			paramTypeNames[i] = param.getAttribute("type");
+			paramBindingTypes[i] = param.getAttribute("binding");
+			paramBindingNames[i] = param.getAttribute("name");
+
 			if (isDynamic())
 				paramMap.put(paramBindingNames[i], new Integer(SQLTypeTransfer
 						.getSQLType(paramTypeNames[i].toUpperCase())));
 		}
 
-		// 2008.05.08 - update for Handling Lob of
-		// Oracle 8i
-		Configuration lobConfig = queryConfig.getChild("lobStatement");
-		lobStatement = lobConfig.getChild("statement").getValue(null);
-		Configuration[] lobParams = lobConfig.getChildren("param");
-		lobParamTypes = new String[lobParams.length];
-		for (int i = 0; i < lobParams.length; i++) {
-			lobParamTypes[i] = lobParams[i].getAttribute("type");
+		// for Handling Lob of Oracle 8i
+		NodeList lobHandlings = query.getElementsByTagName("lobStatement");
+
+		if (lobHandlings.getLength() > 0) {
+			hasOnlyOneElements("query", "lobStatement", lobHandlings
+					.getLength());
+			Element lobHandling = (Element) lobHandlings.item(0);
+
+			NodeList lobStatements = lobHandling
+					.getElementsByTagName("statement");
+			hasOnlyOneElements("lobStatement", "statement", lobStatements
+					.getLength());
+			lobStatement = lobStatements.item(0).getTextContent();
+			if(lobStatement.equals("")){
+				lobStatement = null;
+			}
+
+			NodeList lobParams = lobHandling.getElementsByTagName("param");
+			lobParamTypes = new String[lobParams.getLength()];
+			for (int i = 0; i < lobParams.getLength(); i++) {
+				lobParamTypes[i] = ((Element) lobParams.item(i))
+						.getAttribute("type");
+			}
 		}
 	}
 
-	// 2009.05.28
-	private void checkMappingStyle() {
-		if (mappingStyle == null) {
-			if (isCamelCase)
-				mappingStyle = CAMEL_CASE;
-			else
-				mappingStyle = LOWER_CASE;
-		}
-	}
-
-	private boolean isComposite(String str) {
-		if (str.startsWith("{") && str.endsWith("}"))
-			return true;
-		return false;
-	}
-
-	public List getSqlParameterList() {
+	public List<SqlParameter> getSqlParameterList() {
 		if (sqlParameterList == null) {
 			sqlParameterList = SQLTypeTransfer.getSqlParameterList(
 					paramTypeNames, paramBindingTypes, paramBindingNames);
@@ -234,7 +257,7 @@ public class DefaultQueryInfo implements QueryInfo {
 	}
 
 	public String getQueryString() {
-		return queryString;
+		return statement;
 	}
 
 	public String getResultClass() {
@@ -248,12 +271,6 @@ public class DefaultQueryInfo implements QueryInfo {
 	public boolean isDynamic() {
 		return isDynamic;
 	}
-
-	// 2008.8.20 add
-	// 2009.05.28 - removed
-	// public boolean isCamelCase() {
-	// return isCamelCase;
-	// }
 
 	public int getFetchCountPerQuery() {
 		return length;
@@ -288,4 +305,30 @@ public class DefaultQueryInfo implements QueryInfo {
 	public String getResultMapper() {
 		return resultMapper;
 	}
+
+	public int getMaxFetchSize() {
+		return maxFetchSize;
+	}
+	
+	private boolean isComposite(String str) {
+		if (str.startsWith("{") && str.endsWith("}"))
+			return true;
+		return false;
+	}
+
+	private void checkRequiredAttribute(String element, String name,
+			String value) throws ConfigurationException {
+		if (value.equals("")) {
+			throw new ConfigurationException("Query Service : " + name
+					+ " is essential attribute in a <" + element + ">.");
+		}
+	}
+
+	private void hasOnlyOneElements(String parentElement, String childElement,
+			int length) throws ConfigurationException {
+		if (length == 0 || length > 1) {
+			throw new ConfigurationException("Query Service : must have one <"
+					+ childElement + "> in a <" + parentElement + ">.");
+		}
+	}	
 }

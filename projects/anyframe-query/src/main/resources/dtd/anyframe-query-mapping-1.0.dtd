@@ -129,6 +129,7 @@
 		<!ATTLIST query servicetype (%service.type;) #IMPLIED>
 		<!ATTLIST query category CDATA #IMPLIED>
 		<!ATTLIST query mappingStyle (camel|lower|upper|none) "camel">
+		<!ATTLIST query maxFetchSize CDATA #IMPLIED>
 		
 		<!-- "queries > query > statement" element -->
 		<!ELEMENT statement (#PCDATA)>

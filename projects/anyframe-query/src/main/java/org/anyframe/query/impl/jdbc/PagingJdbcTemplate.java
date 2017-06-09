@@ -22,6 +22,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,7 +31,6 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import org.anyframe.query.QueryInfo;
-import org.anyframe.query.QueryServiceException;
 import org.anyframe.query.RowMetadataCallbackHandler;
 import org.anyframe.query.impl.LiveScrollPagination;
 import org.anyframe.query.impl.Pagination;
@@ -46,6 +46,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.jdbc.core.CallableStatementCallback;
 import org.springframework.jdbc.core.CallableStatementCreator;
+import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementCreatorFactory;
@@ -59,7 +60,6 @@ import org.springframework.jdbc.core.SqlReturnUpdateCount;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.util.Assert;
 
-
 /**
  * extend from Spring's JdbcTemplate, with pagination function.
  * 
@@ -67,10 +67,11 @@ import org.springframework.util.Assert;
  * @author JongHoon Kim
  */
 public class PagingJdbcTemplate extends JdbcTemplate {
-
+	
+	// 2011.05.11
 	private PagingSQLGenerator paginationSQLGetter;
 
-	protected Integer maxFetchSize = null;
+	protected int maxFetchSize = -1;
 
 	// 2009.08.24
 	private static final String RETURN_RESULT_SET_PREFIX = "#result-set-";
@@ -141,11 +142,11 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 		return paginationSQLGetter;
 	}
 
-	public Integer getMaxFetchSize() {
+	public int getMaxFetchSize() {
 		return maxFetchSize;
 	}
 
-	public void setMaxFetchSize(Integer maxFetchSize) {
+	public void setMaxFetchSize(int maxFetchSize) {
 		this.maxFetchSize = maxFetchSize;
 	}
 
@@ -179,9 +180,11 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 	 * @return 쿼리 수행 결과
 	 */
 	public List queryWithPagination(String sql, Object[] args, int[] argTypes,
-			RowMapper rowMapper, Pagination paginationVO) throws Exception {
+			int queryMaxFetchSize, RowMapper rowMapper, Pagination paginationVO)
+			throws Exception {
 		if (checkPagingSQLGenerator(paginationSQLGetter))
-			return query(sql, args, argTypes, rowMapper, paginationVO);
+			return query(sql, args, argTypes, queryMaxFetchSize, rowMapper,
+					paginationVO);
 
 		if (paginationVO.isCountRecordSize()) {
 			long recordCount = executeCountSQL(sql, args, argTypes);
@@ -199,16 +202,17 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 				paginationVO);
 
 		return query(paginationSql, paginationArgs, paginationArgTypes,
-				rowMapper);
+				queryMaxFetchSize, rowMapper);
 	}
 
 	public void queryWithPagination(String sql, Object[] args, int[] argTypes,
-			RowCallbackHandler rch, Pagination paginationVO) throws Exception {
+			int queryMaxFetchSize, RowCallbackHandler rch,
+			Pagination paginationVO) throws Exception {
 		if (checkPagingSQLGenerator(paginationSQLGetter)) {
 			query(new PagingPreparedStatementCreator(sql),
 					new PreparedStatementArgTypeSetter(args, argTypes, null),
 					new PagingRowCallbackHandlerResultSetExtractor(rch,
-							paginationVO));
+							paginationVO, queryMaxFetchSize));
 			return;
 		}
 
@@ -227,7 +231,9 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 		String paginationSql = getPaginationSQL(sql, args, argTypes,
 				paginationVO);
 
-		query(paginationSql, paginationArgs, paginationArgTypes, rch);
+		query(paginationSql, new PreparedStatementArgTypeSetter(paginationArgs, paginationArgTypes, null),
+				new NonPagingRowCallbackHandlerResultSetExtractor(rch,
+						queryMaxFetchSize));
 	}
 
 	/**
@@ -245,7 +251,7 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 	public List queryWithPagination(String sql, RowMapper rowMapper,
 			Pagination paginationVO) throws Exception {
 		if (checkPagingSQLGenerator(paginationSQLGetter))
-			return query(sql, null, null, rowMapper, paginationVO);
+			return query(sql, null, null, -1, rowMapper, paginationVO);
 		if (paginationVO.isCountRecordSize()) {
 			long recordCount = executeCountSQL(sql, null, null);
 			paginationVO.setRecordCount(recordCount);
@@ -278,7 +284,7 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 	public List queryWithPagination(String sql, Object[] args,
 			RowMapper rowMapper, Pagination paginationVO) throws Exception {
 		if (checkPagingSQLGenerator(paginationSQLGetter))
-			return query(sql, args, null, rowMapper, paginationVO);
+			return query(sql, args, null, -1, rowMapper, paginationVO);
 
 		if (paginationVO.isCountRecordSize()) {
 			long recordCount = executeCountSQL(sql, args, null);
@@ -296,8 +302,8 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 	}
 
 	public List queryForListWithPagination(String sql, Object[] args,
-			int[] argTypes, Pagination paginationVO) throws Exception {
-		return queryWithPagination(sql, args, argTypes,
+			int[] argTypes, int queryMaxFetchSize, Pagination paginationVO) throws Exception {
+		return queryWithPagination(sql, args, argTypes, queryMaxFetchSize,
 				getColumnMapRowMapper(), paginationVO);
 	}
 
@@ -323,8 +329,8 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 				lobStatement, lobParameters);
 
 		query(preparedStatementFactory.newPreparedStatementCreator(lobKeys),
-				new Oracle8iResultSetExtractor(
-						(Oracle8iLobHandler) lobHandler, lobValues));
+				new Oracle8iResultSetExtractor((Oracle8iLobHandler) lobHandler,
+						lobValues));
 
 		return updateCount;
 	}
@@ -334,16 +340,31 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 	// ResultSetMapperSupport VO byte[] -
 	// not getBytes() --> BLOB
 	public void query(String sql, Object[] args, int[] argTypes,
-			RowCallbackHandler rch) {
+			int queryMaxFetchSize, RowCallbackHandler rch) {
 		if (checkPagingSQLGenerator(paginationSQLGetter)) {
 			query(new PagingPreparedStatementCreator(sql),
 					new PreparedStatementArgTypeSetter(args, argTypes, null),
-					new NonPagingRowCallbackHandlerResultSetExtractor(rch));
+					new NonPagingRowCallbackHandlerResultSetExtractor(rch,
+							queryMaxFetchSize));
 			return;
 		}
 
 		query(sql, new PreparedStatementArgTypeSetter(args, argTypes, null),
-				new NonPagingRowCallbackHandlerResultSetExtractor(rch));
+				new NonPagingRowCallbackHandlerResultSetExtractor(rch,
+						queryMaxFetchSize));
+	}
+
+	// 2011.05.03 - maxFetchSize
+	public Collection query(String sql, Object[] args, int[] argTypes, int queryMaxFetchSize) {
+		return query(sql, args, argTypes, queryMaxFetchSize, new ColumnMapRowMapper());
+	}
+
+	// 2011.05.03 - maxFetchSize
+	public List query(String sql, Object[] args, int[] argTypes,
+			int queryMaxFetchSize, RowMapper rowMapper) {
+		return (List) query(sql, args, argTypes,
+				new NonPagingRowMapperResultSetExtractor(rowMapper,
+						queryMaxFetchSize));
 	}
 
 	/** ************* PROTECTED METHODS ************** */
@@ -495,19 +516,20 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 	}
 
 	private List query(String sql, Object[] args, int[] argTypes,
-			RowMapper rowMapper, Pagination paginationVO) {
+			int queryMaxFetchSize, RowMapper rowMapper, Pagination paginationVO) {
 		if (args == null)
 			return (List) query(new PagingPreparedStatementCreator(sql),
 					new PagingRowMapperResultSetExtractor(rowMapper,
-							paginationVO));
+							paginationVO, queryMaxFetchSize));
 		if (argTypes == null)
 			return (List) query(new PagingPreparedStatementCreator(sql),
 					new PreparedStatementArgSetter(args),
 					new PagingRowMapperResultSetExtractor(rowMapper,
-							paginationVO));
+							paginationVO, queryMaxFetchSize));
 		return (List) query(new PagingPreparedStatementCreator(sql),
 				new PreparedStatementArgTypeSetter(args, argTypes, null),
-				new PagingRowMapperResultSetExtractor(rowMapper, paginationVO));
+				new PagingRowMapperResultSetExtractor(rowMapper, paginationVO,
+						queryMaxFetchSize));
 	}
 
 	// 2009.04.28 : method modifier private -> public,
@@ -550,11 +572,22 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 
 		private Pagination paginationVO;
 
+		private int queryMaxFetchSize;
+
 		public PagingRowMapperResultSetExtractor(RowMapper rowMapper,
 				Pagination paginationVO) {
 			Assert.notNull(rowMapper, "Query Service : RowMapper is required");
 			this.rowMapper = rowMapper;
 			this.paginationVO = paginationVO;
+			this.queryMaxFetchSize = -1;
+		}
+
+		public PagingRowMapperResultSetExtractor(RowMapper rowMapper,
+				Pagination paginationVO, int queryMaxFetchSize) {
+			Assert.notNull(rowMapper, "Query Service : RowMapper is required");
+			this.rowMapper = rowMapper;
+			this.paginationVO = paginationVO;
+			this.queryMaxFetchSize = queryMaxFetchSize;
 		}
 
 		public Object extractData(ResultSet rs) throws SQLException {
@@ -574,96 +607,30 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 				}
 			}
 			List results = new ArrayList();
-			int rowNum = 0;
+			int rowNum = 1;
+
+			if (rowMapper instanceof RowMetadataCallbackHandler
+					&& ((RowMetadataCallbackHandler) rowMapper)
+							.isNeedColumnInfo()) {
+				((RowMetadataCallbackHandler) rowMapper).processMetaData(rs);
+			}
 
 			// 2009.04.28 - maxFetchSize
-			if (maxFetchSize == null) {
-				while (rs.next() && rowNum < pageSize) {
+			if (queryMaxFetchSize == -1) {
+				while (rs.next() && rowNum <= pageSize) {
 					results.add(this.rowMapper.mapRow(rs, rowNum++));
 				}
 			} else {
-				while (rs.next() && rowNum < pageSize) {
-					if (rowNum > maxFetchSize.intValue()) {
+				while (rs.next() && rowNum <= pageSize) {
+					if (rowNum > queryMaxFetchSize) {
 						throw new DataRetrievalFailureException(
 								"Too many data in ResultSet. maxFetchSize is "
-										+ maxFetchSize);
+										+ queryMaxFetchSize);
 					}
 					results.add(this.rowMapper.mapRow(rs, rowNum++));
 				}
 			}
 			return results;
-		}
-	}
-
-	// 2008.05.08 - add for Handling Lob of Oracle 8i
-	private class Oracle8iResultSetExtractor implements ResultSetExtractor {
-
-		private Oracle8iLobHandler lobHandler;
-
-		private Object[] lobValues;
-
-		public Oracle8iResultSetExtractor(
-				Oracle8iLobHandler lobHandler, Object[] lobValues) {
-			this.lobHandler = lobHandler;
-			this.lobValues = lobValues;
-		}
-
-		public Object extractData(ResultSet rs) throws SQLException {
-			ResultSetMetaData meta = rs.getMetaData();
-			while (rs.next()) {
-				for (int i = 1; i < meta.getColumnCount() + 1; i++) {
-					Object tObj = lobValues[i - 1];
-					if (tObj instanceof String) {
-						lobHandler.setClobOutputValue(rs, i, (String) tObj);
-					} else if (tObj instanceof byte[]) {
-						lobHandler.setBlobOutputValue(rs, i, (byte[]) tObj);
-					}
-				}
-			}
-
-			return null;
-		}
-	}
-
-	/**
-	 * @author Administrator
-	 */
-	private class NonPagingRowCallbackHandlerResultSetExtractor implements
-			ResultSetExtractor {
-
-		private final RowCallbackHandler rch;
-
-		public NonPagingRowCallbackHandlerResultSetExtractor(
-				RowCallbackHandler rch) {
-			this.rch = rch;
-		}
-
-		public Object extractData(ResultSet rs) throws SQLException {
-			int rowNum = 0;
-
-			if (rch instanceof RowMetadataCallbackHandler) {
-				((RowMetadataCallbackHandler) rch).processMetaData(rs);
-			}
-
-			// 2009.04.28 - maxFetchSize
-			if (maxFetchSize == null) {
-				while (rs.next()) {
-					this.rch.processRow(rs);
-					rowNum++;
-				}
-			} else {
-				while (rs.next()) {
-					if (rowNum > maxFetchSize.intValue()) {
-						throw new DataRetrievalFailureException(
-								"Too many data in ResultSet. maxFetchSize is "
-										+ maxFetchSize);
-					}
-					this.rch.processRow(rs);
-					rowNum++;
-				}
-			}
-
-			return null;
 		}
 	}
 
@@ -675,11 +642,14 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 
 		private final RowCallbackHandler rch;
 		private Pagination paginationVO;
+		private int queryMaxFetchSize;
 
 		public PagingRowCallbackHandlerResultSetExtractor(
-				RowCallbackHandler rch, Pagination paginationVO) {
+				RowCallbackHandler rch, Pagination paginationVO,
+				int queryMaxFetchSize) {
 			this.rch = rch;
 			this.paginationVO = paginationVO;
+			this.queryMaxFetchSize = queryMaxFetchSize;
 		}
 
 		public Object extractData(ResultSet rs) throws SQLException {
@@ -711,31 +681,154 @@ public class PagingJdbcTemplate extends JdbcTemplate {
 				}
 			}
 
-			int rowNum = 0;
+			int rowNum = 1;
 
 			// 2008.04.11 - 데이터가 없는 경우라도 meta data 설정은
 			// 필요할 수 있음.
 			// processMetaData 처리는 각 rch 의 구현에 따름. 현재
 			// Gauce 에만 구현
-			if (rowNum == 0 && this.rch instanceof RowMetadataCallbackHandler) {
+			if (this.rch instanceof RowMetadataCallbackHandler
+					&& ((RowMetadataCallbackHandler) rch).isNeedColumnInfo()) {
 				((RowMetadataCallbackHandler) this.rch).processMetaData(rs);
 			}
 
 			// 2009.04.28 - maxFetchSize
-			if (maxFetchSize == null) {
-				while (rs.next() && rowNum < pageSize) {
+			if (queryMaxFetchSize == -1) {
+				while (rs.next() && rowNum <= pageSize) {
 					this.rch.processRow(rs);
 					rowNum++;
 				}
 			} else {
-				while (rs.next() && rowNum < pageSize) {
-					if (rowNum > maxFetchSize.intValue()) {
+				while (rs.next() && rowNum <= pageSize) {
+					if (rowNum > queryMaxFetchSize) {
 						throw new DataRetrievalFailureException(
 								"Too many data in ResultSet maxFetchSize is "
-										+ maxFetchSize);
+										+ queryMaxFetchSize);
 					}
 					this.rch.processRow(rs);
 					rowNum++;
+				}
+			}
+
+			return null;
+		}
+	}
+
+	/**
+	 * @author Administrator
+	 */
+	private class NonPagingRowCallbackHandlerResultSetExtractor implements
+			ResultSetExtractor {
+
+		private final RowCallbackHandler rch;
+
+		private int queryMaxFetchSize;
+
+		public NonPagingRowCallbackHandlerResultSetExtractor(
+				RowCallbackHandler rch, int queryMaxFetchSize) {
+			this.rch = rch;
+			this.queryMaxFetchSize = queryMaxFetchSize;
+		}
+
+		public Object extractData(ResultSet rs) throws SQLException {
+			int rowNum = 1;
+
+			if (rch instanceof RowMetadataCallbackHandler
+					&& ((RowMetadataCallbackHandler) rch).isNeedColumnInfo()) {
+				((RowMetadataCallbackHandler) rch).processMetaData(rs);
+			}
+
+			// 2009.04.28 - maxFetchSize
+			if (queryMaxFetchSize == -1) {
+				while (rs.next()) {
+					this.rch.processRow(rs);
+					rowNum++;
+				}
+			} else {
+				while (rs.next()) {
+					if (rowNum > queryMaxFetchSize) {
+						throw new DataRetrievalFailureException(
+								"Too many data in ResultSet. maxFetchSize is "
+										+ queryMaxFetchSize);
+					}
+					this.rch.processRow(rs);
+					rowNum++;
+				}
+			}
+
+			return null;
+		}
+	}
+
+	// 2011.05.03 - maxFetchSize
+	private class NonPagingRowMapperResultSetExtractor implements
+			ResultSetExtractor {
+
+		private final RowMapper rowMapper;
+
+		private int queryMaxFetchSize;
+
+		public NonPagingRowMapperResultSetExtractor(RowMapper rowMapper,
+				int queryMaxFetchSize) {
+			Assert.notNull(rowMapper, "Query Service : RowMapper is required");
+			this.rowMapper = rowMapper;
+			this.queryMaxFetchSize = queryMaxFetchSize;
+		}
+
+		public Object extractData(ResultSet rs) throws SQLException {
+			List results = new ArrayList();
+			int rowNum = 1;
+
+			if (rowMapper instanceof RowMetadataCallbackHandler
+					&& ((RowMetadataCallbackHandler) rowMapper)
+							.isNeedColumnInfo()) {
+				((RowMetadataCallbackHandler) rowMapper).processMetaData(rs);
+			}
+
+			if (queryMaxFetchSize == -1) {
+				while (rs.next()) {
+					results.add(this.rowMapper.mapRow(rs, rowNum));
+					rowNum++;
+				}
+			} else {
+				while (rs.next()) {
+					if (rowNum > queryMaxFetchSize) {
+						throw new DataRetrievalFailureException(
+								"Too many data in ResultSet. maxFetchSize is "
+										+ queryMaxFetchSize);
+					}
+					results.add(this.rowMapper.mapRow(rs, rowNum));
+					rowNum++;
+				}
+			}
+
+			return results;
+		}
+	}
+
+	// 2008.05.08 - add for Handling Lob of Oracle 8i
+	private class Oracle8iResultSetExtractor implements ResultSetExtractor {
+
+		private Oracle8iLobHandler lobHandler;
+
+		private Object[] lobValues;
+
+		public Oracle8iResultSetExtractor(Oracle8iLobHandler lobHandler,
+				Object[] lobValues) {
+			this.lobHandler = lobHandler;
+			this.lobValues = lobValues;
+		}
+
+		public Object extractData(ResultSet rs) throws SQLException {
+			ResultSetMetaData meta = rs.getMetaData();
+			while (rs.next()) {
+				for (int i = 1; i < meta.getColumnCount() + 1; i++) {
+					Object tObj = lobValues[i - 1];
+					if (tObj instanceof String) {
+						lobHandler.setClobOutputValue(rs, i, (String) tObj);
+					} else if (tObj instanceof byte[]) {
+						lobHandler.setBlobOutputValue(rs, i, (byte[]) tObj);
+					}
 				}
 			}
 

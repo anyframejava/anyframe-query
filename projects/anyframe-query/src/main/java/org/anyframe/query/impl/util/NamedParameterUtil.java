@@ -30,7 +30,7 @@ import org.springframework.util.Assert;
  * Helper methods for named parameter parsing. Only intended for internal use
  * within Spring's JDBC framework. We changed
  * org.springframework.jdbc.core.namedparam.NamedParameterUtils Class into
- * anyframe.core.query.impl.util.NamedParameterUtils Class in Anyframe.
+ * org.anyframe.query.impl.util.NamedParameterUtils Class in Anyframe.
  * 
  * @since 2.0
  * @author Thomas Risberg

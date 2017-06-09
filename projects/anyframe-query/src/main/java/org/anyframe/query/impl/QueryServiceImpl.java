@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -33,6 +32,7 @@ import org.anyframe.query.QueryInfo;
 import org.anyframe.query.QueryService;
 import org.anyframe.query.QueryServiceException;
 import org.anyframe.query.ResultSetMapper;
+import org.anyframe.query.RowMetadataCallbackHandler;
 import org.anyframe.query.impl.jdbc.PagingJdbcTemplate;
 import org.anyframe.query.impl.jdbc.PagingNamedParamJdbcTemplate;
 import org.anyframe.query.impl.jdbc.generator.PagingSQLGenerator;
@@ -62,7 +62,6 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.object.BatchSqlUpdate;
 import org.springframework.jdbc.support.lob.LobHandler;
 
-
 /**
  * @author Soyon Lim
  */
@@ -84,8 +83,8 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	}
 
 	protected LobHandler lobHandler;
-	
-	PagingSQLGenerator pagingSQLGenerator;
+
+	protected PagingSQLGenerator pagingSQLGenerator;
 
 	/** ************* SETTER METHODS ************** */
 
@@ -95,12 +94,16 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	 */
 	public void setJdbcTemplate(PagingJdbcTemplate jdbcTemplate) {
 		this.jdbcTemplate = jdbcTemplate;
-		this.namedParamJdbcTemplate = new PagingNamedParamJdbcTemplate(jdbcTemplate,
-				jdbcTemplate.getDataSource());
+		this.namedParamJdbcTemplate = new PagingNamedParamJdbcTemplate(
+				jdbcTemplate, jdbcTemplate.getDataSource());
 		this.namedParamJdbcTemplate.setExceptionTranslator(jdbcTemplate
 				.getExceptionTranslator());
 	}
 
+	/**
+	 * @param pagingSQLGenerator
+	 *            the pagingSQLGenerator to set
+	 */
 	public void setPagingSQLGenerator(PagingSQLGenerator pagingSQLGenerator) {
 		this.pagingSQLGenerator = pagingSQLGenerator;
 	}
@@ -117,32 +120,37 @@ public class QueryServiceImpl extends AbstractQueryService implements
 		return lobHandler;
 	}
 
+	/**
+	 * initialize
+	 */
 	public void afterPropertiesSet() throws Exception {
 		super.afterPropertiesSet();
 		jdbcTemplate.setPaginationSQLGetter(this.pagingSQLGenerator);
-		
+
 		if (jdbcTemplate.getPaginationSQLGetter() == null) {
 			QueryService.LOGGER
 					.error("pagingSQLGenerator needs to be defined for executing query. "
 							+ "So, you must specify a proper pagingSQLGenerator in QueryService configuration. "
 							+ "If you can't find a proper pagingSQLGenerator, you can define a DefaultPagingSQLGenerator as pagingSQLGenerator."
 							+ "But you must read notice of that class before using a DefaultPagingSQLGenerator.");
-			throw new QueryServiceException(getMessageSource(),
-					"error.query.common.checksqlgenerator", new Object[] {});
+			throw new QueryServiceException(
+					"[Query Service] pagingSQLGenerator needs to be defined for QueryService. \n So, you must specify a proper pagingSQLGenerator in QueryService configuration. \n If you can't find a proper pagingSQLGenerator, you can define a DefaultPagingSQLGenerator as pagingSQLGenerator. \n But you must read notice of that class before using a DefaultPagingSQLGenerator.");
 		}
 	}
 
 	/** ************* SERVICE METHODS ************** */
 
 	/**
-	 * 테이블 매핑 정보를 기반으로 QueryService가 생성한 INSERT문을 batch로 실행한다.
+	 * Issue multiple update statements (INSERT) using JDBC 2.0 batch updates
+	 * and PreparedStatementSetters to set values on a PreparedStatement created
+	 * by this method.
 	 * 
 	 * @param targets
-	 *            object of class which is matched with specified table in XML
-	 *            files. is the List type of Object Array.
+	 *            object of class which is matched with specified table in
+	 *            mapping xml files. is the List type of Object.
 	 * @return an array of the number of rows affected by each statement
 	 * @throws QueryServiceException
-	 *             if there is any problem issuing the insert
+	 *             if there is any problem issuing the update
 	 */
 	public int[] batchCreate(List targets) throws QueryServiceException {
 		String sql = "";
@@ -160,14 +168,16 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	}
 
 	/**
-	 * 테이블 매핑 정보를 기반으로 QueryService가 생성한 DELETE문을 batch로 실행한다.
+	 * Issue multiple update statements (DELETE) using JDBC 2.0 batch updates
+	 * and PreparedStatementSetters to set values on a PreparedStatement created
+	 * by this method.
 	 * 
 	 * @param targets
-	 *            object of class which is matched with specified table in XML
-	 *            files. is the List type of Object Array.
-	 * @return array of the number of rows affected by each statement
+	 *            object of class which is matched with specified table in
+	 *            mapping xml files. is the List type of Object.
+	 * @return an array of the number of rows affected by each statement
 	 * @throws QueryServiceException
-	 *             if there is any problem issuing the delete
+	 *             if there is any problem issuing the update
 	 */
 	public int[] batchRemove(List targets) throws QueryServiceException {
 		String sql = "";
@@ -185,12 +195,14 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	}
 
 	/**
-	 * 테이블 매핑 정보를 기반으로 QueryService가 생성한 UPDATE문을 batch로 실행한다.
+	 * Issue multiple update statements (UPDATE) using JDBC 2.0 batch updates
+	 * and PreparedStatementSetters to set values on a PreparedStatement created
+	 * by this method.
 	 * 
 	 * @param targets
-	 *            object of class which is matched with specified table in XML
-	 *            files. is the List type of Object Array.
-	 * @return array of the number of rows affected by each statement
+	 *            object of class which is matched with specified table in
+	 *            mapping xml files. is the List type of Object.
+	 * @return an array of the number of rows affected by each statement
 	 * @throws QueryServiceException
 	 *             if there is any problem issuing the update
 	 */
@@ -210,17 +222,18 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	}
 
 	/**
-	 * 쿼리 매핑 파일 내에 정의된 queryId에 해당하는 쿼리 매핑 정보를 기반으로 해당 쿼리문을 batch로 실행한다.
+	 * Issue multiple update statements (INSERT, UPDATE, DELETE) using JDBC 2.0
+	 * batch updates and PreparedStatementSetters to set values on a
+	 * PreparedStatement created by this method.
 	 * 
-	 * @param queryInfo
-	 *            특정 쿼리 매핑 정보
 	 * @param queryId
 	 *            identifier of query statement to execute
 	 * @param targets
-	 *            the List type of Object Array.
-	 * @return array of the number of rows affected by each statement
+	 *            a set of variable for executing query (is the List of
+	 *            Object[])
+	 * @return an array of the number of rows affected by each statement
 	 * @throws QueryServiceException
-	 *             if there is any problem issuing the insert, update, delete
+	 *             if there is any problem issuing the update
 	 */
 	public int[] batchUpdate(String queryId, List targets)
 			throws QueryServiceException {
@@ -241,8 +254,26 @@ public class QueryServiceImpl extends AbstractQueryService implements
 		}
 	}
 
-	public int[] batchUpdateBySQL(String sql, String[] types, List targets)
-			throws QueryServiceException {
+	/**
+	 * Issue multiple update statements (INSERT, UPDATE, DELETE) using JDBC 2.0
+	 * batch updates and PreparedStatementSetters to set values on a
+	 * PreparedStatement created by this method Execute update statments, Using
+	 * update statement directly without being defined in mapping xml files.
+	 * 
+	 * @param sql
+	 *            query statement.
+	 * @param types
+	 *            is matched with input parameters. A type must belong to fields
+	 *            defined java.sql.Types package
+	 * @param targets
+	 *            a set of variable for executing query (is the List of
+	 *            Object[])
+	 * @return an array of the number of rows affected by each statement
+	 * @throws QueryServiceException
+	 *             if there is any problem issuing the update
+	 */
+	public int[] batchUpdateBySQL(String sql, String[] types,
+			List targets) throws QueryServiceException {
 		try {
 			return batchExecutor(sql, convertTypes(types), targets);
 		} catch (Exception e) {
@@ -251,13 +282,15 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	}
 
 	/**
-	 * 테이블 매핑 정보를 기반으로 QueryService가 생성한 INSERT문을 실행한다.
+	 * Execute INSERT query, Using object, which class is matched with table by
+	 * mapping xml files.
 	 * 
 	 * @param obj
-	 *            INSERT문을 실행하기 위해 필요한 값을 담고 있는 객체
+	 *            object of class which is matched with specified table in
+	 *            mapping xml files.
 	 * @return the number of rows affected
 	 * @throws QueryServiceException
-	 *             if there is any problem issuing the insert
+	 *             if there is any problem executing the query
 	 */
 	public int create(Object obj) throws QueryServiceException {
 		String sql = "";
@@ -276,15 +309,16 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	}
 
 	/**
-	 * 쿼리 매핑 파일 내에 정의된 queryId에 해당하는 쿼리 매핑 정보를 기반으로 해당 쿼리문을 실행한다.
+	 * Execute INSERT query, Using given queryId which defined in mapping xml
+	 * files.
 	 * 
 	 * @param queryId
 	 *            identifier of query statement to execute
 	 * @param values
-	 *            해당 쿼리문을 실행하기 위해 필요한 입력 값을 담은 Object Array
+	 *            values to bind to the query
 	 * @return the number of rows affected
 	 * @throws QueryServiceException
-	 *             if there is any problem issuing that query
+	 *             if there is any problem executing the query
 	 */
 	public int create(String queryId, Object[] values)
 			throws QueryServiceException {
@@ -301,6 +335,21 @@ public class QueryServiceImpl extends AbstractQueryService implements
 		}
 	}
 
+	/**
+	 * Execute INSERT query, Using query statement directly without being
+	 * defined in mapping xml files.
+	 * 
+	 * @param sql
+	 *            query statement.
+	 * @param types
+	 *            is matched with input parameters. A type must belong to fields
+	 *            defined java.sql.Types package
+	 * @param values
+	 *            values to bind to the query
+	 * @return the number of rows affected
+	 * @throws QueryServiceException
+	 *             if there is any problem executing the query
+	 */
 	public int createBySQL(String sql, String[] types, Object[] values)
 			throws QueryServiceException {
 		try {
@@ -311,32 +360,63 @@ public class QueryServiceImpl extends AbstractQueryService implements
 		}
 	}
 
-	public Map execute(String queryId, Map values) throws QueryServiceException {
+	/**
+	 * Execute a query statement using a CallableStatement.
+	 * 
+	 * @param queryId
+	 *            identifier of query statement to execute
+	 * @param values
+	 *            values to bind to the query, a key-value set of variable
+	 * @return Map of extracted out parameters
+	 * @throws QueryServiceException
+	 *             if there is any problem issuing the execute
+	 */
+	public Map execute(String queryId,
+			Map values) throws QueryServiceException {
 		return execute(queryId, values, 0);
 	}
 
-	public Map execute(String queryId, Map values, int pageIndex)
+	/**
+	 * Execute a query statement using a CallableStatement which defined in
+	 * mapping xml files. Returned results which find by condition and belong to
+	 * specified page. Caution!. Not supported by some DBMS. (e.g. Oracle 8i)
+	 * 
+	 * @param queryId
+	 *            identifier of query statement to execute
+	 * @param values
+	 *            values to bind to the query, a key-value set of variable
+	 * @param pageIndex
+	 *            page number which expected to be displayed (pageIndex > 0)
+	 * @return Map of extracted out parameters
+	 * @throws QueryServiceException
+	 *             if there is any problem issuing the execute
+	 */
+	public Map execute(String queryId,
+			Map values, int pageIndex)
 			throws QueryServiceException {
 		return execute(queryId, values, pageIndex, -1);
 	}
 
 	/**
-	 * 쿼리 매핑 파일 내에 정의된 queryId에 해당하는 쿼리 매핑 정보를 기반으로 해당 Stored Procedure,
-	 * Function 등을 실행한다.
+	 * Execute a query statement using a CallableStatement which defined in
+	 * mapping xml files. Returned results which find by condition and belong to
+	 * specified page. Caution!. Not supported by some DBMS. (e.g. Oracle 8i)
 	 * 
 	 * @param queryId
 	 *            identifier of query statement to execute
 	 * @param values
-	 *            해당 쿼리문을 실행하기 위해 필요한 입력 값을 담은 Object Array
+	 *            values to bind to the query, a key-value set of variable
 	 * @param pageIndex
-	 *            page_number which expected to be displayed.
+	 *            page number which expected to be displayed (pageIndex > 0)
 	 * @param pageSize
-	 *            page_Size which expected to be displayed per page.
-	 * @return Stored Procedure, Function 등 수행 결과를 담은 Map의 List
+	 *            page size which expected to be displayed per page (pageSize >
+	 *            0)
+	 * @return Map of extracted out parameters
 	 * @throws QueryServiceException
-	 *             if there is any problem issuing that query
+	 *             if there is any problem issuing the execute
 	 */
-	public Map execute(String queryId, Map values, int pageIndex, int pageSize)
+	public Map execute(String queryId,
+			Map values, int pageIndex, int pageSize)
 			throws QueryServiceException {
 		String sql = "";
 		try {
@@ -358,19 +438,61 @@ public class QueryServiceImpl extends AbstractQueryService implements
 		}
 	}
 
-	public Map executeBySQL(String query, String[] paramTypeNames,
-			String[] paramBindingNames, String[] paramBindingTypes, Map values)
+	/**
+	 * Execute a query statement using a CallableStatement.
+	 * 
+	 * @param sql
+	 *            the SQL call string to execute
+	 * @param types
+	 *            a set of variable type for executing query. is matched with
+	 *            input parameters. A type must belong to fields defined
+	 *            java.sql.Types package
+	 * @param names
+	 *            a set of variable name for executing query
+	 * @param bindings
+	 *            a set of variable IN-OUT type for executing query
+	 * @param values
+	 *            values to bind to the query, a key-value set of variable
+	 * @return Map of extracted out parameters
+	 * @throws QueryServiceException
+	 *             if there is any problem issuing the execute
+	 */
+	public Map executeBySQL(String sql, String[] types,
+			String[] names, String[] bindings, Map values)
 			throws QueryServiceException {
-		return executeBySQL(query, paramTypeNames, paramBindingNames,
-				paramBindingTypes, values, 0, 0);
+		return executeBySQL(sql, types, names, bindings, values, 0, 0);
 	}
 
-	public Map executeBySQL(String sql, String[] paramTypeNames,
-			String[] paramBindingNames, String[] paramBindingTypes, Map values,
+	/**
+	 * Execute an Sql call using a CallableStatement.
+	 * 
+	 * @param sql
+	 *            the SQL call string to execute
+	 * @param types
+	 *            a set of variable type for executing query. is matched with
+	 *            input parameters. A type must belong to fields defined
+	 *            java.sql.Types package
+	 * @param names
+	 *            a set of variable name for executing query
+	 * @param bindings
+	 *            a set of variable IN-OUT type for executing query
+	 * @param values
+	 *            values to bind to the query, a key-value set of variable
+	 * @param pageIndex
+	 *            page number which expected to be displayed (pageIndex > 0)
+	 * @param pageSize
+	 *            page size which expected to be displayed per page (pageSize >
+	 *            0)
+	 * @return Map of extracted out parameters
+	 * @throws QueryServiceException
+	 *             if there is any problem issuing the execute
+	 */
+	public Map executeBySQL(String sql, String[] types,
+			String[] names, String[] bindings, Map values,
 			int pageIndex, int pageSize) throws QueryServiceException {
 		try {
-			List paramList = SQLTypeTransfer.getSqlParameterList(
-					paramTypeNames, paramBindingTypes, paramBindingNames);
+			List paramList = SQLTypeTransfer.getSqlParameterList(types,
+					bindings, names);
 
 			CallableStatementCreator callableStatementCreator = new CallableStatementCreatorFactory(
 					sql, paramList).newCallableStatementCreator(values);
@@ -380,24 +502,55 @@ public class QueryServiceImpl extends AbstractQueryService implements
 		}
 	}
 
+	/**
+	 * Execute a SELECT query, Using given queryId which defined in mapping xml
+	 * files. Returned all results which find by condition.
+	 * 
+	 * @param queryId
+	 *            identifier of query statement to execute
+	 * @param values
+	 *            values to bind to the query
+	 * @return all results. Never returns null; returns the empty collection if
+	 *         there were no results.
+	 * @throws Exception
+	 *             if there is any problem executing the query
+	 */
 	public Collection find(String queryId, Object[] values)
 			throws QueryServiceException {
 		return find(queryId, values, -1, -1, false);
 	}
 
-	public Collection find(String queryId, Object[] values, int pageIndex)
-			throws QueryServiceException {
+	/**
+	 * Execute a SELECT query, Using given queryId which defined in mapping xml
+	 * files. Returned results which find by condition and belong to specified
+	 * page.
+	 * 
+	 * @param queryId
+	 *            identifier of query statement to execute
+	 * @param values
+	 *            values to bind to the query
+	 * @param pageIndex
+	 *            page number which expected to be displayed (pageIndex > 0)
+	 * @return results. The size of result is same as page size defined mapping
+	 *         xml files.
+	 * @throws QueryServiceException
+	 *             if there is any problem executing the query
+	 */
+	public Collection find(String queryId, Object[] values,
+			int pageIndex) throws QueryServiceException {
 		return find(queryId, values, pageIndex, -1, true);
 	}
 
 	/**
-	 * 테이블 매핑 정보를 기반으로 QueryService가 생성한 단건 조회용 SELECT문을 실행한다.
+	 * Execute a SELECT query, Using object, which class is matched with table
+	 * by mapping xml files. Returned a result which find by Primary key.
 	 * 
 	 * @param obj
-	 *            SELECT문을 실행하기 위해 필요한 값을 담고 있는 객체
-	 * @return 수행 결과를 담은 객체의 List
+	 *            object of class which is matched with specified table in
+	 *            mapping xml files.
+	 * @return result. The size of result is 1.
 	 * @throws QueryServiceException
-	 *             if there is any problem issuing that query
+	 *             if there is any problem executing the query
 	 */
 	public Collection find(Object obj) throws QueryServiceException {
 		String sql = "";
@@ -430,83 +583,300 @@ public class QueryServiceImpl extends AbstractQueryService implements
 		}
 	}
 
-	public Collection find(String queryId, Object[] values, int pageIndex,
-			int pageSize) throws QueryServiceException {
+	/**
+	 * Execute a SELECT query, Using given queryId which defined in mapping xml
+	 * files. Returned results which find by condition and belong to specified
+	 * page.
+	 * 
+	 * @param queryId
+	 *            identifier of query statement to execute
+	 * @param values
+	 *            values to bind to the query
+	 * @param pageIndex
+	 *            page number which expected to be displayed (pageIndex > 0)
+	 * @param pageSize
+	 *            page size which expected to be displayed per page (pageSize >
+	 *            0)
+	 * @return results. The size of result is same as entered page size
+	 * @throws QueryServiceException
+	 *             if there is any problem executing the query
+	 */
+	public Collection find(String queryId, Object[] values,
+			int pageIndex, int pageSize) throws QueryServiceException {
 		return find(queryId, values, pageIndex, pageSize, true);
 	}
 
-	public Collection findBySQL(String sql, String[] types, Object[] values)
-			throws QueryServiceException {
+	/**
+	 * Execute a SELECT query, Using query statement directly without being
+	 * defined in mapping xml files. Returned all results which find by
+	 * condition.
+	 * 
+	 * @param sql
+	 *            query statement.
+	 * @param types
+	 *            is matched with input parameters. A type must belong to fields
+	 *            defined java.sql.Types package
+	 * @param values
+	 *            values to bind to the query
+	 * @return all results. Never returns null; returns the empty collection if
+	 *         there were no results.
+	 * @throws QueryServiceException
+	 *             if there is any problem executing the query
+	 */
+	public Collection findBySQL(String sql, String[] types,
+			Object[] values) throws QueryServiceException {
 		try {
-			return jdbcTemplate.queryForList(sql, values, convertTypes(types));
+			return jdbcTemplate.query(sql, values, convertTypes(types),
+					this.jdbcTemplate.getMaxFetchSize());
 		} catch (Exception e) {
 			throw processException("select by SQL", sql, e);
 		}
 	}
 
-	public Collection findBySQL(String sql, String[] types, Object[] values,
-			int pageIndex, int pageSize) throws QueryServiceException {
-		try {
-			Pagination paginationVO = new Pagination(pageSize);
-			paginationVO.setPageIndex(pageIndex);
-			return jdbcTemplate.queryForListWithPagination(sql, values,
-					convertTypes(types), paginationVO);
-		} catch (Exception e) {
-			throw processException("select by SQL", sql, e);
-		}
-	}
-
-	public Map findBySQLWithRowCount(String sql, String[] types, Object[] values)
-			throws QueryServiceException {
-		return findBySQLWithRowCount(sql, types, values, -1, -1);
-	}
-
-	public Map findBySQLWithRowCount(String sql, String[] types,
+	/**
+	 * Execute a SELECT query, Using query statement directly without being
+	 * defined in mapping xml files. Returned results which find by condition
+	 * and belong to specified page.
+	 * 
+	 * @param sql
+	 *            query statement.
+	 * @param types
+	 *            is matched with input parameters. A type must belong to fields
+	 *            defined java.sql.Types package
+	 * @param values
+	 *            values to bind to the query
+	 * @param pageIndex
+	 *            page number which expected to be displayed (pageIndex > 0)
+	 * @param pageSize
+	 *            page size which expected to be displayed per page (pageSize >
+	 *            0)
+	 * @return results. The size of result is same as entered page size
+	 * @throws QueryServiceException
+	 *             if there is any problem executing the query
+	 */
+	public Collection findBySQL(String sql, String[] types,
 			Object[] values, int pageIndex, int pageSize)
 			throws QueryServiceException {
 		try {
 			Pagination paginationVO = new Pagination(pageSize);
 			paginationVO.setPageIndex(pageIndex);
-			paginationVO.setCountRecordSize(true);
-			List list = jdbcTemplate.queryForListWithPagination(sql, values,
-					convertTypes(types), paginationVO);
-
-			return makeResultMap(list, paginationVO.getRecordCount(), null);
+			return jdbcTemplate.queryForListWithPagination(sql, values,
+					convertTypes(types), this.jdbcTemplate.getMaxFetchSize(),
+					paginationVO);
 		} catch (Exception e) {
-			throw processException("select by paging SQL", sql, e);
+			throw processException("select by SQL", sql, e);
 		}
 	}
 
+	/**
+	 * Execute a SELECT query, Using query statement directly without being
+	 * defined in mapping xml files. Returned all results includes total result
+	 * size which find by condition.
+	 * 
+	 * @param sql
+	 *            query statement.
+	 * @param types
+	 *            is matched with input parameters. A type must belong to fields
+	 *            defined java.sql.Types package
+	 * @param values
+	 *            values to bind to the query
+	 * @return results. Never returns null; returns the empty collection if
+	 *         there were no results. The result value includes the query
+	 *         execution result and the total result size. And takes values as
+	 *         QueryService.LIST, QueryService.COUNT
+	 * @throws QueryServiceException
+	 *             if there is any problem executing the query
+	 */
+	public Map findBySQLWithRowCount(String sql,
+			String[] types, Object[] values) throws QueryServiceException {
+		return findBySQLWithRowCount(sql, types, values, -1, -1, false);
+	}
+
+	/**
+	 * Execute a SELECT query, Using query statement directly without being
+	 * defined in mapping xml files. Returned results includes total result size
+	 * which find by condition and belong to specified page.
+	 * 
+	 * @param sql
+	 *            query statement.
+	 * @param types
+	 *            is matched with input parameters. A type must belong to fields
+	 *            defined java.sql.Types package
+	 * @param values
+	 *            values to bind to the query
+	 * @param pageIndex
+	 *            page number which expected to be displayed (pageIndex > 0)
+	 * @param pageSize
+	 *            page size which expected to be displayed per page (pageSize >
+	 *            0)
+	 * @return results. The size of result is same as entered page size. The
+	 *         result value includes the query execution result handled by
+	 *         paging and the total result size. And takes values as
+	 *         QueryService.LIST, QueryService.COUNT
+	 * @throws QueryServiceException
+	 *             if there is any problem executing the query
+	 */
+	public Map findBySQLWithRowCount(String sql,
+			String[] types, Object[] values, int pageIndex, int pageSize)
+			throws QueryServiceException {
+		return findBySQLWithRowCount(sql, types, values, pageIndex, pageSize,
+				true);
+	}
+
+	/**
+	 * Execute a SELECT query, using given queryId which defined in mapping xml
+	 * files. Returned all results includes total result size, db column
+	 * information which find by condition and belong to specified page.
+	 * (pageIndex = 0)
+	 * 
+	 * @param queryId
+	 *            identifier of query statement to execute
+	 * @param values
+	 *            values to bind to the query
+	 * @return results. The result value includes the query execution result,
+	 *         the total result size and the db column information. And takes
+	 *         values as QueryService.LIST, QueryService.COUNT,
+	 *         QueryService.COL_INFO
+	 * @throws QueryServiceException
+	 *             if there is any problem executing the query
+	 */
 	public Map findWithColInfo(String queryId, Object[] values)
 			throws QueryServiceException {
 		return findWithColInfo(queryId, values, -1, -1, false);
 	}
 
-	public Map findWithColInfo(String queryId, Object[] values, int pageIndex)
-			throws QueryServiceException {
+	/**
+	 * Execute a SELECT query, using given queryId which defined in mapping xml
+	 * files. Returned results includes total result size, db column information
+	 * which find by condition and belong to specified page.
+	 * 
+	 * @param queryId
+	 *            identifier of query statement to execute
+	 * @param values
+	 *            values to bind to the query
+	 * @param pageIndex
+	 *            page number which expected to be displayed (pageIndex > 0)
+	 * @return results. The size of result is same as length of result which
+	 *         defined a specified query. The result value includes the query
+	 *         execution result handled by paging, the total result size and the
+	 *         db column information. And takes values as QueryService.LIST,
+	 *         QueryService.COUNT, QueryService.COL_INFO
+	 * @throws QueryServiceException
+	 *             if there is any problem executing the query
+	 */
+	public Map findWithColInfo(String queryId, Object[] values,
+			int pageIndex) throws QueryServiceException {
 		return findWithColInfo(queryId, values, pageIndex, -1, true);
 	}
 
-	public Map findWithColInfo(String queryId, Object[] values, int pageIndex,
-			int pageSize) throws QueryServiceException {
+	/**
+	 * Execute a SELECT query, using given queryId which defined in mapping xml
+	 * files. Returned results includes total result size, db column information
+	 * which find by condition and belong to specified page.
+	 * 
+	 * @param queryId
+	 *            identifier of query statement to execute
+	 * @param values
+	 *            values to bind to the query
+	 * @param pageIndex
+	 *            page number which expected to be displayed (pageIndex > 0)
+	 * @param pageSize
+	 *            page size which expected to be displayed per page (pageSize >
+	 *            0)
+	 * @return results. The size of result is same as entered page size. The
+	 *         result value includes the query execution result handled by
+	 *         paging, the total result size and db column information. And
+	 *         takes values as QueryService.LIST, QueryService.COUNT,
+	 *         QueryService.COL_INFO
+	 * @throws QueryServiceException
+	 *             if there is any problem executing the query
+	 */
+	public Map findWithColInfo(String queryId, Object[] values,
+			int pageIndex, int pageSize) throws QueryServiceException {
 		return findWithColInfo(queryId, values, pageIndex, pageSize, true);
 	}
 
+	/**
+	 * Execute a SELECT query, using given queryId which defined in mapping xml
+	 * files. Returned all results includes total result size which find by
+	 * condition. (pageIndex = 0)
+	 * 
+	 * @param queryId
+	 *            identifier of query statement to execute
+	 * @param values
+	 *            values to bind to the query
+	 * @return results. The result value includes the query execution result
+	 *         handled by paging and the total result size. And takes values as
+	 *         QueryService.LIST, QueryService.COUNT
+	 * @throws QueryServiceException
+	 *             if there is any problem executing the query
+	 */
 	public Map findWithRowCount(String queryId, Object[] values)
 			throws QueryServiceException {
 		return findWithRowCount(queryId, values, -1, -1, false);
 	}
 
-	public Map findWithRowCount(String queryId, Object[] values, int pageIndex)
-			throws QueryServiceException {
+	/**
+	 * Execute a SELECT query, using given queryId which defined in mapping xml
+	 * files. Returned results includes total result size which find by
+	 * condition and belong to specified page.
+	 * 
+	 * @param queryId
+	 *            identifier of query statement to execute
+	 * @param values
+	 *            values to bind to the query
+	 * @param pageIndex
+	 *            page number which expected to be displayed (pageIndex > 0)
+	 * @return results. The size of result is same as length of result which
+	 *         defined a specified query. The result value includes the query
+	 *         execution result handled by paging and the total result size. And
+	 *         takes values as QueryService.LIST, QueryService.COUNT
+	 * @throws QueryServiceException
+	 *             if there is any problem executing the query
+	 */
+	public Map findWithRowCount(String queryId,
+			Object[] values, int pageIndex) throws QueryServiceException {
 		return findWithRowCount(queryId, values, pageIndex, -1, true);
 	}
 
-	public Map findWithRowCount(String queryId, Object[] values, int pageIndex,
-			int pageSize) throws QueryServiceException {
+	/**
+	 * Execute a SELECT query, using given queryId which defined in mapping xml
+	 * files. Returned results includes total result size which find by
+	 * condition and belong to specified page.
+	 * 
+	 * @param queryId
+	 *            identifier of query statement to execute
+	 * @param values
+	 *            values to bind to the query
+	 * @param pageIndex
+	 *            page number which expected to be displayed (pageIndex > 0)
+	 * @param pageSize
+	 *            page size which expected to be displayed per page (pageSize >
+	 *            0)
+	 * @return results. The size of result is same as entered page size. The
+	 *         result value includes the query execution result handled by
+	 *         paging and the total result size. And takes values as
+	 *         QueryService.LIST, QueryService.COUNT
+	 * @throws QueryServiceException
+	 *             if there is any problem executing the query
+	 */
+	public Map findWithRowCount(String queryId,
+			Object[] values, int pageIndex, int pageSize)
+			throws QueryServiceException {
 		return findWithRowCount(queryId, values, pageIndex, pageSize, true);
 	}
 
+	/**
+	 * Execute DELETE query, using object, which class is matched with table by
+	 * mapping xml files.
+	 * 
+	 * @param obj
+	 *            object of class which is matched with specified table in
+	 *            mapping xml files.
+	 * @return the number of rows affected
+	 * @throws QueryServiceException
+	 *             if there is any problem executing the query
+	 */
 	public int remove(Object obj) throws QueryServiceException {
 		String sql = "";
 		String className = "";
@@ -523,6 +893,18 @@ public class QueryServiceImpl extends AbstractQueryService implements
 		}
 	}
 
+	/**
+	 * Execute DELETE query, using given queryId which defined in mapping xml
+	 * files.
+	 * 
+	 * @param queryId
+	 *            identifier of query statement to execute
+	 * @param values
+	 *            values to bind to the query
+	 * @return the number of rows affected
+	 * @throws QueryServiceException
+	 *             if there is any problem executing the query
+	 */
 	public int remove(String queryId, Object[] values)
 			throws QueryServiceException {
 		QueryInfo queryInfo = null;
@@ -538,6 +920,21 @@ public class QueryServiceImpl extends AbstractQueryService implements
 		}
 	}
 
+	/**
+	 * Execute DELETE query, using query statement directly without being
+	 * defined in mapping xml files.
+	 * 
+	 * @param sql
+	 *            query statement.
+	 * @param types
+	 *            is matched with input parameters. A type must belong to fields
+	 *            defined java.sql.Types package
+	 * @param values
+	 *            values to bind to the query
+	 * @return the number of rows affected
+	 * @throws QueryServiceException
+	 *             if there is any problem executing the query
+	 */
 	public int removeBySQL(String sql, String[] types, Object[] values)
 			throws QueryServiceException {
 		try {
@@ -548,6 +945,17 @@ public class QueryServiceImpl extends AbstractQueryService implements
 		}
 	}
 
+	/**
+	 * Execute UPDATE query, using object, which class is matched with table by
+	 * mapping xml files.
+	 * 
+	 * @param obj
+	 *            object of class which is matched with specified table in
+	 *            mapping xml files.
+	 * @return the number of rows affected
+	 * @throws QueryServiceException
+	 *             if there is any problem executing the query
+	 */
 	public int update(Object obj) throws QueryServiceException {
 		String className = "";
 		String sql = "";
@@ -564,6 +972,18 @@ public class QueryServiceImpl extends AbstractQueryService implements
 		}
 	}
 
+	/**
+	 * Execute UPDATE query, using given queryId which defined in mapping xml
+	 * files.
+	 * 
+	 * @param queryId
+	 *            identifier of query statement to execute
+	 * @param values
+	 *            values to bind to the query
+	 * @return the number of rows affected
+	 * @throws QueryServiceException
+	 *             if there is any problem executing the query
+	 */
 	public int update(String queryId, Object[] values)
 			throws QueryServiceException {
 		QueryInfo queryInfo = null;
@@ -580,6 +1000,21 @@ public class QueryServiceImpl extends AbstractQueryService implements
 		}
 	}
 
+	/**
+	 * Execute UPDATE query, using query statement directly without being
+	 * defined in mapping xml files.
+	 * 
+	 * @param sql
+	 *            query statement.
+	 * @param types
+	 *            is matched with input parameters. A type must belong to fields
+	 *            defined java.sql.Types package
+	 * @param values
+	 *            values to bind to the query
+	 * @return the number of rows affected
+	 * @throws QueryServiceException
+	 *             if there is any problem executing the query
+	 */
 	public int updateBySQL(String sql, String[] types, Object[] values)
 			throws QueryServiceException {
 		try {
@@ -590,18 +1025,30 @@ public class QueryServiceImpl extends AbstractQueryService implements
 		}
 	}
 
+	/**
+	 * Count all queries which defined in mapping xml files.
+	 * 
+	 * @return number of queries
+	 */
 	public int countQuery() {
 		return getSqlRepository().countQuery();
 	}
 
+	/**
+	 * Find all queries which defined in mapping xml files.
+	 * 
+	 * @return map of queryId and query statement.
+	 * @throws QueryServiceException
+	 *             if there is any problem making query map
+	 */
 	public Map getQueryMap() throws QueryServiceException {
-		HashMap queryMap = new HashMap();
+		HashMap<String, String> queryMap = new HashMap<String, String>();
 		try {
-			Set keys = getSqlRepository().getQueryInfos().keySet();
-			Iterator keyItr = keys.iterator();
+			Set<String> keys = getSqlRepository().getQueryInfos().keySet();
+			Iterator<String> keyItr = keys.iterator();
 
 			while (keyItr.hasNext()) {
-				String queryId = (String) keyItr.next();
+				String queryId = keyItr.next();
 				QueryInfo queryInfo = (QueryInfo) getSqlRepository()
 						.getQueryInfos().get(queryId);
 				String statement = queryInfo.getQueryString();
@@ -610,11 +1057,21 @@ public class QueryServiceImpl extends AbstractQueryService implements
 
 			return queryMap;
 		} catch (Exception e) {
-			throw new QueryServiceException(getMessageSource(),
-					"error.query.get.querymap", new Object[] {}, e);
+			throw new QueryServiceException(
+					"Query Service : Fail to make querymap consist of queryId and statement.\n Reason = ["
+							+ e.getMessage() + "]", e);
 		}
 	}
 
+	/**
+	 * Find parameters for specified query.
+	 * 
+	 * @param queryId
+	 *            identifier of query statement which defined a mapping xml file
+	 * @return ArrayList consist of param type and name
+	 * @throws QueryServiceException
+	 *             if there is any problem find parameters.
+	 */
 	public ArrayList getQueryParams(String queryId)
 			throws QueryServiceException {
 		try {
@@ -645,16 +1102,33 @@ public class QueryServiceImpl extends AbstractQueryService implements
 
 			return results;
 		} catch (Exception e) {
-			throw new QueryServiceException(getMessageSource(),
-					"error.query.common.checkparams", new Object[] { queryId },
-					e);
+			throw new QueryServiceException(
+					"Query Service : Fail to find query's parameters for specified query with queryId ["
+							+ queryId
+							+ "].\n Reason = ["
+							+ e.getMessage()
+							+ "]", e);
 		}
 	}
 
+	/**
+	 * Get JdbcTemplate which QueryService uses.
+	 * 
+	 * @return JdbcTemplate instance which set in configuration file
+	 */
 	public JdbcTemplate getQueryServiceJdbcTemplate() {
 		return jdbcTemplate;
 	}
 
+	/**
+	 * Find specified query statement which defined a mapping xml file.
+	 * 
+	 * @param queryId
+	 *            identifier of query statement which defined a mapping xml file
+	 * @return query statement
+	 * @throws QueryServiceException
+	 *             if there is any problem find query statement
+	 */
 	public String getStatement(String queryId) throws QueryServiceException {
 		QueryInfo queryInfo = (QueryInfo) getSqlRepository().getQueryInfos()
 				.get(queryId);
@@ -662,6 +1136,14 @@ public class QueryServiceImpl extends AbstractQueryService implements
 		return sql;
 	}
 
+	/**
+	 * Find specified query information which defined a mapping xml file.
+	 * 
+	 * @param queryId
+	 *            identifier of query statement which defined a mapping xml file
+	 * @return query information includes queryId, query statement, result
+	 *         class, result maaping style, query params, max fetch size, etc.)
+	 */
 	public QueryInfo getQueryInfo(String queryId) {
 		return (QueryInfo) getSqlRepository().getQueryInfos().get(queryId);
 	}
@@ -684,8 +1166,8 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	protected int[] batchExecutor(final String sql, int[] types,
 			final List targets) throws QueryServiceException {
 		if (targets.size() <= 0)
-			throw new QueryServiceException(getMessageSource(),
-					"error.query.runtime.batch");
+			throw new QueryServiceException(
+					"Query Service : batchCreate needs at least 1 variables.");
 
 		BatchSqlUpdate sqlBatch = new BatchSqlUpdate();
 		sqlBatch.setJdbcTemplate(jdbcTemplate);
@@ -752,9 +1234,10 @@ public class QueryServiceImpl extends AbstractQueryService implements
 						// inputMap에서 해당 dynamic SQL에
 						// 셋팅해야 할 모든 Bind Variables의 값을 찾아
 						// 배열 형태로 전달받는다.
-						Object[] args = NamedParameterUtil.buildValueArray(
-								parsedSql, new DefaultDynamicSqlParameterSource(
-										properties));
+						Object[] args = NamedParameterUtil
+								.buildValueArray(parsedSql,
+										new DefaultDynamicSqlParameterSource(
+												properties));
 						// Set the value for the parameter
 						for (int i = 0; i < args.length; i++) {
 							StatementCreatorUtils.setParameterValue(ps, i + 1,
@@ -825,8 +1308,8 @@ public class QueryServiceImpl extends AbstractQueryService implements
 	protected int objectCUDExecutor(Object obj, String sql) {
 		Map properties = new HashMap();
 		properties.put("anyframe", obj);
-		return namedParamJdbcTemplate.update(sql, new DefaultDynamicSqlParameterSource(
-				properties));
+		return namedParamJdbcTemplate.update(sql,
+				new DefaultDynamicSqlParameterSource(properties));
 	}
 
 	/**
@@ -886,8 +1369,8 @@ public class QueryServiceImpl extends AbstractQueryService implements
 			if (values.length != 3 || !(values[0] instanceof Object[])
 					|| !(values[1] instanceof Object[])
 					|| !(values[2] instanceof Object[])) {
-				throw new QueryServiceException(getMessageSource(),
-						"error.query.get.lobvalues");
+				throw new QueryServiceException(
+						"Query Service : Lob CUD Type Value must be like this : Object[]{Object[] for main statement, Object[] for lob statement, Object[] for lob value}}");
 			}
 			inputValues = (Object[]) values[0];
 		}
@@ -990,6 +1473,33 @@ public class QueryServiceImpl extends AbstractQueryService implements
 		}
 	}
 
+	private Map findBySQLWithRowCount(String sql, String[] types,
+			Object[] values, int pageIndex, int pageSize, boolean paging)
+			throws QueryServiceException {
+		try {
+			Pagination paginationVO = new Pagination(pageSize);
+			paginationVO.setPageIndex(pageIndex);
+			paginationVO.setCountRecordSize(true);
+			paginationVO.setPaging(paging);
+
+			List list = null;
+
+			int queryMaxFetchSize = this.jdbcTemplate.getMaxFetchSize();
+
+			if (!paging) {
+				list = (List) jdbcTemplate.query(sql, values,
+						convertTypes(types), queryMaxFetchSize);
+			} else {
+				list = jdbcTemplate.queryForListWithPagination(sql, values,
+						convertTypes(types), queryMaxFetchSize, paginationVO);
+			}
+
+			return makeResultMap(list, paginationVO.getRecordCount(), null);
+		} catch (Exception e) {
+			throw processException("select by paging SQL", sql, e);
+		}
+	}
+
 	private Map findWithColInfo(String queryId, Object[] values, int pageIndex,
 			int pageSize, boolean paging) throws QueryServiceException {
 		QueryInfo queryInfo = null;
@@ -1008,6 +1518,8 @@ public class QueryServiceImpl extends AbstractQueryService implements
 
 			ReflectionResultSetMapper rowCallbackHandler = createResultSetMapper(
 					queryInfo, lobHandler, getSqlRepository().getNullCheck());
+			((RowMetadataCallbackHandler) rowCallbackHandler)
+					.setNeedColumnInfo(true);
 
 			List resultList = findInternal(queryInfo, queryId, values,
 					paginationVO, paging, rowCallbackHandler);
@@ -1045,6 +1557,10 @@ public class QueryServiceImpl extends AbstractQueryService implements
 		try {
 			sql = queryInfo.getQueryString();
 			boolean isDynamic = queryInfo.isDynamic();
+			int queryMaxFetchSize = queryInfo.getMaxFetchSize();
+			if (queryMaxFetchSize == -1) {
+				queryMaxFetchSize = jdbcTemplate.getMaxFetchSize();
+			}
 
 			if (resultSetMapper == null)
 				resultSetMapper = createResultSetMapper(queryInfo, lobHandler,
@@ -1062,22 +1578,25 @@ public class QueryServiceImpl extends AbstractQueryService implements
 
 				if (isVelocity(sql)) {
 					StringWriter writer = new StringWriter();
-					Velocity.evaluate(new DefaultDynamicSqlParameterSourceContext(
-							sqlParameterSource), writer, "QueryService", sql);
+					Velocity.evaluate(
+							new DefaultDynamicSqlParameterSourceContext(
+									sqlParameterSource), writer,
+							"QueryService", sql);
 					sql = writer.toString();
 				}
 
-				namedParamJdbcTemplate.query(sql, sqlParameterSource,
-						resultSetMapper, paginationVO);
+				namedParamJdbcTemplate.query(sql, queryMaxFetchSize,
+						sqlParameterSource, resultSetMapper, paginationVO);
 
 				return resultSetMapper.getObjects();
 			} else {
 				if (!paging)
 					return jdbcTemplate.query(sql, values, queryInfo
-							.getSqlTypes(), (RowMapper) resultSetMapper);
+							.getSqlTypes(), queryMaxFetchSize,
+							(RowMapper) resultSetMapper);
 				else
 					return jdbcTemplate.queryWithPagination(sql, values,
-							queryInfo.getSqlTypes(),
+							queryInfo.getSqlTypes(), queryMaxFetchSize,
 							(RowMapper) resultSetMapper, paginationVO);
 			}
 		} catch (Exception e) {
@@ -1163,15 +1682,15 @@ public class QueryServiceImpl extends AbstractQueryService implements
 					// types[i] =
 					// SqlTypeValue.TYPE_UNKNOWN;
 					// continue;
-					throw new QueryServiceException(getMessageSource(),
-							"error.query.generate.valuemap.string");
+					throw new QueryServiceException(
+							"Query Service : Invalid Argument - Argument String must include a delimiter '='.");
 				}
 				types[i] = queryInfo.getSqlType(tempStr.substring(0, pos));
 			} else if (values[i] instanceof Object[]) {
 				tempArray = (Object[]) values[i];
 				if (tempArray.length != 2) {
-					throw new QueryServiceException(getMessageSource(),
-							"error.query.generate.valuemap.array");
+					throw new QueryServiceException(
+							"Query Service : Invalid Argument - Argument Object Array size must be 2.");
 				}
 				types[i] = queryInfo.getSqlType((String) tempArray[0]);
 			} else if (values[i] == null) {
@@ -1197,8 +1716,8 @@ public class QueryServiceImpl extends AbstractQueryService implements
 				tempStr = (String) values[i];
 				int pos = tempStr.indexOf(DELIMETER);
 				if (pos < 0) {
-					throw new QueryServiceException(getMessageSource(),
-							"error.query.generate.valuemap.string");
+					throw new QueryServiceException(
+							"Query Service : Invalid Argument - Argument String must include a delimiter '='.");
 				}
 				properties.put(tempStr.substring(0, pos), tempStr
 						.substring(pos + 1));
@@ -1208,8 +1727,8 @@ public class QueryServiceImpl extends AbstractQueryService implements
 			} else if (values[i] instanceof Object[]) {
 				tempArray = (Object[]) values[i];
 				if (tempArray.length != 2) {
-					throw new QueryServiceException(getMessageSource(),
-							"error.query.generate.valuemap.array");
+					throw new QueryServiceException(
+							"Query Service : Invalid Argument - Argument Object Array size must be 2.");
 				}
 				properties.put(tempArray[0], tempArray[1]);
 				if (mapSqlParameterSource != null)
@@ -1236,19 +1755,18 @@ public class QueryServiceImpl extends AbstractQueryService implements
 
 	public QueryServiceException processException(String actionName,
 			String sql, Exception exception) {
-		QueryService.LOGGER.error(getMessageSource().getMessage(
-				"error.query.runtime.error",
-				new Object[] { actionName, sql, exception.getMessage() },
-				Locale.getDefault()), exception);
+		QueryService.LOGGER.error("Query Service : Fail to {" + actionName
+				+ "}.\n Query = [" + sql + "] \n Reason = ["
+				+ exception.getMessage() + "].", exception);
 		// 원인이 되는 Exception이
 		// InternalDataAccessException와 같은 유형일 경우 쿼리
 		// 수행시 발생한 ErrorCode가 셋팅된다.
 		if (exception instanceof InternalDataAccessException) {
 			InternalDataAccessException idaException = (InternalDataAccessException) exception;
 			QueryServiceException queryServiceException = new QueryServiceException(
-					getMessageSource(), "error.query.runtime.error",
-					new Object[] { actionName, sql, exception.getMessage() },
-					idaException);
+					"Query Service : Fail to " + actionName + ".\n Query = ["
+							+ sql + "] \n Reason = [" + exception.getMessage()
+							+ "].", idaException);
 			queryServiceException.setSqlErrorCode(idaException
 					.getSqlErrorCode());
 			queryServiceException.setSqlErrorMessage(idaException
@@ -1258,8 +1776,9 @@ public class QueryServiceImpl extends AbstractQueryService implements
 		if (exception instanceof QueryServiceException)
 			return (QueryServiceException) exception;
 		else
-			return new QueryServiceException(getMessageSource(),
-					"error.query.runtime.error", new Object[] { actionName,
-							sql, exception.getMessage() }, exception);
+			return new QueryServiceException("Query Service : Fail to "
+					+ actionName + ".\n Query = [" + sql + "] \n Reason = ["
+					+ exception.getMessage() + "].", exception);
 	}
+
 }

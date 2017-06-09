@@ -16,11 +16,12 @@
 package org.anyframe.query.impl;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.anyframe.query.QueryService;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
-import org.apache.avalon.framework.configuration.DefaultConfigurationSerializer;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 
 
@@ -115,12 +116,21 @@ public class QueryServiceDynamicReloadTest extends
      */
     private void changeFileContent(File source, File destination)
             throws Exception {
+		InputStream in = null;
+		OutputStream out = null;
 
-        DefaultConfigurationBuilder builder = new DefaultConfigurationBuilder();
-        Configuration config = builder.buildFromFile(source);
+		try {
+			in = new FileInputStream(source);
+			out = new FileOutputStream(destination);
 
-        DefaultConfigurationSerializer serializer =
-            new DefaultConfigurationSerializer();
-        serializer.serializeToFile(destination, config);
+			byte[] buf = new byte[1024];
+			int len;
+			while ((len = in.read(buf)) > 0) {
+				out.write(buf, 0, len);
+			}
+		} finally {
+			in.close();
+			out.close();
+		}
     }
 }

@@ -9,7 +9,6 @@ import org.anyframe.query.impl.jdbc.generator.PagingSQLGenerator;
  * inquiring much data. So, we recommend that you don't use this class as
  * SQLGenerator
  * 
- * @deprecated
  * @author aromy
  * 
  */

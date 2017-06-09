@@ -16,151 +16,78 @@
 package org.anyframe.query;
 
 import org.anyframe.exception.BaseException;
-import org.springframework.context.MessageSource;
 
 /**
- * This is an exception class for handling the
- * exceptions in operating QueryService.
+ * This is an exception class for handling the exceptions in operating
+ * QueryService.
+ * 
  * @author SoYon Lim
  * @author JongHoon Kim
  */
 public class QueryServiceException extends BaseException {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    private String sqlErrorCode = "";
-    private String sqlErrorMessage = "";
+	private String sqlErrorCode = "";
+	private String sqlErrorMessage = "";
 
-    /**
-     * Constructor with a message.
-     * @param message
-     *        the message of this exception
-     */
-    public QueryServiceException(String message) {
-        super(message);
-    }
+	/**
+	 * Constructor with a message.
+	 * 
+	 * @param message
+	 *            the message of this exception
+	 */
+	public QueryServiceException(String message) {
+		super(message);
+	}
 
-    /**
-     * Constructor with a message and an exception.
-     * @param message
-     *        the message of this exception
-     * @param exception
-     *        the exception that is wrapped in this
-     *        exception
-     */
-    public QueryServiceException(String message, Throwable exception) {
-        super(message, exception);
-    }
+	/**
+	 * Constructor with a message and an exception.
+	 * 
+	 * @param message
+	 *            the message of this exception
+	 * @param exception
+	 *            the exception that is wrapped in this exception
+	 */
+	public QueryServiceException(String message, Throwable exception) {
+		super(message, exception);
+	}
 
-    /**
-     * Constructor with a messageSource, message key
-     * and message parameters
-     * @param messageSource
-     *        messageSource handling the message
-     *        resource
-     * @param messageKey
-     *        the key of arbitrary message defined in
-     *        message resource
-     * @param messageParameters
-     *        the variable values for replacing in the
-     *        arbitray message
-     */
-    public QueryServiceException(MessageSource messageSource,
-            String messageKey, Object[] messageParameters) {
-        super(messageSource, messageKey, messageParameters);
-    }
+	/**
+	 * Transmit the SQL error code occurred in executing the query.
+	 * 
+	 * @return SQL error code occurred in executing the query
+	 */
+	public String getSqlErrorCode() {
+		return sqlErrorCode;
+	}
 
-    /**
-     * Constructor with a messageSource and message key
-     * @param messageSource
-     *        messageSource handling the message
-     *        resource
-     * @param messageKey
-     *        the key of arbitrary message defined in
-     *        message resource
-     */
-    public QueryServiceException(MessageSource messageSource, String messageKey) {
-        super(messageSource, messageKey);
-    }
+	/**
+	 * Set the SQL error code occurred in executing the query.
+	 * 
+	 * @param sqlErrorCode
+	 *            the SQL error code occurred in executing the query
+	 */
+	public void setSqlErrorCode(String sqlErrorCode) {
+		this.sqlErrorCode = sqlErrorCode;
+	}
 
-    /**
-     * Constructor with a messageSource, message key,
-     * message parameters and an exception.
-     * @param messageSource
-     *        messageSource handling the message
-     *        resource
-     * @param messageKey
-     *        the key of arbitrary message defined in
-     *        message resource
-     * @param messageParameters
-     *        the variable values for replacing in the
-     *        arbitray message
-     * @param exception
-     *        the exception that is wrapped in this
-     *        exception
-     */
-    public QueryServiceException(MessageSource messageSource,
-            String messageKey, Object[] messageParameters, Throwable exception) {
-        super(messageSource, messageKey, messageParameters, exception);
-    }
+	/**
+	 * Transmit the SQL error message occurred in executing the query.
+	 * 
+	 * @return SQL error message occurred in executing the query
+	 */
+	public String getSqlErrorMessage() {
+		return sqlErrorMessage;
+	}
 
-    /**
-     * Constructor with a messageSource, message key
-     * and an exception.
-     * @param messageSource
-     *        messageSource handling the message
-     *        resource
-     * @param messageKey
-     *        the key of arbitrary message defined in
-     *        message resource
-     * @param exception
-     *        the exception that is wrapped in this
-     *        exception
-     */
-    public QueryServiceException(MessageSource messageSource,
-            String messageKey, Throwable exception) {
-        super(messageSource, messageKey, exception);
-    }
-
-    /**
-     * Transmit the SQL ErrorCode occurred in executing
-     * the query
-     * @return SQL Error Code occurred in executing the
-     *         query
-     */
-    public String getSqlErrorCode() {
-        return sqlErrorCode;
-    }
-
-    /**
-     * Set the SQL ErrorCode occurred in executing the
-     * query
-     * @param sqlErrorCode
-     *        the SQL Error Code occurred in executing
-     *        the query
-     */
-    public void setSqlErrorCode(String sqlErrorCode) {
-        this.sqlErrorCode = sqlErrorCode;
-    }
-
-    /**
-     * Transmit the SQL ErrorMessage occurred in
-     * executing the query
-     * @return SQL Error message occurred in executing
-     *         the query
-     */
-    public String getSqlErrorMessage() {
-        return sqlErrorMessage;
-    }
-
-    /**
-     * Set the SQL Error message occurred in executing
-     * the query
-     * @param sqlErrorMessage 
-     * 			the SQL Error message occurred in
-     *         executing the query
-     */
-    public void setSqlErrorMessage(String sqlErrorMessage) {
-        this.sqlErrorMessage = sqlErrorMessage;
-    }
+	/**
+	 * Set the SQL error message occurred in executing the query.
+	 * 
+	 * @param sqlErrorMessage
+	 *            the SQL error message occurred in executing the query
+	 */
+	public void setSqlErrorMessage(String sqlErrorMessage) {
+		this.sqlErrorMessage = sqlErrorMessage;
+	}
 }

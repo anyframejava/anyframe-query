@@ -69,7 +69,7 @@ import org.springframework.util.FileCopyUtils;
  * singleton if you do not want to depend on the Oracle JAR being in the class
  * path: use "lazy-init=true" to avoid this issue. We changed
  * org.springframework.jdbc.support.lob.OracleLobHandler Class into
- * anyframe.core.query.impl.lob.AnyframeOracle8iLobHandler Class in Anyframe.
+ * org.anyframe.query.impl.jdbc.lob.Oracle8iLobHandler Class in Anyframe.
  * <ul>
  * <li>Add some operations for supporting Oracle 8i.</li>
  * </ul>
@@ -331,7 +331,7 @@ public class Oracle8iLobHandler extends OracleLobHandler {
 				ps.setBlob(paramIndex, blob);
 
 			} else {
-				ps.setBlob(paramIndex, null);
+				ps.setBlob(paramIndex, (Blob) null);
 
 			}
 		}
@@ -352,7 +352,7 @@ public class Oracle8iLobHandler extends OracleLobHandler {
 				ps.setBlob(paramIndex, blob);
 
 			} else {
-				ps.setBlob(paramIndex, null);
+				ps.setBlob(paramIndex, (Blob) null);
 
 			}
 		}
@@ -372,7 +372,7 @@ public class Oracle8iLobHandler extends OracleLobHandler {
 				ps.setClob(paramIndex, clob);
 
 			} else {
-				ps.setClob(paramIndex, null);
+				ps.setClob(paramIndex, (Clob) null);
 
 			}
 		}
@@ -393,7 +393,7 @@ public class Oracle8iLobHandler extends OracleLobHandler {
 				ps.setClob(paramIndex, clob);
 
 			} else {
-				ps.setClob(paramIndex, null);
+				ps.setClob(paramIndex, (Clob) null);
 
 			}
 		}
@@ -414,7 +414,7 @@ public class Oracle8iLobHandler extends OracleLobHandler {
 				ps.setClob(paramIndex, clob);
 
 			} else {
-				ps.setClob(paramIndex, null);
+				ps.setClob(paramIndex, (Clob) null);
 
 			}
 		}

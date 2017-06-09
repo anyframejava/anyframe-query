@@ -18,7 +18,7 @@ package org.anyframe.query.impl.util;
 /**
  * Holds information for parsed SQL statements. We changed
  * org.springframework.jdbc.core.namedparam.ParsedSql Class into
- * anyframe.core.query.impl.util.ParsedSql Class in Anyframe.
+ * org.anyframe.query.impl.util.ParsedSql Class in Anyframe.
  * 
  * @since 2.0
  * @author Thomas Risberg

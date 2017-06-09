@@ -26,7 +26,6 @@ import org.anyframe.query.impl.jdbc.generator.OraclePagingSQLGenerator;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
 import org.springframework.util.LinkedCaseInsensitiveMap;
 
-
 /**
  * TestCase Name : PagingJdbcTemplateTest <br>
  * <br>
@@ -114,7 +113,7 @@ public class PagingJdbcTemplateTest extends
 		// 2. execute query
 		Collection rtCollection = jdbcTemplate.queryForListWithPagination(
 				"select NAME, ADDRESS from TB_CUSTOMER where SSNO like ?",
-				new Object[] { "%12345%" }, new int[] { 12 }, context);
+				new Object[] { "%12345%" }, new int[] { 12 }, -1, context);
 
 		// 3. assert size of result
 		assertEquals("Fail to find using PagingJdbcTemplate.", 2, rtCollection
@@ -155,7 +154,7 @@ public class PagingJdbcTemplateTest extends
 		// 3. execute query
 		Collection rtCollection = jdbcTemplate.queryForListWithPagination(
 				"select NAME, ADDRESS from TB_CUSTOMER where SSNO like ?",
-				new Object[] { "%12345%" }, new int[] { 12 }, context);
+				new Object[] { "%12345%" }, new int[] { 12 }, -1, context);
 		// 4. assert size of result
 		assertEquals("Fail to find using PagingJdbcTemplate.", 2, rtCollection
 				.size());
@@ -166,7 +165,8 @@ public class PagingJdbcTemplateTest extends
 		// 6. compare result in detail
 		Iterator rtIterator = rtCollection.iterator();
 		while (rtIterator.hasNext()) {
-			LinkedCaseInsensitiveMap map = (LinkedCaseInsensitiveMap) rtIterator.next();
+			LinkedCaseInsensitiveMap map = (LinkedCaseInsensitiveMap) rtIterator
+					.next();
 			assertTrue("Fail to compare result.", ((String) map.get("name"))
 					.startsWith("Anyframe"));
 		}
@@ -192,7 +192,7 @@ public class PagingJdbcTemplateTest extends
 		Collection rtCollection = jdbcTemplate
 				.queryForListWithPagination(
 						"select NAME, ADDRESS from TB_CUSTOMER where SSNO like '%12345%'",
-						new Object[] {}, new int[] {}, context);
+						new Object[] {}, new int[] {}, -1, context);
 
 		// 3. assert size of result
 		assertEquals("Fail to find using PagingJdbcTemplate.", 2, rtCollection
@@ -204,7 +204,8 @@ public class PagingJdbcTemplateTest extends
 		// 5. compare result in detail
 		Iterator rtIterator = rtCollection.iterator();
 		while (rtIterator.hasNext()) {
-			LinkedCaseInsensitiveMap map = (LinkedCaseInsensitiveMap) rtIterator.next();
+			LinkedCaseInsensitiveMap map = (LinkedCaseInsensitiveMap) rtIterator
+					.next();
 			assertTrue("Fail to compare result.", ((String) map.get("name"))
 					.startsWith("Anyframe"));
 		}
@@ -231,7 +232,7 @@ public class PagingJdbcTemplateTest extends
 			jdbcTemplate
 					.queryForListWithPagination(
 							"select NAME, ADDRESS from TB_CUSTOMER where SSNO like '%12345%'",
-							(Object[]) null, new int[] { Types.VARCHAR },
+							(Object[]) null, new int[] { Types.VARCHAR }, -1,
 							context);
 			fail("Fail to throw exception.");
 		} catch (Exception e) {

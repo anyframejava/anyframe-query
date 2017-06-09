@@ -30,59 +30,83 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * extract results. This class executes query statement or updates, initiating
  * iteration over ResultSets. It must be used with DataSource Service.
  * <p>
- * QueryService Configuration Example:
+ * QueryService Configuration Example :
  * 
  * <pre>
- * &lt;bean name=&quot;queryService&quot; class=&quot;anyframe.core.query.impl.QueryServiceImpl&quot;&gt;
+ * &lt;bean name=&quot;queryService&quot; class=&quot;org.anyframe.query.impl.QueryServiceImpl&quot;&gt;
  *      &lt;property name=&quot;jdbcTemplate&quot; ref=&quot;jdbcTemplate&quot;/&gt;
  *      &lt;property name=&quot;sqlRepository&quot; ref=&quot;sqlLoader&quot;/&gt;
  *      &lt;property name=&quot;pagingSQLGenerator&quot; ref=&quot;pagingSQLGenerator&quot;/&gt;
  *      &lt;property name=&quot;lobHandler&quot; ref=&quot;lobHandler&quot;/&gt;
  * &lt;/bean&gt;
  *  
- * &lt;bean id=&quot;jdbcTemplate&quot; class=&quot;anyframe.core.query.impl.jdbc.PagingJdbcTemplate&quot;&gt;
+ * &lt;bean id=&quot;jdbcTemplate&quot; class=&quot;org.anyframe.query.impl.jdbc.PagingJdbcTemplate&quot;&gt;
  *      &lt;property name=&quot;dataSource&quot; ref=&quot;dataSource&quot; /&gt;
  *      &lt;property name=&quot;exceptionTranslator&quot; ref=&quot;exceptionTranslator&quot; /&gt;
+ *      &lt;property name=&quot;maxFetchSize&quot; value=&quot;1000&quot; /&gt;
  * &lt;/bean&gt;
  * 
- * &lt;bean name=&quot;sqlLoader&quot; class=&quot;anyframe.core.query.impl.config.loader.SQLLoader&quot;&gt;
- *      &lt;config:configuration&gt;
+ * &lt;bean name=&quot;sqlLoader&quot; class=&quot;org.anyframe.query.impl.config.loader.SQLLoader&quot;&gt;
+ *      &lt;property name=&quot;mappingFiles&quot;&gt;
+ *      	&lt;value&gt;
  *              &lt;!-- xml files in folder --&gt;
- *              &lt;filename&gt;file:./testmappings/testcase-*.xml&lt;/filename&gt;
- *              &lt;filename&gt;file:./testdynamicreload/testcase-queries-dynamicreload.xml&lt;/filename&gt; 
+ *              file:./testmappings/testcase-*.xml,
+ *              file:./testdynamicreload/testcase-queries-dynamicreload.xml, 
  *              &lt;!-- xml files in classpath --&gt;
- *              &lt;filename&gt;classpath*:/mappings/testcase-queries-*.xml&lt;/filename&gt;
+ *              classpath*:/mappings/testcase-queries-*.xml,
  *              &lt;!-- xml files in jar  --&gt;
- *              &lt;filename&gt;classpath*:/testcase-queries-lob.xml&lt;/filename&gt;
- *              &lt;nullcheck type=&quot;VARCHAR&quot; default-value=&quot;&quot; /&gt;
- *              &lt;sqlload dynamic=&quot;true&quot; frequency=&quot;5&quot; /&gt;
- *              &lt;skiperror&gt;true&lt;/skiperror&gt;
- *      &lt;/config:configuration&gt;
+ *              classpath*:/testcase-queries-lob.xml
+ *          &lt;/value&gt;
+ *      &lt;property&gt;
+ *      &lt;property name=&quot;nullChecks&quot;&gt;
+ *      	&lt;map&gt;
+ *              &lt;entry key=&quot;VARCHAR&quot; value=&quot;&quot; /&gt;
+ *      	&lt;/map&gt;
+ * 	&lt;property&gt;
+ *      &lt;property name=&quot;dynamicReload&quot; value=&quot;5000&quot; /&gt;
+ *      &lt;property name=&quot;skipError&quot; value=&quot;true&quot; /&gt;
  * &lt;/bean&gt;
  * 
- * &lt;bean id=&quot;pagingSQLGenerator&quot; class=&quot;anyframe.core.query.impl.jdbc.generator.OraclePagingSQLGenerator&quot;/&gt;
+ * &lt;bean id=&quot;pagingSQLGenerator&quot; class=&quot;org.anyframe.query.impl.jdbc.generator.OraclePagingSQLGenerator&quot;/&gt;
  * 
  * &lt;bean id=&quot;lobHandler&quot; class=&quot;org.springframework.jdbc.support.lob.OracleLobHandler&quot;
  *      lazy-init=&quot;true&quot;&gt; 
  *      &lt;property name=&quot;nativeJdbcExtractor&quot; ref=&quot;nativeJdbcExtractor&quot;/&gt; 
  * &lt;/bean&gt;
  * 
- * &lt;bean id=&quot;exceptionTranslator&quot; class=&quot;anyframe.core.query.impl.util.RawSQLExceptionTranslator&quot;/&gt;
+ * &lt;bean id=&quot;exceptionTranslator&quot; class=&quot;org.anyframe.query.impl.util.RawSQLExceptionTranslator&quot;/&gt;
+ * </pre>
  * 
- * &lt;bean id=&quot;nativeJdbcExtractor&quot; 
- *      class=&quot;org.springframework.jdbc.support.nativejdbc.CommonsDbcpNativeJdbcExtractor&quot;
- *      lazy-init=&quot;true&quot;/&gt;
+ * Also QueryService supports namespace for simplifying configuration
+ * 
+ * QueryService Configuration Example using query namespace :
+ * 
+ * <pre>
+ * &lt;beans xmlns="http://www.springframework.org/schema/beans"
+ *	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ *	xmlns:query="http://www.anyframejava.org/schema/query"
+ *	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+ *  http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+ *	http://www.anyframejava.org/schema/query 
+ *  http://www.anyframejava.org/schema/query/anyframe-query-1.0.xsd"&gt;
+ *
+ *	&lt;query:auto-config dbType="oracle"/&gt;
+ *
+ * &lt;/beans&gt;
  * </pre>
  * 
  * Query Mapping XML Example:
  * 
  * <pre>
  * &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
- * &lt;!DOCTYPE queryservice PUBLIC &quot;-//ANYFRAME//DTD QUERYSERVICE//EN&quot;
- * &quot;http://www.anyframejava.org/dtd/anyframe-core-query-mapping-3.1.dtd&quot;&gt;
- *      &lt;queryservice&gt;
+ *
+ * &lt;queryservice xmlns="http://www.anyframejava.org/schema/query/mapping" 
+ *	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ *	xsi:schemaLocation="http://www.anyframejava.org/schema/query/mapping 
+ *  http://www.anyframejava.org/schema/query/mapping/anyframe-query-mapping-1.0.xsd "&gt;
+ *
  *              &lt;table-mapping&gt;
- *                      &lt;table name=&quot;TBL_CUSTOMER&quot; class=&quot;anyframe.core.query.Customer&quot;&gt;
+ *                      &lt;table name=&quot;TBL_CUSTOMER&quot; class=&quot;org.anyframe.query.Customer&quot;&gt;
  *                              &lt;field-mapping&gt;
  *                                      &lt;dbms-column&gt;SSNO&lt;/dbms-column&gt;
  *                                      &lt;class-attribute&gt;ssno&lt;/class-attribute&gt;
@@ -102,7 +126,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
  *                                      select NAME, ADDRESS from TBL_CUSTOMER where SSNO like ?
  *                              &lt;/statement&gt;
  *                              &lt;param type=&quot;VARCHAR&quot;/&gt;
- *                              &lt;result length=2 class=&quot;anyframe.core.query.Customer&quot;/&gt;  
+ *                              &lt;result length=2 class=&quot;org.anyframe.query.Customer&quot;/&gt;  
  *                      &lt;/query&gt;
  *              &lt;/queries&gt;
  *         &lt;/queryservice&gt;
@@ -175,7 +199,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * <p>
  * 
  * <pre>
- * package anyframe.core.query;
+ * package org.anyframe.query;
  * 
  * import java.io.Serializable;
  * 
@@ -233,8 +257,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 public interface QueryService {
 	Log LOGGER = LogFactory.getLog(QueryService.class);
 
-	String ROLE = QueryService.class.getName();
-
 	String COL_INFO = "COLUMN_INFO";
 
 	String COUNT = "COUNT";
@@ -242,9 +264,9 @@ public interface QueryService {
 	String LIST = "LIST";
 
 	/**
-	 * Issue multiple updates using JDBC 2.0 batch updates and
-	 * PreparedStatementSetters to set values on a PreparedStatement created by
-	 * this method
+	 * Issue multiple update statements (INSERT) using JDBC 2.0 batch updates
+	 * and PreparedStatementSetters to set values on a PreparedStatement created
+	 * by this method.
 	 * 
 	 * @param targets
 	 *            object of class which is matched with specified table in
@@ -253,12 +275,12 @@ public interface QueryService {
 	 * @throws QueryServiceException
 	 *             if there is any problem issuing the update
 	 */
-	int[] batchCreate(List targets) throws QueryServiceException;
+	int[] batchCreate(List<Object> targets) throws QueryServiceException;
 
 	/**
-	 * Issue multiple updates using JDBC 2.0 batch updates and
-	 * PreparedStatementSetters to set values on a PreparedStatement created by
-	 * this method
+	 * Issue multiple update statements (DELETE) using JDBC 2.0 batch updates
+	 * and PreparedStatementSetters to set values on a PreparedStatement created
+	 * by this method.
 	 * 
 	 * @param targets
 	 *            object of class which is matched with specified table in
@@ -267,12 +289,12 @@ public interface QueryService {
 	 * @throws QueryServiceException
 	 *             if there is any problem issuing the update
 	 */
-	int[] batchRemove(List targets) throws QueryServiceException;
+	int[] batchRemove(List<Object> targets) throws QueryServiceException;
 
 	/**
-	 * Issue multiple updates using JDBC 2.0 batch updates and
-	 * PreparedStatementSetters to set values on a PreparedStatement created by
-	 * this method
+	 * Issue multiple update statements (UPDATE) using JDBC 2.0 batch updates
+	 * and PreparedStatementSetters to set values on a PreparedStatement created
+	 * by this method.
 	 * 
 	 * @param targets
 	 *            object of class which is matched with specified table in
@@ -281,12 +303,12 @@ public interface QueryService {
 	 * @throws QueryServiceException
 	 *             if there is any problem issuing the update
 	 */
-	int[] batchUpdate(List targets) throws QueryServiceException;
+	int[] batchUpdate(List<Object> targets) throws QueryServiceException;
 
 	/**
-	 * Issue multiple updates using JDBC 2.0 batch updates and
-	 * PreparedStatementSetters to set values on a PreparedStatement created by
-	 * this method
+	 * Issue multiple update statements (INSERT, UPDATE, DELETE) using JDBC 2.0
+	 * batch updates and PreparedStatementSetters to set values on a
+	 * PreparedStatement created by this method.
 	 * 
 	 * @param queryId
 	 *            identifier of query statement to execute
@@ -297,14 +319,14 @@ public interface QueryService {
 	 * @throws QueryServiceException
 	 *             if there is any problem issuing the update
 	 */
-	int[] batchUpdate(String queryId, List targets)
+	int[] batchUpdate(String queryId, List<Object> targets)
 			throws QueryServiceException;
 
 	/**
-	 * Issue multiple updates using JDBC 2.0 batch updates and
-	 * PreparedStatementSetters to set values on a PreparedStatement created by
-	 * this method Execute UPDATE query, Using query statement directly without
-	 * being defined in mapping xml files.
+	 * Issue multiple update statements (INSERT, UPDATE, DELETE) using JDBC 2.0
+	 * batch updates and PreparedStatementSetters to set values on a
+	 * PreparedStatement created by this method Execute update statments, Using
+	 * update statement directly without being defined in mapping xml files.
 	 * 
 	 * @param sql
 	 *            query statement.
@@ -312,13 +334,13 @@ public interface QueryService {
 	 *            is matched with input parameters. A type must belong to fields
 	 *            defined java.sql.Types package
 	 * @param targets
-	 *            object of class which is matched with specified table in
-	 *            mapping xml files. is the List type of Object.
+	 *            a set of variable for executing query (is the List of
+	 *            Object[])
 	 * @return an array of the number of rows affected by each statement
 	 * @throws QueryServiceException
 	 *             if there is any problem issuing the update
 	 */
-	int[] batchUpdateBySQL(String sql, String[] types, List targets)
+	int[] batchUpdateBySQL(String sql, String[] types, List<Object> targets)
 			throws QueryServiceException;
 
 	/**
@@ -341,7 +363,7 @@ public interface QueryService {
 	 * @param queryId
 	 *            identifier of query statement to execute
 	 * @param values
-	 *            a set of variable for executing query
+	 *            values to bind to the query
 	 * @return the number of rows affected
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
@@ -358,7 +380,7 @@ public interface QueryService {
 	 *            is matched with input parameters. A type must belong to fields
 	 *            defined java.sql.Types package
 	 * @param values
-	 *            a set of variable for executing query
+	 *            values to bind to the query
 	 * @return the number of rows affected
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
@@ -367,45 +389,46 @@ public interface QueryService {
 			throws QueryServiceException;
 
 	/**
-	 * Execute an sql call using a CallableStatement
+	 * Execute a query statement using a CallableStatement.
 	 * 
 	 * @param queryId
 	 *            identifier of query statement to execute
 	 * @param values
-	 *            a key-value set of variable for executing query
+	 *            values to bind to the query, a key-value set of variable
 	 * @return Map of extracted out parameters
 	 * @throws QueryServiceException
 	 *             if there is any problem issuing the execute
 	 */
-	Map execute(String queryId, Map values) throws QueryServiceException;
+	Map execute(String queryId, Map values)
+			throws QueryServiceException;
 
 	/**
-	 * Execute an SELECT sql call using a CallableStatement which defined in
+	 * Execute a query statement using a CallableStatement which defined in
 	 * mapping xml files. Returned results which find by condition and belong to
-	 * specified page. Caution!. Not supported by some DBMS (e.g. Oracle 8i)
+	 * specified page. Caution!. Not supported by some DBMS. (e.g. Oracle 8i)
 	 * 
 	 * @param queryId
 	 *            identifier of query statement to execute
 	 * @param values
-	 *            a key-value set of variable for executing query
+	 *            values to bind to the query, a key-value set of variable
 	 * @param pageIndex
 	 *            page number which expected to be displayed (pageIndex > 0)
 	 * @return Map of extracted out parameters
 	 * @throws QueryServiceException
 	 *             if there is any problem issuing the execute
 	 */
-	Map execute(String queryId, Map values, int pageIndex)
-			throws QueryServiceException;
+	Map execute(String queryId, Map values,
+			int pageIndex) throws QueryServiceException;
 
 	/**
-	 * Execute an SELECT sql call using a CallableStatement which defined in
+	 * Execute a query statement using a CallableStatement which defined in
 	 * mapping xml files. Returned results which find by condition and belong to
-	 * specified page. Caution!. Not supported by some DBMS (e.g. Oracle 8i)
+	 * specified page. Caution!. Not supported by some DBMS. (e.g. Oracle 8i)
 	 * 
 	 * @param queryId
 	 *            identifier of query statement to execute
 	 * @param values
-	 *            a key-value set of variable for executing query
+	 *            values to bind to the query, a key-value set of variable
 	 * @param pageIndex
 	 *            page number which expected to be displayed (pageIndex > 0)
 	 * @param pageSize
@@ -415,42 +438,47 @@ public interface QueryService {
 	 * @throws QueryServiceException
 	 *             if there is any problem issuing the execute
 	 */
-	Map execute(String queryId, Map values, int pageIndex, int pageSize)
-			throws QueryServiceException;
+	Map execute(String queryId, Map values,
+			int pageIndex, int pageSize) throws QueryServiceException;
 
 	/**
-	 * Execute an Sql call using a CallableStatement
+	 * Execute a query statement using a CallableStatement.
 	 * 
 	 * @param sql
-	 *            callable statement to execute
+	 *            the SQL call string to execute
 	 * @param types
-	 *            a set of variable type for executing query
+	 *            a set of variable type for executing query. is matched with
+	 *            input parameters. A type must belong to fields defined
+	 *            java.sql.Types package
 	 * @param names
 	 *            a set of variable name for executing query
 	 * @param bindings
-	 *            a set of variable in-out type for executing query
+	 *            a set of variable IN-OUT type for executing query
 	 * @param values
-	 *            a key-value set of variable for executing query
+	 *            values to bind to the query, a key-value set of variable
 	 * @return Map of extracted out parameters
 	 * @throws QueryServiceException
 	 *             if there is any problem issuing the execute
 	 */
-	Map executeBySQL(String sql, String[] types, String[] names,
-			String[] bindings, Map values) throws QueryServiceException;
+	Map executeBySQL(String sql, String[] types,
+			String[] names, String[] bindings, Map values)
+			throws QueryServiceException;
 
 	/**
-	 * Execute an Sql call using a CallableStatement
+	 * Execute an Sql call using a CallableStatement.
 	 * 
 	 * @param sql
-	 *            callable statement to execute
+	 *            the SQL call string to execute
 	 * @param types
-	 *            a set of variable type for executing query
+	 *            a set of variable type for executing query. is matched with
+	 *            input parameters. A type must belong to fields defined
+	 *            java.sql.Types package
 	 * @param names
 	 *            a set of variable name for executing query
 	 * @param bindings
-	 *            a set of variable in-out type for executing query
+	 *            a set of variable IN-OUT type for executing query
 	 * @param values
-	 *            a key-value set of variable for executing query
+	 *            values to bind to the query, a key-value set of variable
 	 * @param pageIndex
 	 *            page number which expected to be displayed (pageIndex > 0)
 	 * @param pageSize
@@ -460,9 +488,9 @@ public interface QueryService {
 	 * @throws QueryServiceException
 	 *             if there is any problem issuing the execute
 	 */
-	Map executeBySQL(String sql, String[] types, String[] names,
-			String[] bindings, Map values, int pageIndex, int pageSize)
-			throws QueryServiceException;
+	Map executeBySQL(String sql, String[] types,
+			String[] names, String[] bindings, Map values,
+			int pageIndex, int pageSize) throws QueryServiceException;
 
 	/**
 	 * Execute a SELECT query, Using object, which class is matched with table
@@ -479,12 +507,12 @@ public interface QueryService {
 
 	/**
 	 * Execute a SELECT query, Using given queryId which defined in mapping xml
-	 * files. Returned all results which find by condition <br/>
+	 * files. Returned all results which find by condition.
 	 * 
 	 * @param queryId
 	 *            identifier of query statement to execute
 	 * @param values
-	 *            a set of variable for executing query
+	 *            values to bind to the query
 	 * @return all results. Never returns null; returns the empty collection if
 	 *         there were no results.
 	 * @throws Exception
@@ -496,12 +524,12 @@ public interface QueryService {
 	/**
 	 * Execute a SELECT query, Using given queryId which defined in mapping xml
 	 * files. Returned results which find by condition and belong to specified
-	 * page
+	 * page.
 	 * 
 	 * @param queryId
 	 *            identifier of query statement to execute
 	 * @param values
-	 *            a set of variable for executing query
+	 *            values to bind to the query
 	 * @param pageIndex
 	 *            page number which expected to be displayed (pageIndex > 0)
 	 * @return results. The size of result is same as page size defined mapping
@@ -515,29 +543,28 @@ public interface QueryService {
 	/**
 	 * Execute a SELECT query, Using given queryId which defined in mapping xml
 	 * files. Returned results which find by condition and belong to specified
-	 * page
+	 * page.
 	 * 
 	 * @param queryId
 	 *            identifier of query statement to execute
 	 * @param values
-	 *            a set of variable for executing query
+	 *            values to bind to the query
 	 * @param pageIndex
 	 *            page number which expected to be displayed (pageIndex > 0)
 	 * @param pageSize
 	 *            page size which expected to be displayed per page (pageSize >
 	 *            0)
-	 * @return results. The size of result is same as pagesize defined mapping
-	 *         xml files.
+	 * @return results. The size of result is same as entered page size
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
 	 */
-	Collection find(String queryId, Object[] values, int pageIndex, int pageSize)
-			throws QueryServiceException;
+	Collection find(String queryId, Object[] values, int pageIndex,
+			int pageSize) throws QueryServiceException;
 
 	/**
 	 * Execute a SELECT query, Using query statement directly without being
 	 * defined in mapping xml files. Returned all results which find by
-	 * condition
+	 * condition.
 	 * 
 	 * @param sql
 	 *            query statement.
@@ -545,7 +572,7 @@ public interface QueryService {
 	 *            is matched with input parameters. A type must belong to fields
 	 *            defined java.sql.Types package
 	 * @param values
-	 *            a set of variable for executing query
+	 *            values to bind to the query
 	 * @return all results. Never returns null; returns the empty collection if
 	 *         there were no results.
 	 * @throws QueryServiceException
@@ -557,7 +584,7 @@ public interface QueryService {
 	/**
 	 * Execute a SELECT query, Using query statement directly without being
 	 * defined in mapping xml files. Returned results which find by condition
-	 * and belong to specified page
+	 * and belong to specified page.
 	 * 
 	 * @param sql
 	 *            query statement.
@@ -565,13 +592,13 @@ public interface QueryService {
 	 *            is matched with input parameters. A type must belong to fields
 	 *            defined java.sql.Types package
 	 * @param values
-	 *            a set of variable for executing query
+	 *            values to bind to the query
 	 * @param pageIndex
 	 *            page number which expected to be displayed (pageIndex > 0)
 	 * @param pageSize
 	 *            page size which expected to be displayed per page (pageSize >
 	 *            0)
-	 * @return results. The size of result is same as pageSize.
+	 * @return results. The size of result is same as entered page size
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
 	 */
@@ -580,8 +607,8 @@ public interface QueryService {
 
 	/**
 	 * Execute a SELECT query, Using query statement directly without being
-	 * defined in mapping xml files. Returned all results which find by
-	 * condition
+	 * defined in mapping xml files. Returned all results includes total result
+	 * size which find by condition.
 	 * 
 	 * @param sql
 	 *            query statement.
@@ -589,21 +616,21 @@ public interface QueryService {
 	 *            is matched with input parameters. A type must belong to fields
 	 *            defined java.sql.Types package
 	 * @param values
-	 *            a set of variable for executing query
+	 *            values to bind to the query
 	 * @return results. Never returns null; returns the empty collection if
 	 *         there were no results. The result value includes the query
-	 *         execution result handled by paging and the total result number.
-	 *         And takes values as IQueryService.LIST, IQueryService.COUNT.
+	 *         execution result and the total result size. And takes values as
+	 *         QueryService.LIST, QueryService.COUNT
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
 	 */
-	Map findBySQLWithRowCount(String sql, String[] types, Object[] values)
-			throws QueryServiceException;
+	Map findBySQLWithRowCount(String sql, String[] types,
+			Object[] values) throws QueryServiceException;
 
 	/**
 	 * Execute a SELECT query, Using query statement directly without being
-	 * defined in mapping xml files. Returned results which find by condition
-	 * and belong to specified page
+	 * defined in mapping xml files. Returned results includes total result size
+	 * which find by condition and belong to specified page.
 	 * 
 	 * @param sql
 	 *            query statement.
@@ -611,35 +638,37 @@ public interface QueryService {
 	 *            is matched with input parameters. A type must belong to fields
 	 *            defined java.sql.Types package
 	 * @param values
-	 *            a set of variable for executing query
+	 *            values to bind to the query
 	 * @param pageIndex
 	 *            page number which expected to be displayed (pageIndex > 0)
 	 * @param pageSize
 	 *            page size which expected to be displayed per page (pageSize >
 	 *            0)
-	 * @return results. The size of result is same as pageSize. The result value
-	 *         includes the query execution result handled by paging and the
-	 *         total result number. And takes values as IQueryService.LIST,
-	 *         IQueryService.COUNT.
+	 * @return results. The size of result is same as entered page size. The
+	 *         result value includes the query execution result handled by
+	 *         paging and the total result size. And takes values as
+	 *         QueryService.LIST, QueryService.COUNT
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
 	 */
-	Map findBySQLWithRowCount(String sql, String[] types, Object[] values,
-			int pageIndex, int pageSize) throws QueryServiceException;
+	Map findBySQLWithRowCount(String sql, String[] types,
+			Object[] values, int pageIndex, int pageSize)
+			throws QueryServiceException;
 
 	/**
 	 * Execute a SELECT query, using given queryId which defined in mapping xml
-	 * files. Returned results which find by condition and belong to specified
-	 * page (pageIndex = 0)
+	 * files. Returned all results includes total result size, db column
+	 * information which find by condition and belong to specified page.
+	 * (pageIndex = 0)
 	 * 
 	 * @param queryId
 	 *            identifier of query statement to execute
 	 * @param values
-	 *            a set of variable for executing query
-	 * @return results. The size of result is same as length of result which
-	 *         defined a specified query. The result value includes the query
-	 *         execution result handled by paging and the total result number.
-	 *         And takes values as IQueryService.LIST, IQueryService.COUNT.
+	 *            values to bind to the query
+	 * @return results. The result value includes the query execution result,
+	 *         the total result size and the db column information. And takes
+	 *         values as QueryService.LIST, QueryService.COUNT,
+	 *         QueryService.COL_INFO
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
 	 */
@@ -648,62 +677,63 @@ public interface QueryService {
 
 	/**
 	 * Execute a SELECT query, using given queryId which defined in mapping xml
-	 * files. Returned results which find by condition and belong to specified
-	 * page
+	 * files. Returned results includes total result size, db column information
+	 * which find by condition and belong to specified page.
 	 * 
 	 * @param queryId
 	 *            identifier of query statement to execute
 	 * @param values
-	 *            a set of variable for executing query
+	 *            values to bind to the query
 	 * @param pageIndex
 	 *            page number which expected to be displayed (pageIndex > 0)
 	 * @return results. The size of result is same as length of result which
 	 *         defined a specified query. The result value includes the query
-	 *         execution result handled by paging and the total result number.
-	 *         And takes values as IQueryService.LIST, IQueryService.COUNT.
+	 *         execution result handled by paging, the total result size and the
+	 *         db column information. And takes values as QueryService.LIST,
+	 *         QueryService.COUNT, QueryService.COL_INFO
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
 	 */
-	Map findWithColInfo(String queryId, Object[] values, int pageIndex)
-			throws QueryServiceException;
+	Map findWithColInfo(String queryId, Object[] values,
+			int pageIndex) throws QueryServiceException;
 
 	/**
 	 * Execute a SELECT query, using given queryId which defined in mapping xml
-	 * files. Returned results which find by condition and belong to specified
-	 * page
+	 * files. Returned results includes total result size, db column information
+	 * which find by condition and belong to specified page.
 	 * 
 	 * @param queryId
 	 *            identifier of query statement to execute
 	 * @param values
-	 *            a set of variable for executing query
+	 *            values to bind to the query
 	 * @param pageIndex
 	 *            page number which expected to be displayed (pageIndex > 0)
 	 * @param pageSize
 	 *            page size which expected to be displayed per page (pageSize >
 	 *            0)
-	 * @return results. The size of result is same as length of result which
-	 *         defined a specified query. The result value includes the query
-	 *         execution result handled by paging and the total result number.
-	 *         And takes values as IQueryService.LIST, IQueryService.COUNT.
+	 * @return results. The size of result is same as entered page size. The
+	 *         result value includes the query execution result handled by
+	 *         paging, the total result size and db column information. And
+	 *         takes values as QueryService.LIST, QueryService.COUNT,
+	 *         QueryService.COL_INFO
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
 	 */
-	Map findWithColInfo(String queryId, Object[] values, int pageIndex,
-			int pageSize) throws QueryServiceException;
+	Map findWithColInfo(String queryId, Object[] values,
+			int pageIndex, int pageSize) throws QueryServiceException;
 
 	/**
 	 * Execute a SELECT query, using given queryId which defined in mapping xml
-	 * files. Returned results which find by condition and belong to specified
-	 * page (pageIndex = 0)
+	 * files. Returned all results includes total result size which find by
+	 * condition. (pageIndex = 0)
 	 * 
 	 * @param queryId
 	 *            identifier of query statement to execute
 	 * @param values
-	 *            a set of variable for executing query
-	 * @return results. The size of result is same as length of result which
-	 *         defined a specified query. The result value includes the query
-	 *         execution result handled by paging and the total result number.
-	 *         And takes values as IQueryService.LIST, IQueryService.COUNT.
+	 *            values to bind to the query
+	 * @return results. The result value includes the query execution result
+	 *         handled by paging and the total result size. And takes values as
+	 *         QueryService.LIST, QueryService.COUNT
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
 	 */
@@ -712,48 +742,48 @@ public interface QueryService {
 
 	/**
 	 * Execute a SELECT query, using given queryId which defined in mapping xml
-	 * files. Returned results which find by condition and belong to specified
-	 * page
+	 * files. Returned results includes total result size which find by
+	 * condition and belong to specified page.
 	 * 
 	 * @param queryId
 	 *            identifier of query statement to execute
 	 * @param values
-	 *            a set of variable for executing query
+	 *            values to bind to the query
 	 * @param pageIndex
 	 *            page number which expected to be displayed (pageIndex > 0)
 	 * @return results. The size of result is same as length of result which
 	 *         defined a specified query. The result value includes the query
-	 *         execution result handled by paging and the total result number.
-	 *         And takes values as IQueryService.LIST, IQueryService.COUNT.
+	 *         execution result handled by paging and the total result size. And
+	 *         takes values as QueryService.LIST, QueryService.COUNT
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
 	 */
-	Map findWithRowCount(String queryId, Object[] values, int pageIndex)
-			throws QueryServiceException;
+	Map findWithRowCount(String queryId, Object[] values,
+			int pageIndex) throws QueryServiceException;
 
 	/**
 	 * Execute a SELECT query, using given queryId which defined in mapping xml
-	 * files. Returned results which find by condition and belong to specified
-	 * page
+	 * files. Returned results includes total result size which find by
+	 * condition and belong to specified page.
 	 * 
 	 * @param queryId
 	 *            identifier of query statement to execute
 	 * @param values
-	 *            a set of variable for executing query
+	 *            values to bind to the query
 	 * @param pageIndex
 	 *            page number which expected to be displayed (pageIndex > 0)
 	 * @param pageSize
 	 *            page size which expected to be displayed per page (pageSize >
 	 *            0)
-	 * @return results. The size of result is same as pageSize. The result value
-	 *         includes the query execution result handled by paging and the
-	 *         total result number. And takes values as IQueryService.LIST,
-	 *         IQueryService.COUNT.
+	 * @return results. The size of result is same as entered page size. The
+	 *         result value includes the query execution result handled by
+	 *         paging and the total result size. And takes values as
+	 *         QueryService.LIST, QueryService.COUNT
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
 	 */
-	Map findWithRowCount(String queryId, Object[] values, int pageIndex,
-			int pageSize) throws QueryServiceException;
+	Map findWithRowCount(String queryId, Object[] values,
+			int pageIndex, int pageSize) throws QueryServiceException;
 
 	/**
 	 * Execute DELETE query, using object, which class is matched with table by
@@ -775,7 +805,7 @@ public interface QueryService {
 	 * @param queryId
 	 *            identifier of query statement to execute
 	 * @param values
-	 *            a set of variable for executing query
+	 *            values to bind to the query
 	 * @return the number of rows affected
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
@@ -792,7 +822,7 @@ public interface QueryService {
 	 *            is matched with input parameters. A type must belong to fields
 	 *            defined java.sql.Types package
 	 * @param values
-	 *            a set of variable for executing query
+	 *            values to bind to the query
 	 * @return the number of rows affected
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
@@ -820,7 +850,7 @@ public interface QueryService {
 	 * @param queryId
 	 *            identifier of query statement to execute
 	 * @param values
-	 *            a set of variable for executing query
+	 *            values to bind to the query
 	 * @return the number of rows affected
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
@@ -837,7 +867,7 @@ public interface QueryService {
 	 *            is matched with input parameters. A type must belong to fields
 	 *            defined java.sql.Types package
 	 * @param values
-	 *            a set of variable for executing query
+	 *            values to bind to the query
 	 * @return the number of rows affected
 	 * @throws QueryServiceException
 	 *             if there is any problem executing the query
@@ -853,47 +883,51 @@ public interface QueryService {
 	int countQuery();
 
 	/**
-	 * Find all query list which defined in mapping xml files.
+	 * Find all queries which defined in mapping xml files.
 	 * 
 	 * @return map of queryId and query statement.
 	 * @throws QueryServiceException
-	 *             if there is any problem making mapping map
+	 *             if there is any problem making query map
 	 */
 	Map getQueryMap() throws QueryServiceException;
 
 	/**
 	 * Find parameters for specified query.
 	 * 
+	 * @param queryId
+	 *            identifier of query statement which defined a mapping xml file
 	 * @return ArrayList consist of param type and name
 	 * @throws QueryServiceException
 	 *             if there is any problem find parameters.
 	 */
-	ArrayList getQueryParams(String queryId) throws QueryServiceException;
+	ArrayList getQueryParams(String queryId)
+			throws QueryServiceException;
 
 	/**
-	 * Get JdbcTemplate which QueryService uses
+	 * Get JdbcTemplate which QueryService uses.
 	 * 
-	 * @return JdbcTemplate which set in configuration file
+	 * @return JdbcTemplate instance which set in configuration file
 	 */
 	JdbcTemplate getQueryServiceJdbcTemplate();
 
 	/**
-	 * Find specified query statement which queryId equal to input parameter.
+	 * Find specified query statement which defined a mapping xml file.
 	 * 
 	 * @param queryId
-	 *            query id which defined a mapping xml file
+	 *            identifier of query statement which defined a mapping xml file
 	 * @return query statement
 	 * @throws QueryServiceException
-	 *             if there is any problem find sql
+	 *             if there is any problem find query statement
 	 */
 	String getStatement(String queryId) throws QueryServiceException;
 
 	/**
-	 * Find specified query information which queryId equal to input parameter.
+	 * Find specified query information which defined a mapping xml file.
 	 * 
 	 * @param queryId
-	 *            query id which defined a mapping xml file
-	 * @return query information
+	 *            identifier of query statement which defined a mapping xml file
+	 * @return query information includes queryId, query statement, result
+	 *         class, result maaping style, query params, max fetch size, etc.)
 	 */
 	QueryInfo getQueryInfo(String queryId);
 

@@ -17,7 +17,7 @@ import org.springframework.jdbc.support.lob.LobHandler;
  * Simple adapter for PreparedStatementSetter that applies given arrays of
  * arguments and JDBC argument types. We changed
  * org.springframework.jdbc.core.ArgTypePreparedStatementSetter into
- * anyframe.core.query.impl.ArgTypePreparedStatementSetter in Anyframe.
+ * org.anyframe.query.impl.jdbc.setter.PreparedStatementArgTypeSetter in Anyframe.
  * <ul>
  * <li>We changed some logic for processing LOB data.</li>
  * </ul>

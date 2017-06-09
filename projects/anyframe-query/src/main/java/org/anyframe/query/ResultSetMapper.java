@@ -25,5 +25,14 @@ import java.sql.SQLException;
  */
 public interface ResultSetMapper {
 	// 2009.01.15 - custom resultset mapper
+	/**
+	 * Extract the values for all columns in the current row.
+	 * 
+	 * @param resultSet
+	 *            the ResultSet to map
+	 * @return the result object for the current row
+	 * @throws SQLException
+	 *             if a SQLException is encountered getting column values
+	 */
 	Object mapRow(ResultSet resultSet) throws SQLException;
 }

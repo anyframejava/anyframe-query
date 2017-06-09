@@ -23,42 +23,57 @@ import org.anyframe.query.impl.Pagination;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
 
-
 /**
- * This is a class for handling the task of setting the
- * metadata from the ResultSet obtained after executing
- * the query statement
+ * This is a class for handling the task of setting the metadata from the
+ * ResultSet obtained after executing the query statement
+ * 
  * @author SoYon Lim
  * @author JongHoon Kim
  */
 public interface RowMetadataCallbackHandler extends RowCallbackHandler {
 
-    /**
-     * set lobHandler for IRiaQueryService
-     * @param lobHandler
-     */
-    void setLobHandler(LobHandler lobHandler);
+	/**
+	 * set lobHandler for QueryService Ria.
+	 * 
+	 * @param lobHandler
+	 */
+	void setLobHandler(LobHandler lobHandler);
 
-    /**
-     * set nullCheckInfos for IRiaQueryService
-     * @param nullCheckInfos
-     */
-    void setNullCheckInfos(Map<String, String> nullCheckInfos);
+	/**
+	 * set nullCheckInfos for QueryService Ria.
+	 * 
+	 * @param nullCheckInfos
+	 */
+	void setNullCheckInfos(Map<String, String> nullCheckInfos);
 
-    // added for Gauce (2008-04-15)
-    /**
-     * added for meta data, processMetaData must be
-     * called within extractData of
-     * ResultSetExtractor(Anyframe extended) just
-     * delegate to makeMeta
-     * @param rs
-     *        resultset
-     */
-    void processMetaData(ResultSet rs) throws SQLException;
-    
-    // added for RiaQueryService (2009-06-18)
-    /**
-	 * set paging information for IRiaQueryService
+	// added for Gauce (2008-04-15)
+	/**
+	 * added for meta data, processMetaData must be called within extractData of
+	 * ResultSetExtractor(Anyframe extended) just delegate to makeMeta.
+	 * 
+	 * @param rs
+	 *            resultset
+	 */
+	void processMetaData(ResultSet rs) throws SQLException;
+
+	/**
+	 * define whether to need to get db column information.
+	 * 
+	 * @param needColumnInfo
+	 *            whether to need to get db column information
+	 */
+	void setNeedColumnInfo(boolean needColumnInfo);
+
+	/**
+	 * transmits whether to need to get db column information.
+	 * 
+	 * @return whether to need to get db column information
+	 */
+	boolean isNeedColumnInfo();
+
+	// added for RiaQueryService (2009-06-18)
+	/**
+	 * set paging information for QueryService Ria.
 	 * 
 	 * @param pagination
 	 */
