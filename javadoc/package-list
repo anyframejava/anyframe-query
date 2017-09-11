@@ -1,0 +1,13 @@
+org.anyframe.query
+org.anyframe.query.config
+org.anyframe.query.dao
+org.anyframe.query.exception
+org.anyframe.query.impl
+org.anyframe.query.impl.config
+org.anyframe.query.impl.config.loader
+org.anyframe.query.impl.jdbc
+org.anyframe.query.impl.jdbc.generator
+org.anyframe.query.impl.jdbc.lob
+org.anyframe.query.impl.jdbc.mapper
+org.anyframe.query.impl.jdbc.setter
+org.anyframe.query.impl.util
